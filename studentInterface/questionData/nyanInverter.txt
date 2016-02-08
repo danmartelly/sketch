@@ -1,0 +1,19 @@
+{
+	"xaxis" : {
+		"label": "Vbb (V)",
+		"max": "10.5",
+		"min": "-.5",
+		"step": "1",
+		"setBy": "teacher",
+		"scaleType": "linear", 
+		"pixelDim" : 600
+	}, "yaxis" : {
+		"label": "Vspray (V)",
+		"max": "10.5",
+		"min": "-.5",
+		"step": "1",
+		"setBy": "teacher",
+		"scaleType": "linear",
+		"pixelDim" : 300
+	}
+}

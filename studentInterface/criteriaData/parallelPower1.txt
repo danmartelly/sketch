@@ -1,0 +1,8 @@
+{
+'name':'domainTest',
+'criteria': [
+	{'type':'DomainUsed', 'args':{'fraction':0.9, 'failFast':true}},
+	{'type':'IsFunction'},
+	{'type':'IsHorizontal', 'args':{'yValue':0.2, 'yRange':0.07}}
+	]
+}

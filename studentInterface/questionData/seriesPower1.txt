@@ -1,0 +1,19 @@
+{
+	"xaxis" : {
+		"label": "Resistance of R (Ohms)",
+		"max": "1000",
+		"min": "-10",
+		"step": "100",
+		"setBy": "teacher",
+		"scaleType": "linear", 
+		"pixelDim" : 600
+	}, "yaxis" : {
+		"label": "Power consumed by 500 ohm resistor (Watts)",
+		"max": ".22",
+		"min": "-.02",
+		"step": ".05",
+		"setBy": "teacher",
+		"scaleType": "linear",
+		"pixelDim" : 300
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"xaxis" : {
+		"label": "x axis",
+		"max": "3",
+		"min": "-3",
+		"step": "1",
+		"setBy": "student",
+		"scaleType": "linear", 
+		"pixelDim" : 600
+	}, "yaxis" : {
+		"label": "y axis",
+		"max": "3",
+		"min": "-3",
+		"step": "1",
+		"setBy": "student",
+		"scaleType": "linear",
+		"pixelDim" : 300
+	}, "img" : {
+		"imgsrc" : "",
+		"xoffset" : 0,
+		"xscale" : 1,
+		"yoffset" : 0,
+		"yscale" : 1
+		}, "critPoints" : [{"label":"first", "mandatory":true, "max uses":1}, {"label":"second", "mandatory":false, "max uses":8}]
+		}

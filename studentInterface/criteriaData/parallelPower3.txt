@@ -1,0 +1,7 @@
+{
+'name':'domainTest',
+'criteria': [
+	{'type':'DomainUsed', 'args':{'fraction':0.7}},
+	{'type':'FunctionFollowed', 'args':{'f':'lambda x: 0.2 + 100./x'}}
+	]
+}

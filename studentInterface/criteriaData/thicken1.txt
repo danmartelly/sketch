@@ -1,0 +1,6 @@
+{
+'name':'domainTest',
+'criteria': [
+	{'type':'DomainUsed', 'args':{'domain':[-5,5], 'fraction':0.9}}
+	]
+}

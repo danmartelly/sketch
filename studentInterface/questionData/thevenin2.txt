@@ -1,0 +1,19 @@
+{
+	"xaxis" : {
+		"label": "Voltage (V)",
+		"max": "10",
+		"min": "-10",
+		"step": "1",
+		"setBy": "teacher",
+		"scaleType": "linear", 
+		"pixelDim" : 600
+	}, "yaxis" : {
+		"label": "Current (A)",
+		"max": "10",
+		"min": "-10",
+		"step": "1",
+		"setBy": "teacher",
+		"scaleType": "linear",
+		"pixelDim" : 300
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"xaxis" : {
+		"label": "",
+		"max": 111,
+		"min": -20,
+		"step": 150,
+		"setBy": "teacher",
+		"scaleType": "linear", 
+		"pixelDim" : 600
+	}, "yaxis" : {
+		"label": "",
+		"max": 10.8,
+		"min": -3.9,
+		"step": 20,
+		"setBy": "teacher",
+		"scaleType": "linear",
+		"pixelDim" : 336
+	}, "img" : {
+		"imgsrc" : "images/diodeAmpPlotWebGuide.png",
+		"xoffset" : 0,
+		"xscale" : 1,
+		"yoffset" : 0,
+		"yscale" : 1
+		}, "critPoints" : []
+}

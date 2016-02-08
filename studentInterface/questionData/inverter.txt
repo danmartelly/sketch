@@ -1,0 +1,25 @@
+{
+	"xaxis" : {
+		"label": "Temperature (C)",
+		"min": "-5",
+		"max": "55",
+		"step": "10",
+		"setBy": "teacher",
+		"scaleType": "linear", 
+		"pixelDim" : 600
+	}, "yaxis" : {
+		"label": "Voltage Out (V)",
+		"min": "-.3",
+		"max": "5.5",
+		"step": "1",
+		"setBy": "teacher",
+		"scaleType": "linear",
+		"pixelDim" : 300
+	}, "img" : {
+		"imgsrc" : "",
+		"xoffset" : 0,
+		"xscale" : 1,
+		"yoffset" : 0,
+		"yscale" : 1
+	}, "critPoints" : [{"label":"transition", "mandatory":true, "max uses":2}]
+		}

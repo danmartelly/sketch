@@ -1,0 +1,12 @@
+import inspect
+
+def splitPyFile(name, filename):
+    f = open(filename)
+    d = f.read()
+    f.close()
+    temp = {}
+    exec(d, temp)
+    return temp
+
+print splitPyFile('blah','testSplit.py')['Examen1'];
+
