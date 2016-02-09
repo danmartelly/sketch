@@ -34,29 +34,33 @@ function SeeSaveToolbar(sketchInterface, refDiv) {
 	this.sketchInterface = sketchInterface;
 	BasicFormToolbar.call(this, sketchInterface, refDiv);
 	this.getOptionsButton = null;
+	this.setOptionsButton = null;
 	this.displayOptionsText = null;
 	this.gradingOptionsText = null;
 
 	this.initialize = function() {
+		//get
 		this.getOptionsButton = document.createElement('input');
 		this.getOptionsButton.type = 'button';
-		this.getOptionsButton.value = 'Get Options Code';
+		this.getOptionsButton.value = 'Get Option Codes';
 		this.mainForm.appendChild(this.getOptionsButton);
+		//set
+		this.setOptionsButton = document.createElement('input');
+		this.setOptionsButton.type = 'button';
+		this.setOptionsButton.value = 'Set Option Codes';
+		this.mainForm.appendChild(this.setOptionsButton);
+		var br = document.createElement('br');
+		this.mainForm.appendChild(br.cloneNode());
 
 		var textnode = document.createTextNode('Display Options Code');
 		this.mainForm.appendChild(textnode);
 		this.displayOptionsText = document.createElement('textarea');
-		this.displayOptionsText.onkeypress = function(e) {
-			e.preventDefault(); return false;
-			};
 		this.mainForm.appendChild(this.displayOptionsText);
+		this.mainForm.appendChild(br.cloneNode());
 
-		textnode = document.createTextNode('Criteria Code');
+		textnode = document.createTextNode('Criteria Options Code');
 		this.mainForm.appendChild(textnode);
 		this.gradingOptionsText = document.createElement('textarea');
-		this.gradingOptionsText.onkeypress = function(e) {
-			e.preventDefault(); return false;
-			};
 		this.mainForm.appendChild(this.gradingOptionsText);
 	}
 
@@ -67,6 +71,19 @@ function SeeSaveToolbar(sketchInterface, refDiv) {
 			that.displayOptionsText.value = JSON.stringify(displayCode);
 			var criteriaCode = that.sketchInterface.gradingOptions.getCriteria();
 			that.gradingOptionsText.value = JSON.stringify(criteriaCode);
+		}
+
+		this.setOptionsButton.onclick = function(e) {
+			var displayCode = that.displayOptionsText.value;
+			var criteriaCode = that.gradingOptionsText.value;
+			if (displayCode != "") {
+				displayCode = JSON.parse(displayCode);
+				that.sketchInterface.displayOptions.setChoices(displayCode);
+			}
+			if (criteriaCode != "") {
+				criteriaCode = JSON.parse(criteriaCode);
+				that.sketchInterface.gradingOptions.setChoices(criteriaCode);
+			}
 		}
 	}
 

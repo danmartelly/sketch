@@ -186,6 +186,12 @@ function InputArg(info, refCriteria) {
 		that.refCriteria.hasChanged = true;
 		that.refCriteria.gradingOptions.gradeInterface.gradeCanvas.draw();
 	}
+
+	// returns [key, value] or null if the value is equal to the default value
+	this.getKeyValuePair = function() {
+		//return [this.info.name, this.info.default];
+		return null;
+	}
 }
 
 function FloatInput(info, refCriteria) {
@@ -209,6 +215,12 @@ function FloatInput(info, refCriteria) {
 
 	this.getValue = function() {
 		return new Sk.builtin.float_(this.inp.value);
+	}
+
+	this.getKeyValuePair = function() {
+		if (this.inp.value != this.info.default)
+			return [this.info.name, this.inp.value];
+		return null;
 	}
 	this.initialize();
 	this.setupListeners();
@@ -235,6 +247,12 @@ function IntegerInput(info, refCriteria) {
 
 	this.getValue = function() {
 		return new Sk.builtin.int_(Number(this.inp.value));
+	}
+
+	this.getKeyValuePair = function() {
+		if (this.inp.value != this.info.default)
+			return [this.info.name, this.inp.value];
+		return null;
 	}
 	this.initialize();
 	this.setupListeners();
@@ -280,6 +298,23 @@ function BooleanInput(info, refCriteria) {
 		}
 
 	}
+
+	this.getKeyValuePair = function() {
+		var val;
+		var children = this.refCriteria.mainForm.children;
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+			if (child.name == this.info.name && child.checked) {
+				if (child.value == 'true')
+					val = true;
+				else
+					val = false;
+			}
+		}
+		if (val != this.info.default) 
+			return [this.info.name, val];
+		return null;
+	}
 	this.initialize();
 }
 
@@ -302,6 +337,12 @@ function FunctionInput(info, refCriteria) {
 		var module = Sk.importMainWithBody("<stdin>", false, code);
 		var func = module.tp$getattr('blah');
 		return func;
+	}
+
+	this.getKeyValuePair = function() {
+		if (this.inp.value != this.info.default)
+			return [this.info.name, this.inp.value];
+		return null;
 	}
 	this.initialize();
 }
@@ -331,6 +372,15 @@ function DomainInput(info, refCriteria) {
 		var min = Sk.builtin.float_(this.minInp.value);
 		var max = Sk.builtin.float_(this.maxInp.value);
 		return Sk.builtin.list([min, max]);
+	}
+
+	this.getKeyValuePair = function() {
+		var min = this.minInp.value;
+		var max = this.maxInp.value;
+		if (min == "" && max == "") return null;
+		if (min == "") min = -Infinity;
+		if (max == "") max = Infinity;
+		return [this.info.name, [Number(min), Number(max)]];
 	}
 
 	this.initialize();
@@ -383,7 +433,13 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 	}
 
 	this.getCriteria = function() {
-		return {'type':this.type};
+		var argsDic = {};
+		for (var i = 0; i < this.inputArgs.length; i++) {
+			var pair = this.inputArgs[i].getKeyValuePair();
+			if (pair != null)
+				argsDic[pair[0]] = pair[1];
+		}
+		return {'type':this.type, 'args':argsDic};
 	}
 
 	this.update = function() {

@@ -389,25 +389,21 @@ function DrawingToolbar(sketchInterface, refDiv) {
 	BasicFormToolbar.call(this, sketchInterface, refDiv);
 	this.pencilRadio = null;
 	this.eraserRadio = null;
+	this.tools = {}; // key: tool name, value: Drawing Canvas tool selection value
+	this.toolDropdown = null;
 	this.clearButton = null;
 
 	this.initialize = function() {
-		this.pencilRadio = document.createElement('input');
-		this.pencilRadio.type = 'radio';
-		this.pencilRadio.name = 'tool';
-		this.pencilRadio.checked = true;
-		this.mainForm.appendChild(this.pencilRadio);
-		var pencilLabel = document.createElement('label');
-		pencilLabel.innerHTML = 'Pencil';
-		this.mainForm.appendChild(pencilLabel);
-
-		this.eraserRadio = document.createElement('input');
-		this.eraserRadio.type = 'radio';
-		this.eraserRadio.name = 'tool';
-		this.mainForm.appendChild(this.eraserRadio);
-		var eraserLabel = document.createElement('label');
-		eraserLabel.innerHTML = 'Eraser ';
-		this.mainForm.appendChild(eraserLabel);
+		var drawCanvasToolOrder = this.sketchInterface.drawingCanvas.toolDisplayOrder;
+		var drawCanvasTools = this.sketchInterface.drawingCanvas.tools;
+		this.toolDropdown = document.createElement('select');
+		for (var i = 0; i < drawCanvasToolOrder.length; i++) {
+			var option = document.createElement('option');
+			this.toolDropdown.appendChild(option);
+			option.value = drawCanvasToolOrder[i];
+			option.innerHTML = drawCanvasTools[option.value].name;
+		}
+		this.mainForm.appendChild(this.toolDropdown);
 
 		this.clearButton = document.createElement('input');
 		this.clearButton.type = 'button';
@@ -417,12 +413,9 @@ function DrawingToolbar(sketchInterface, refDiv) {
 
 	this.setupListeners = function() {
 		var that = this;
-		this.pencilRadio.onclick = function(e) {
-			that.sketchInterface.drawingCanvas.mode = SKETCH_MODE;
-		}
 
-		this.eraserRadio.onclick = function(e) {
-			that.sketchInterface.drawingCanvas.mode = ERASE_MODE;
+		this.toolDropdown.onchange = function(e) {
+			that.sketchInterface.drawingCanvas.changeTool(this.value);
 		}
 
 		this.clearButton.onclick = function(e) {
@@ -1117,8 +1110,6 @@ function ImageCanvas(sketchInterface, refDiv, width, height) {
 	}
 }
 
-SKETCH_MODE = 0;
-ERASE_MODE = 1;
 function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, recordingEnabled) {
 	this.drawingEnabled = typeof drawingEnabled !== 'undefined' ? drawingEnabled : false;
 	this.recordingEnabled = typeof recordingEnabled !== 'undefined' ? recordingEnabled : false;
@@ -1126,146 +1117,88 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 	this.height = height;
 	this.dataPixels = null;
 	this.areListenersSetUp = false;
-	this.mode = SKETCH_MODE;
+	this.tools = {
+		'pencil':new PencilTool(sketchInterface, this),
+		'smoothPencil':new SmoothPencilTool(sketchInterface, this),
+		'eraser':new EraserTool(sketchInterface, this),
+		'line':new LineTool(sketchInterface, this)
+	};
+	this.toolDisplayOrder = ['pencil', 'eraser', 'smoothPencil', 'line'];
+	this.activeTool = this.tools['smoothPencil'];
 	this.eraseRadius = 10;
 	BasicCanvas.call(this, sketchInterface, refDiv);
 
 	this.initialize = function() {
 		this.blackPixels = {};
+		this.inputCanvas = document.createElement('canvas');
+		this.inputCanvas.width = this.width;
+		this.inputCanvas.height = this.height;
+		this.inputCanvas.style.position = 'absolute';
+		this.refDiv.appendChild(this.inputCanvas);
+	}
+
+	this.resize = function(width, height) {
+		this.width = width;
+		this.height = height;
+		this.canvas.width = this.width;
+		this.canvas.height = this.height;
+		this.inputCanvas.width = this.width;
+		this.inputCanvas.height = this.height;
+		this.draw();
+	}
+
+	this.reposition = function(x, y) {
+		this.canvas.style.left = String(x) + "px";
+		this.canvas.style.top = String(y) + "px";
+		this.inputCanvas.style.left = String(x) + "px";
+		this.inputCanvas.style.top = String(y) + "px";
+	}
+
+	this.clearInputCanvas = function() {
+		var ctx = this.inputCanvas.getContext('2d');
+		ctx.clearRect(0,0,this.width, this.height);
 	}
 
 	this.setupListeners = function() {
 		if (this.areListenersSetUp || !this.drawingEnabled)
 			return;
 		this.areListenersSetUp = true;
-		var lastX = 0;
-		var lastY = 0;
-		var isPressed = false;
 		var that = this;
 
 		this.canvas.onmousedown = function(e) {
 			if (!that.drawingEnabled)
 				return;
-
-			lastX = e.layerX;
-			lastY = e.layerY;
-			isPressed = true;
-			if (that.mode == SKETCH_MODE) {
-				that.sketch(lastX, lastY);
-				if (that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmousedown',
-						'tool':'pencil',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-				}
-			} else if (that.mode == ERASE_MODE) {
-				that.erase(lastX, lastY);
-				if (that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmousedown',
-						'tool':'eraser',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-				}
-			}
+			that.activeTool.onmousedown(e);
+			return;
 		}
 
 		this.canvas.onmouseup = function(e) {
-			if (!that.drawingEnabled || !isPressed)
+			if (!that.drawingEnabled)
 				return;
-			isPressed = false;
-			if (that.mode == SKETCH_MODE) {
-				that.sketch(e.layerX, e.layerY);
-				if (that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmouseup',
-						'tool':'pencil',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-				}
-			} else if (that.mode == ERASE_MODE) {
-				that.erase(e.layerX, e.layerY);
-				that.cleanupPixels();
-				if (that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmouseup',
-						'tool':'eraser',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-				}
-			}
+			that.activeTool.onmouseup(e);
+			return;
 		}
 
 		this.canvas.onmouseleave = function(e) {
-			if (that.drawingEnabled || isPressed) {
-				if (that.mode == SKETCH_MODE && that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmouseleave',
-						'tool':'pencil',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-				} else if (that.mode == ERASE_MODE && that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmouseleave',
-						'tool':'eraser',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-					that.cleanupPixels();
-				}
-				isPressed = false;
-			}
-			that.sketchInterface.hiddenData.update();
+			if (!that.drawingEnabled)
+				return;
+			that.activeTool.onmouseleave(e);
+			return;
 		}
 
 		this.canvas.onmousemove = function(e) {
-			if (!isPressed || !that.drawingEnabled)
+			if (!that.drawingEnabled)
 				return;
-			if (that.mode == SKETCH_MODE) {
-				that.sketch(lastX, lastY, e.layerX, e.layerY)
-				if (that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmousemove',
-						'tool':'pencil',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-				}
-			} else if (that.mode == ERASE_MODE) {
-					that.erase(lastX, lastY, e.layerX, e.layerY);
-					if (that.recordingEnabled) {
-					that.sketchInterface.recording.push({
-						'layer':'drawing',
-						'event':'onmousemove',
-						'tool':'eraser',
-						'x':e.layerX,
-						'y':e.layerY,
-						'time':new Date().getTime()
-					});
-				}
-			}
-			lastX = e.layerX;
-			lastY = e.layerY;
+			that.activeTool.onmousemove(e);
+			return;
+		}
+	}
+
+	this.changeTool = function(toolName) {
+		if (toolName in this.tools) {
+			this.activeTool = this.tools[toolName];
+		} else {
+			console.log("could not find tool", toolName);
 		}
 	}
 
@@ -1294,6 +1227,22 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 					this.setPixel(x+dx, y+dy);
 				}
 			}
+		}
+	}
+
+	// stroke in format [[x1,y1], [x2, y2]] etc
+	this.sketchStroke = function(stroke) {
+		console.log(stroke);
+		if (stroke.length == 0)
+			return;
+		if (stroke.length == 1) {
+			this.sketch(stroke[0][0], stroke[0][1]);
+			return;
+		}
+		for (var i = 0; i < stroke.length-1; i++) {
+			var x1 = stroke[i][0], x2 = stroke[i+1][0];
+			var y1 = stroke[i][1], y2 = stroke[i+1][1];
+			this.sketch(x1,y1,x2,y2);
 		}
 	}
 
@@ -1352,30 +1301,6 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 			}
 		}
 		this.draw();
-/*		for (var j = 0; j < this.height; j++) {
-			for (var i = 0; i < this.width) {
-				var index = (i + j*this.width)*4;
-				if (this.dataPixels[j][i] and imgData.data[index] < 128) {
-					this.dataPixels[j][i] = false;
-				}
-			}
-		}
-		for (var i = 0; i < imgData.data.length; i += 4) {
-			if (imgData.data[i+3] != 0) {
-				if (imgData.data[i] < 128) {
-					imgData.data[i] = this.color[0];
-					imgData.data[i+1] = this.color[1];
-					imgData.data[i+2] = this.color[2];
-					imgData.data[i+3] = this.color[3];
-				} else {
-					imgData.data[i] = 0;
-					imgData.data[i+1] = 0;
-					imgData.data[i+2] = 0;
-					imgData.data[i+3] = 0;
-				}
-			}
-		}
-		ctx.putImageData(imgData,0,0);(*/
 	}
 
 	this.clearDrawing = function() {
@@ -1385,16 +1310,6 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 
 	this.changeAxis = function(prevXMin, prevXMax, prevYMin, prevYMax, newXMin, newXMax, newYMin, newYMax) {
 		var ctx = this.canvas.getContext('2d');
-		/*var blacks = {}
-		var imgData = ctx.getImageData(0,0,this.canvas.width,this.canvas.height);
-		for (var i = 0; i < this.canvas.width; i++) {
-			for (var j = 0; j < this.canvas.height; j++) {
-				var startIndex = j*4*this.canvas.width + i*4;
-				if (imgData.data[startIndex+3] != 0 && imgData.data[startIndex] < 128) {
-					blacks[[i,j]] = false; // false means nothing
-				}
-			}
-		}*/
 
 		var pos = Object.keys(this.blackPixels);
 		var i, j;
@@ -1424,17 +1339,6 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 			list.push({'i':i, 'j':j});
 		}
 		return {'blackPixels':list};
-		/*var ctx = this.canvas.getContext('2d');
-		var imgData = ctx.getImageData(0,0,this.canvas.width,this.canvas.height);
-		for (var i = 0; i < this.canvas.width; i++) {
-			for (var j = 0; j < this.canvas.height; j++) {
-				var startIndex = j*4*this.canvas.width + i*4;
-				if (imgData.data[startIndex+3] != 0 && imgData.data[startIndex] < 128) {
-					list.push({'i':i, 'j':j});
-				}
-			}
-		}
-		return {'blackPixels':list};*/
 	}
 
 	this.loadData = function(data) {

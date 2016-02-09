@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<title>Sample Interface</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script type='text/javascript' src='../sketchTools.js'></script>
+	<script type='text/javascript' src='../sketchGraphsV2.js'></script>
+</head>
+<body>
+	<div id='sample'></div>
+</body>
+<script text='javascript/text'>
+	var si = new SketchInterface(document.getElementById('sample'));
+	si.updateOptions({
+			'tutor' : false,
+			'xaxis' : {
+				'label': "xaxis",
+				'max': "2",
+				'min': "-2",
+				'step': "1",
+				'setBy': 'teacher',
+				'scaleType': 'linear', 
+				'pixelDim' : 500
+			}, 'yaxis' : {
+				'label': "yaxis",
+				'max': "2",
+				'min': "-2",
+				'step': "2",
+				'setBy': 'teacher',
+				'scaleType': 'linear',
+				'pixelDim' : 300
+			}});
+</script>
+</html>
