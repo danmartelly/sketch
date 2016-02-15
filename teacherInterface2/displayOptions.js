@@ -67,7 +67,7 @@ function DisplayOptions(sketchInterface, refDiv) {
 		this.yAxisOptions.setChoices(options['yaxis']);
 		this.imageOptions.setChoices(options['img']);
 		this.critPointOptions.setChoices(options['critPoints']);
-		//this.preview();
+		this.preview();
 	}
 
 	this.preview = function(e) {

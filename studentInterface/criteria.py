@@ -113,7 +113,7 @@ class Criteria():
         return True
     def isRequired(self,x,y, otherVars):
         return not self.isNothingRequired(otherVars)
-    def isNothingForbidden(self):
+    def isNothingForbidden(self, otherVars):
         return True
     def isForbidden(self,x,y, otherVars):
         return not self.isNothingForbidden(otherVars)
@@ -128,13 +128,13 @@ class Criteria():
  
 class TestCriteria(Criteria):
     args = Criteria.args + [InputArg('test',InputArg.BOOL,True)]
-    def isNothingRequired(self):
+    def isNothingRequired(self, otherVars):
         return not self.test
-    def isRequired(self,x,y):
+    def isRequired(self,x,y, otherVars):
         return x < 0
-    def isNothingForbidden(self):
+    def isNothingForbidden(self, otherVars):
 	return self.test
-    def isForbidden(self, x, y):
+    def isForbidden(self, x, y, otherVars):
         return x > 0
 
 class MonotonicCriteria(Criteria):

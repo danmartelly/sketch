@@ -54,6 +54,7 @@ function GradingOptions(gradeInterface, refDiv) {
 	this.addCriteria = function(type) {
 		var criteria = new possibleCriteria[type](this, this.optionsDiv, type);
 		this.criteriaList.push(criteria);
+		return criteria; // in case it's needed for chaining
 	}
 
 	this.removeCriteria = function(criteria) {
@@ -71,6 +72,15 @@ function GradingOptions(gradeInterface, refDiv) {
 			data.push(this.criteriaList[i].getCriteria());
 		}
 		return data;
+	}
+
+	this.setCriteria = function(newList) {
+		for (var i = 0; i < newList.length; i++) {
+			var type = newList[i].type;
+			var args = newList[i].args;
+			var criteria = this.addCriteria(type);
+			criteria.setArgs(args);
+		}
 	}
 
 	this.initialize();
@@ -117,6 +127,10 @@ function BasicCriteria(gradingOptions, refDiv) {
 
 	this.getCriteria = function() {
 		return {'type':'BasicCriteria'}
+	}
+
+	this.setArgs = function(argsDic) {
+		console.log("set args has not been implemented yet");
 	}
 
 	this.isNothingRequired = function() {
@@ -185,6 +199,10 @@ function InputArg(info, refCriteria) {
 	this.update = function() {
 		that.refCriteria.hasChanged = true;
 		that.refCriteria.gradingOptions.gradeInterface.gradeCanvas.draw();
+	}
+
+	this.setValue = function(val) {
+		console.log("set value not implemented yet", this.constructor.name);
 	}
 
 	// returns [key, value] or null if the value is equal to the default value
@@ -399,7 +417,7 @@ function PythonCriteria(gradingOptions, refDiv, type) {
         this.type = type;
 	this.code = null;
 	this.skModule = null;
-	this.inputArgs = [];
+	this.inputArgs = {};
 	this.otherVars = [];
 	this.hasChanged = true;
 
@@ -421,10 +439,10 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 
 	this.addInput = function(info) {
 		if (info.type in inputMapping) {
-			this.inputArgs.push(new inputMapping[info.type](info, this));
+			this.inputArgs[info.name] = new inputMapping[info.type](info, this);
 		} else {
 			var textnode = document.createTextNode(info.name + " ");
-	                this.mainForm.appendChild(textnode);
+	        this.mainForm.appendChild(textnode);
 			textnode = document.createTextNode(' ' + info.type + ' not implmented yet');
 			this.mainForm.appendChild(textnode);
 			var br = document.createElement('br');
@@ -434,12 +452,22 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 
 	this.getCriteria = function() {
 		var argsDic = {};
-		for (var i = 0; i < this.inputArgs.length; i++) {
-			var pair = this.inputArgs[i].getKeyValuePair();
+		for (var key in this.inputArgs) {
+			if (!this.inputArgs.hasOwnProperty(key))
+				continue
+			var pair = this.inputArgs[key].getKeyValuePair();
 			if (pair != null)
 				argsDic[pair[0]] = pair[1];
 		}
 		return {'type':this.type, 'args':argsDic};
+	}
+
+	this.setArgs = function(argsDic) {
+		for (var key in argsDic) {
+			if (!argsDic.hasOwnProperty(key))
+				continue;
+			this.inputArgs[key].setValue(argsDic[key]);
+		}
 	}
 
 	this.update = function() {
@@ -447,11 +475,12 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			return;
 		}
 		var inputDict = [];
-		for (var i = 0; i < this.inputArgs.length; i++) {
-			var ia = this.inputArgs[i];
+		for (var key in this.inputArgs) {
+			if (!this.inputArgs.hasOwnProperty(key))
+				continue;
+			var ia = this.inputArgs[key];
 			inputDict.push(new Sk.builtin.str(ia.info.name));
 			inputDict.push(ia.getValue());
-			//inputDict[ia.info.name] = ia.getValue();
 		}
 		inputDict = new Sk.builtin.dict(inputDict);
 		var claz = this.skModule.tp$getattr(this.type);
@@ -510,6 +539,8 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			return this.memo['isNothingForbidden'];
 		}
 		var func = this.classInst.tp$getattr('isNothingForbidden');
+		console.log(this.otherVars);
+		var ret = Sk.misceval.callsim(func);//, this.otherVars);
 		var ret = Sk.misceval.callsim(func, this.otherVars);
 		this.memo['isNothingForbidden'] = Boolean(ret.v);
 		return Boolean(ret.v);

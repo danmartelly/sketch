@@ -1,12 +1,12 @@
 function GradeInterface(refDiv, options) {
+	SketchInterface.call(this, refDiv, options);
+
 	var div = document.createElement('div');
 	refDiv.parentNode.insertBefore(div, refDiv);
 	this.displayOptions = new DisplayOptions(this, div);
 	div = document.createElement('div');
 	refDiv.parentNode.insertBefore(div, refDiv);
 	this.gradingOptions = new GradingOptions(this, div);
-
-	SketchInterface.call(this, refDiv, options);
 
 	this.initialize = function() {
 		this.gradeCanvas = new GradeCanvas(this, this.refDiv, this.width, this.height);
@@ -82,7 +82,7 @@ function SeeSaveToolbar(sketchInterface, refDiv) {
 			}
 			if (criteriaCode != "") {
 				criteriaCode = JSON.parse(criteriaCode);
-				that.sketchInterface.gradingOptions.setChoices(criteriaCode);
+				that.sketchInterface.gradingOptions.setCriteria(criteriaCode);
 			}
 		}
 	}
