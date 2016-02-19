@@ -589,11 +589,6 @@ class FunctionFollowedCriteria(Criteria):
             return abs(self.f(x)-y) > yCloseness
         return self.filteredList(otherVars, acceptForbidden)
 
-c = FunctionFollowedCriteria({'domain':[-3,3], 'fraction':.8, 'f':lambda x: x**2, 'pixelCloseness':12})
-otherVars = {'pixelHeight':300, 'pixelWidth':600, 'ymin':-4, 'ymax':4, 'xmin':-3, 'xmax':3}
-print(len(c.isRequired(otherVars)))
-print(len(c.isForbidden(otherVars)))
-
 '''import hashlib
 user = ''
 user = hashlib.sha224(user).hexdigest()
