@@ -1,0 +1,48 @@
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Skulpt benchmark</title>
+	<script type='text/javascript' src='skulpt-dist/skulpt.min.js'></script>
+	<script type='text/javascript' src='skulpt-dist/skulpt-stdlib.js'></script>
+</head>
+<body>
+	<div id = 'condition1'></div>
+	<div id = 'condition2'></div>
+</body>
+<script text="javascript/text">
+var numberOfInputs = 100000;
+// condition 1: run small piece of python code a bunch of times
+var code1 = "def f(val):\n\treturn val**2";
+var func1 = Sk.importMainWithBody("<stdin>", false, code1).tp$getattr('f');
+var blah;
+var answer1 = [];
+var start = new Date();
+for (var i = 0; i < numberOfInputs; i++) {
+	blah = Sk.misceval.callsim(func1, i);
+	answer1.push(blah.v);
+}
+var finish = new Date();
+var difference = new Date();
+difference.setTime(finish.getTime() - start.getTime());
+console.log('code1', difference.getMilliseconds());
+
+// condition 2: let python code collect all the results
+var code2 = "def f(arr):\n\treturn [val**2 for val in arr]";
+var func2 = Sk.importMainWithBody("<stdin>", false, code2).tp$getattr('f');
+var answer2 = [];
+var input2 = [];
+start = new Date();
+for (var j = 0; j < numberOfInputs; j++) {
+	input2.push(j);
+}
+input2 = Sk.builtin.list(input2);
+blah = Sk.misceval.callsim(func2, input2);
+for (var j = 0; j < numberOfInputs; j++) {
+	answer2.push(blah.v[j].v);
+}
+finish = new Date();
+difference = new Date();
+difference.setTime(finish.getTime() - start.getTime());
+console.log('code2', difference.getMilliseconds());
+</script>
+</html>

@@ -71,14 +71,14 @@ class InputArg():
     def __init__(self, name, inputType, default, required=False):
         self.name = name
         self.inputType = inputType
-	self.default = default
+        self.default = default
         self.required = required
     def getDict(self):
         d = {}
         d['name'] = self.name
         d['default'] = self.default
         d['type'] = InputArg.mapping[self.inputType]        
-	d['required'] = self.required
+        d['required'] = self.required
         return d
 
 class Criteria():
@@ -109,14 +109,30 @@ class Criteria():
     def grade(self, graphData):
         raise NotImplementedError
     # otherVars is a dictionary containing xmin, xmax, ymin, ymax, pixelWidth, pixelHeight
-    def isNothingRequired(self, otherVars):
-        return True
-    def isRequired(self,x,y, otherVars):
-        return not self.isNothingRequired(otherVars)
-    def isNothingForbidden(self, otherVars):
-        return True
-    def isForbidden(self,x,y, otherVars):
-        return not self.isNothingForbidden(otherVars)
+    def unpackOtherVars(self, otherVars):
+        xmin = otherVars['xmin']
+        xmax = otherVars['xmax']
+        ymin = otherVars['ymin']
+        ymax = otherVars['ymax']
+        pixelWidth = otherVars['pixelWidth']
+        pixelHeight = otherVars['pixelHeight']
+        return (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight)
+    def filteredList(self, otherVars, boolFunc):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        answer = []
+        for i in range(pixelWidth):
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            for j in range(pixelHeight):
+                y = ymax - j*(ymax-ymin)/pixelHeight
+                if boolFunc(x,y):
+                    answer.append((x,y))
+        return answer
+    def isRequired(self, otherVars):
+        # suggestion: make use of filteredList for other code
+        return []
+    def isForbidden(self,otherVars):
+        # suggestion: make use of filteredList for other code
+        return []
     def isRelationshipPresent(self, otherVars):
         return False
     def relationshipRange(self, otherVars):
@@ -128,14 +144,10 @@ class Criteria():
  
 class TestCriteria(Criteria):
     args = Criteria.args + [InputArg('test',InputArg.BOOL,True)]
-    def isNothingRequired(self, otherVars):
-        return not self.test
-    def isRequired(self,x,y, otherVars):
-        return x < 0
-    def isNothingForbidden(self, otherVars):
-	return self.test
-    def isForbidden(self, x, y, otherVars):
-        return x > 0
+    def isRequired(self, otherVars):
+        return [(1,1),(1,2),(2,2),(2,1)]
+    def isForbidden(self, otherVars):
+        return [(-1,-1),(-1,-2),(-2,-2),(-2,-1)]
 
 class MonotonicCriteria(Criteria):
     failMessage = 'Not monotonic'
@@ -518,7 +530,7 @@ class FunctionFollowedCriteria(Criteria):
     def __init__(self, kwargs):
         """f should take in one paramater, x, and output y"""
         f = kwargs['f']
-	if type(f) != type(lambda x: x):
+        if type(f) != type(lambda x: x):
             f = eval(f)
         kwargs['f'] = f
         self.pixelCloseness = 40
@@ -535,8 +547,8 @@ class FunctionFollowedCriteria(Criteria):
         xPixelStep = float(graphData.xmax-graphData.xmin)/graphData.pixelWidth
         pixelAnswerI = {}
         pixelAnswerJ = {}
-	
-	for i in xrange(pixelMin, pixelMax+1):
+    
+        for i in xrange(pixelMin, pixelMax+1):
             x = graphData.xyFromIndex(i,0)[0]
             y = self.f(x)
             ii, j = graphData.indexFromXY(x, y)
@@ -562,18 +574,25 @@ class FunctionFollowedCriteria(Criteria):
             return (0., self.failMessage)
         else:
             return (1., counter)
-    def isNothingRequired(self, otherVars):
-        return False
-    def isRequired(self,x,y, otherVars):
-        if x < self.domain[0] or x > self.domain[1]:
-            return False
-        yCloseness = self.pixelCloseness/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
-        return abs(self.f(x)-y) < yCloseness
-    def isNothingForbidden(self, otherVars):
-        return True
-    def isForbidden(self,x,y, otherVars):
-        return not self.isNothingForbidden(otherVars)
+    def isRequired(self, otherVars):
+        yCloseness = float(self.pixelCloseness)/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
+        def acceptRequired(x,y):
+            if x < self.domain[0] or x > self.domain[1]:
+                return False
+            return abs(self.f(x)-y) < yCloseness
+        return self.filteredList(otherVars, acceptRequired)
+    def isForbidden(self, otherVars):
+        yCloseness = float(self.pixelCloseness)/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
+        def acceptForbidden(x,y):
+            if x < self.domain[0] or x > self.domain[1]:
+                return False
+            return abs(self.f(x)-y) > yCloseness
+        return self.filteredList(otherVars, acceptForbidden)
 
+c = FunctionFollowedCriteria({'domain':[-3,3], 'fraction':.8, 'f':lambda x: x**2, 'pixelCloseness':12})
+otherVars = {'pixelHeight':300, 'pixelWidth':600, 'ymin':-4, 'ymax':4, 'xmin':-3, 'xmax':3}
+print(len(c.isRequired(otherVars)))
+print(len(c.isForbidden(otherVars)))
 
 '''import hashlib
 user = ''
