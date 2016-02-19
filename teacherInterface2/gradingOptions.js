@@ -65,6 +65,13 @@ function GradingOptions(gradeInterface, refDiv) {
 		}
 	}
 
+	this.removeAllCriteria = function() {
+		for (var i = 0; i < this.criteriaList.length; i++) {
+			this.optionsDiv.removeChild(this.criteriaList[i].container);
+		}
+		this.criteriaList = [];
+	}
+
 	//get a list of the criteria in python format string
 	this.getCriteria = function() {
 		var data = [];
@@ -75,12 +82,14 @@ function GradingOptions(gradeInterface, refDiv) {
 	}
 
 	this.setCriteria = function(newList) {
+		this.removeAllCriteria();
 		for (var i = 0; i < newList.length; i++) {
 			var type = newList[i].type;
 			var args = newList[i].args;
 			var criteria = this.addCriteria(type);
 			criteria.setArgs(args);
 		}
+		this.gradeInterface.gradeCanvas.draw();
 	}
 
 	this.initialize();
@@ -191,6 +200,7 @@ function BasicCriteria(gradingOptions, refDiv) {
 	this.setupListeners();
 }
 
+
 function InputArg(info, refCriteria) {
 	this.info = info;
 	this.refCriteria = refCriteria;
@@ -235,6 +245,10 @@ function FloatInput(info, refCriteria) {
 		return new Sk.builtin.float_(this.inp.value);
 	}
 
+	this.setValue = function(val) {
+		this.inp.value = val;
+	}
+
 	this.getKeyValuePair = function() {
 		if (this.inp.value != this.info.default)
 			return [this.info.name, this.inp.value];
@@ -265,6 +279,10 @@ function IntegerInput(info, refCriteria) {
 
 	this.getValue = function() {
 		return new Sk.builtin.int_(Number(this.inp.value));
+	}
+
+	this.setValue = function(val) {
+		this.inp.value = val;
 	}
 
 	this.getKeyValuePair = function() {
@@ -314,7 +332,16 @@ function BooleanInput(info, refCriteria) {
 					return Sk.builtin.bool.false$;
 			}
 		}
+	}
 
+	this.setValue = function(val) {
+		var children = this.refCriteria.mainForm.children;
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+			if (child.name == this.info.name && child.value == String(val)) {
+				child.checked = true;
+			}
+		}
 	}
 
 	this.getKeyValuePair = function() {
@@ -357,6 +384,10 @@ function FunctionInput(info, refCriteria) {
 		return func;
 	}
 
+	this.setValue = function(val) {
+		this.inp.value = val;
+	}
+
 	this.getKeyValuePair = function() {
 		if (this.inp.value != this.info.default)
 			return [this.info.name, this.inp.value];
@@ -390,6 +421,11 @@ function DomainInput(info, refCriteria) {
 		var min = Sk.builtin.float_(this.minInp.value);
 		var max = Sk.builtin.float_(this.maxInp.value);
 		return Sk.builtin.list([min, max]);
+	}
+
+	this.setValue = function(val) {
+		this.minInp.value = val[0];
+		this.maxInp.value = val[1];
 	}
 
 	this.getKeyValuePair = function() {
@@ -509,7 +545,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			return this.memo['isNothingRequired'];
 		}
 		var func = this.classInst.tp$getattr('isNothingRequired', this.otherVars);
-		console.log(this.otherVars);
 		var ret = Sk.misceval.callsim(func, this.otherVars);
 		this.memo['isNothingRequired'] = Boolean(ret.v);
 		return Boolean(ret.v);
@@ -539,8 +574,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			return this.memo['isNothingForbidden'];
 		}
 		var func = this.classInst.tp$getattr('isNothingForbidden');
-		console.log(this.otherVars);
-		var ret = Sk.misceval.callsim(func);//, this.otherVars);
 		var ret = Sk.misceval.callsim(func, this.otherVars);
 		this.memo['isNothingForbidden'] = Boolean(ret.v);
 		return Boolean(ret.v);
@@ -650,7 +683,6 @@ function CustomPythonCriteria(gradingOptions, refDiv) {
 		var critInst = this.skModule.tp$getattr('criteriaInstance');
 		var funcName = critInst.tp$getattr('isNothingRequired');
 		var ret = Sk.misceval.callsim(funcName);
-		console.log('ret1', ret.v);
 		return Boolean(ret.v);
 	}
 

@@ -180,7 +180,6 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
 			if (crit.isNothingRequired()) {
-				console.log('everything allowed');
 				continue;
 			}
 			for (var i = 0; i < this.canvas.width; i++) {
@@ -246,7 +245,6 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 	this.drawCriticalPointOverlay = function() {
 		var ctx = this.canvas.getContext('2d');
 		var criteria = this.sketchInterface.gradingOptions.criteriaList;
-		console.log('crit',criteria.length);
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
 			var pts = crit.getCriticalPoints();
@@ -270,7 +268,6 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 	}
 
 	this.draw = function() {
-		console.log('redrawing');
 		this.clearCanvas();
 		if (this.sketchInterface.overlayToolbar.showAllowedForbidden()) {
 			this.drawRequiredOverlay();

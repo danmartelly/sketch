@@ -71,7 +71,6 @@ function DisplayOptions(sketchInterface, refDiv) {
 	}
 
 	this.preview = function(e) {
-		console.log(that.sketchInterface);
 		that.sketchInterface.updateOptions(that.getChoices());
 	}
 
