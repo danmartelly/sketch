@@ -127,10 +127,10 @@ class Criteria():
                 if boolFunc(x,y):
                     answer.append((x,y))
         return answer
-    def isRequired(self, otherVars):
+    def requiredList(self, otherVars):
         # suggestion: make use of filteredList for other code
         return []
-    def isForbidden(self,otherVars):
+    def forbiddenList(self,otherVars):
         # suggestion: make use of filteredList for other code
         return []
     def isRelationshipPresent(self, otherVars):
@@ -144,9 +144,9 @@ class Criteria():
  
 class TestCriteria(Criteria):
     args = Criteria.args + [InputArg('test',InputArg.BOOL,True)]
-    def isRequired(self, otherVars):
+    def requiredList(self, otherVars):
         return [(1,1),(1,2),(2,2),(2,1)]
-    def isForbidden(self, otherVars):
+    def forbiddenList(self, otherVars):
         return [(-1,-1),(-1,-2),(-2,-2),(-2,-1)]
 
 class MonotonicCriteria(Criteria):
@@ -574,14 +574,14 @@ class FunctionFollowedCriteria(Criteria):
             return (0., self.failMessage)
         else:
             return (1., counter)
-    def isRequired(self, otherVars):
+    def requiredList(self, otherVars):
         yCloseness = float(self.pixelCloseness)/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
         def acceptRequired(x,y):
             if x < self.domain[0] or x > self.domain[1]:
                 return False
             return abs(self.f(x)-y) < yCloseness
         return self.filteredList(otherVars, acceptRequired)
-    def isForbidden(self, otherVars):
+    def forbiddenList(self, otherVars):
         yCloseness = float(self.pixelCloseness)/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
         def acceptForbidden(x,y):
             if x < self.domain[0] or x > self.domain[1]:
