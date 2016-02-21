@@ -147,7 +147,7 @@ class TestCriteria(Criteria):
     def requiredList(self, otherVars):
         return [(1,1),(1,2),(2,2),(2,1)]
     def forbiddenList(self, otherVars):
-        return [(-1,-1),(-1,-2),(-2,-2),(-2,-1)]
+        return [(11,11),(11,12),(12,12),(12,11)]
 
 class MonotonicCriteria(Criteria):
     failMessage = 'Not monotonic'
