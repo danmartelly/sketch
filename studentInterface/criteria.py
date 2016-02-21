@@ -117,15 +117,15 @@ class Criteria():
         pixelWidth = otherVars['pixelWidth']
         pixelHeight = otherVars['pixelHeight']
         return (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight)
-    def filteredList(self, otherVars, boolFunc):
+    def filteredList(self, otherVars, boolFuncXY):
         (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
         answer = []
         for i in range(pixelWidth):
             x = xmin + i*(xmax-xmin)/pixelWidth
             for j in range(pixelHeight):
                 y = ymax - j*(ymax-ymin)/pixelHeight
-                if boolFunc(x,y):
-                    answer.append((x,y))
+                if boolFuncXY(x,y):
+                    answer.append((i,j))
         return answer
     def requiredList(self, otherVars):
         # suggestion: make use of filteredList for other code
