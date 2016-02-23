@@ -30,10 +30,10 @@ class Point:
 class GraphData:
     def __init__(self, rawJSONString):
         decoded = json.loads(rawJSONString)
-	axisData = decoded['axes']
+        axisData = decoded['axes']
         drawingData = decoded['drawing']
         criticalPointData = decoded['criticalPoints']
-	# axis data
+	    # axis data
         self.pixelHeight = int(axisData['yaxis']['pixels'])
         self.ymin = float(axisData['yaxis']['min'])
         self.ymax = float(axisData['yaxis']['max'])

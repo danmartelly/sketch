@@ -179,7 +179,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var criteria = this.sketchInterface.gradingOptions.criteriaList;
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
-			var reqList = crit.forbiddenList();
+			var reqList = crit.requiredList();
 			for (var ind2 = 0; ind2 < reqList.length; ind2++) {
 				var i = reqList[ind2][0], j = reqList[ind2][1];
 				setPixData(i,j,150,100);

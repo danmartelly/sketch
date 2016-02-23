@@ -537,7 +537,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			return this.memo['requiredList'][key];
 		}
 		var func = this.classInst.tp$getattr('requiredList');
-		console.log('otherVars', this.otherVars);
 		var ret = Sk.misceval.callsim(func, this.otherVars);
 		var l = [];
 		for (var i = 0; i < ret.v.length; i++) {
@@ -554,7 +553,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			return this.memo['forbiddenList'];
 		}
 		var func = this.classInst.tp$getattr('forbiddenList');
-		console.log('otherVars', this.otherVars);
 		var ret = Sk.misceval.callsim(func, this.otherVars);
 		var l = [];
 		for (var i = 0; i < ret.v.length; i++) {
