@@ -52,9 +52,3 @@ def generate(visualOptions, criteriaOptions, generatorFunc, quantity=1):
     for i in range(quantity):
         answers.append(generatorFunc(axisData, grader))
     return answers
-
-f = os.path.join('..','studentInterface','questionData','parallelPower1.txt')
-vo = getVisualOptionsFromFile(f)
-f = os.path.join('..','studentInterface','criteriaData','parallelPower1.txt')
-co = getCriteriaOptionsFromFile(f)
-print(generate(vo, co, generateRandomAnswer))
