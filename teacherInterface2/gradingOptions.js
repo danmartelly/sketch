@@ -142,20 +142,12 @@ function BasicCriteria(gradingOptions, refDiv) {
 		console.log("set args has not been implemented yet");
 	}
 
-	this.isNothingRequired = function() {
-		return true;
+	this.requiredList = function() {
+		return [];
 	}
 
-	this.isRequired = function(x,y) {
-		return !this.isNothingRequired();
-	}
-
-	this.isNothingForbidden = function() {
-		return true;
-	}
-
-	this.isForbidden = function(x,y) {
-		return !this.isNothingForbidden();
+	this.forbiddenList = function() {
+		return [];
 	}
 
 	this.isRelationshipPresent = function() {
@@ -539,62 +531,38 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		this.otherVars = new Sk.builtin.dict(this.otherVars);
 	}
 
-	this.isNothingRequired = function() {
+	this.requiredList = function() {
 		this.update();
-		if ('isNothingRequired' in this.memo) {
-			return this.memo['isNothingRequired'];
+		if ('requiredList' in this.memo) {
+			return this.memo['requiredList'][key];
 		}
-		var func = this.classInst.tp$getattr('isNothingRequired', this.otherVars);
+		var func = this.classInst.tp$getattr('requiredList');
+		console.log('otherVars', this.otherVars);
 		var ret = Sk.misceval.callsim(func, this.otherVars);
-		this.memo['isNothingRequired'] = Boolean(ret.v);
-		return Boolean(ret.v);
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var p = ret.v[i];
+			l.push([p.v[0].v, p.v[1].v]);
+		}
+		this.memo['requiredList'] = l;
+		return l;
 	}
 
-	this.isRequired = function(x,y) {
+	this.forbiddenList = function() {
 		this.update();
-		var key = '' + x + ',' + y;
-		if ('isRequired' in this.memo) {
-			if (key in this.memo['isRequired']) {
-				return this.memo['isRequired'][key];
-			}
-		} else {
-			this.memo['isRequired'] = {};
+		if ('forbiddenList' in this.memo) {
+			return this.memo['forbiddenList'];
 		}
-		var fx = new Sk.builtin.float_(x, 'float');
-		var fy = new Sk.builtin.float_(y, 'float');
-		var func = this.classInst.tp$getattr('isRequired');
-		var ret = Sk.misceval.callsim(func, fx, fy, this.otherVars);
-		this.memo['isRequired'][key] = Boolean(ret.v);
-		return Boolean(ret.v);
-	}
-
-	this.isNothingForbidden = function() {
-		this.update();
-		if ('isNothingForbidden' in this.memo) {
-			return this.memo['isNothingForbidden'];
-		}
-		var func = this.classInst.tp$getattr('isNothingForbidden');
+		var func = this.classInst.tp$getattr('forbiddenList');
+		console.log('otherVars', this.otherVars);
 		var ret = Sk.misceval.callsim(func, this.otherVars);
-		this.memo['isNothingForbidden'] = Boolean(ret.v);
-		return Boolean(ret.v);
-	}
-
-	this.isForbidden = function(x,y) {
-		this.update();
-		var key = '' + x + ',' + y;
-		if ('isForbiddenRequired' in this.memo) {
-			if (key in this.memo['isForbidden']) {
-				return this.memo['isForbidden'][key];
-			}
-		} else {
-			this.memo['isForbidden'] = {};
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var p = ret.v[i];
+			l.push([p.v[0].v, p.v[1].v]);
 		}
-		var fx = new Sk.builtin.float_(x, 'float');
-		var fy = new Sk.builtin.float_(y, 'float');
-		var func = this.classInst.tp$getattr('isForbidden');
-		var ret = Sk.misceval.callsim(func, fx, fy, this.otherVars);
-		this.memo['isForbidden'][key] = Boolean(ret.v);
-		return Boolean(ret.v);
+		this.memo['forbiddenList'] = l;
+		return l;
 	}
 
 	this.initialize();

@@ -179,18 +179,10 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var criteria = this.sketchInterface.gradingOptions.criteriaList;
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
-			if (crit.isNothingRequired()) {
-				continue;
-			}
-			for (var i = 0; i < this.canvas.width; i++) {
-				var x = this.sketchInterface.xAxis.xFromIndex(i);
-				for (var j = 0; j < this.canvas.height; j++) {
-					var y = this.sketchInterface.yAxis.yFromIndex(j);
-					if (crit.isRequired(x,y)) {
-						setPixData(i,j,150,100);
-					}
-				}
-
+			var reqList = crit.forbiddenList();
+			for (var ind2 = 0; ind2 < reqList.length; ind2++) {
+				var i = reqList[ind2][0], j = reqList[ind2][1];
+				setPixData(i,j,150,100);
 			}
 		}
 		ctx.putImageData(imgData, 0, 0);
@@ -208,17 +200,10 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var criteria = this.sketchInterface.gradingOptions.criteriaList;
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
-			if (crit.isNothingForbidden()) {
-				continue;
-			}
-			for (var i = 0; i < this.canvas.width; i++) {
-				var x = this.sketchInterface.xAxis.xFromIndex(i);
-				for (var j = 0; j < this.canvas.height; j++) {
-					var y = this.sketchInterface.yAxis.yFromIndex(j)
-					if (crit.isForbidden(x,y)) {
-						setPixData(i,j,200,100);
-					}
-				}
+			var forbList = crit.forbiddenList();
+			for (var ind2 = 0; ind2 < forbList.length; ind2++) {
+				var i = forbList[ind2][0], j = forbList[ind2][1];
+				setPixData(i,j,200,100);
 			}
 		}
 		ctx.putImageData(imgData, 0, 0);

@@ -116,7 +116,7 @@ class Criteria():
         ymax = otherVars['ymax']
         pixelWidth = otherVars['pixelWidth']
         pixelHeight = otherVars['pixelHeight']
-        return (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight)
+        return (xmin, xmax, ymin, ymax, int(pixelWidth), int(pixelHeight))
     def filteredList(self, otherVars, boolFuncXY):
         (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
         answer = []
