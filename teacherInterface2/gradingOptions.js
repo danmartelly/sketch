@@ -534,7 +534,7 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 	this.requiredList = function() {
 		this.update();
 		if ('requiredList' in this.memo) {
-			return this.memo['requiredList'][key];
+			return this.memo['requiredList'];
 		}
 		var func = this.classInst.tp$getattr('requiredList');
 		var ret = Sk.misceval.callsim(func, this.otherVars);

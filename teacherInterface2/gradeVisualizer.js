@@ -14,6 +14,13 @@ function GradeInterface(refDiv, options) {
 		this.overlayToolbar = new OverlayOptionsToolbar(this, this.toolbarDiv);
 		this.saveToolbar = new SeeSaveToolbar(this, this.toolbarDiv);
 
+		var p = document.createElement('p');
+		p.innerHTML = 'Generated Answer Sketch';
+		refDiv.parentNode.appendChild(p);
+		var div = document.createElement('div');
+		refDiv.parentNode.appendChild(div);
+		this.generatedSketch = new GeneratedSketch(div, options);
+
 		this.processOptions();
 	}
 
@@ -25,6 +32,8 @@ function GradeInterface(refDiv, options) {
 		this.gradeCanvas.reposition(80,0);
 		this.gradeCanvas.resize(this.width, this.height);
 		this.gradeCanvas.draw();
+		
+		this.generatedSketch.processOptions();
 	}
 
 	this.initialize();
