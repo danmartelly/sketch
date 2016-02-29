@@ -23,7 +23,7 @@ def generateRandomAnswer(axisData, grader):
     for i in range(pixelWidth):
         blackPixels.append({'i':i, 'j':int(random.random()*pixelHeight)})
     drawingData = {'blackPixels':blackPixels}
-    criticalData = {}
+    criticalData = {'usedPointList':[]}
     return {'axes':axisData, 'drawing':drawingData, 'criticalPoints':criticalData}
 
 def getVisualOptionsFromFile(filename):
@@ -39,7 +39,32 @@ def getCriteriaOptionsFromFile(filename):
     f.close()
     return data
 
-def generate(visualOptions, criteriaOptions, generatorFunc, quantity=1):
+def convertStringToDict(string):
+    # try json.loads
+    try:
+        data = json.loads(string)
+        return data
+    except:
+        pass
+    # try json.loads iwth replacing quotation marks
+    try:
+        data = json.loads(string.replace("'",'"'))
+        return data
+    except:
+        pass
+    # maybe it's a dictionary
+    try:
+        data = dict(string)
+        return data
+    except:
+        pass
+        
+
+def generate(visualOptions, criteriaOptions, generatorFunc, quantity=2):
+    if isinstance(visualOptions,basestring):
+        visualOptions = convertStringToDict(visualOptions)
+    if isinstance(criteriaOptions, basestring):
+        criteriaOptions = convertStringToDict(criteriaOptions)
     #extract axis data
     axisData = {}
     axisData['xaxis'] = visualOptions['xaxis']
@@ -47,8 +72,11 @@ def generate(visualOptions, criteriaOptions, generatorFunc, quantity=1):
     axisData['yaxis'] = visualOptions['yaxis']
     axisData['yaxis']['pixels'] = axisData['yaxis'].pop('pixelDim')
     #extract grader
-    grader = criteria.createGrader(criteriaOptions['criteria'])
+    grader = criteria.createGrader(criteriaOptions)
     answers = []
     for i in range(quantity):
-        answers.append(generatorFunc(axisData, grader))
+        genData = generatorFunc(axisData, grader)
+        (score, feedback) = grader.grade(util.GraphData(json.dumps(genData)))
+        answers.append({'data':genData,'score':score, 'feedback':feedback})
     return answers
+

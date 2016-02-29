@@ -219,8 +219,12 @@ function SketchInterface(refDiv, options) {
 	}
 
 	this.processStudentData = function(data) {
-		this.hiddenData.value(data);
-		data = JSON.parse(data);
+		if (typeof data == "string") {
+			this.hiddenData.value(data);
+			data = JSON.parse(data);
+		} else {
+			this.hiddenData.value(JSON.stringify(data));
+		}
 		if (Object.keys(data).length == 0) {
 			console.log('no saved student data yet');
 			this.studentDataLoaded = true;

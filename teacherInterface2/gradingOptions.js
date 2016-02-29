@@ -3,9 +3,10 @@ var possibleCriteria = {
 };
 
 for (var prop in criteriaCode) {
-	if (prop != "Criteria" && !criteriaCode.hasOwnProperty(prop)) {
+	if (prop == "Criteria" || !criteriaCode.hasOwnProperty(prop)) {
 		continue;
 	}
+	prop = prop.slice(0, prop.length-8);
 	possibleCriteria[prop] = PythonCriteria;
 }
 
@@ -441,6 +442,7 @@ inputMapping = {
 }
 
 function PythonCriteria(gradingOptions, refDiv, type) {
+	type = type;
 	BasicCriteria.call(this, gradingOptions, refDiv);
         this.type = type;
 	this.code = null;
@@ -452,14 +454,14 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 	this.initialize = function() {
 		this.setTitleText(type);
 		// figure out what inputs will look like
-		var inputs = criteriaInputs[this.type];
+		var inputs = criteriaInputs[this.type + "Criteria"];
                 for (var i = 0; i < inputs.length; i++) {
 			this.addInput(inputs[i]);
 		}
 
 		// save code into this.code
 		this.code = criteriaCode["InputArg"] + "\n\n";
-		this.code += criteriaCode["Criteria"] + "\n\n" + criteriaCode[type];
+		this.code += criteriaCode["Criteria"] + "\n\n" + criteriaCode[type+"Criteria"];
 
 		// put code into module
 		this.skModule = Sk.importMainWithBody("<stdin>", false, this.code);

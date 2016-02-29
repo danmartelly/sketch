@@ -46,7 +46,10 @@ class Grader():
                 return critPerf, critFeedback
             self.score += critPerf*crit.weight
             if critFeedback != None: self.feedback.append(critFeedback)
-        return self.score/float(totalWeight), self.feedback
+        if totalWeight == 0:
+            return 1, ['no criteria used']
+        else:
+            return self.score/float(totalWeight), self.feedback
 
 class InputArg():
     INTEGER = 0

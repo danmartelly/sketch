@@ -13,6 +13,7 @@ function GradeInterface(refDiv, options) {
 		
 		this.overlayToolbar = new OverlayOptionsToolbar(this, this.toolbarDiv);
 		this.saveToolbar = new SeeSaveToolbar(this, this.toolbarDiv);
+		this.generateToolbar = new GenerateAnswersToolbar(this, this.toolbarDiv);
 
 		var p = document.createElement('p');
 		p.innerHTML = 'Generated Answer Sketch';
@@ -28,6 +29,7 @@ function GradeInterface(refDiv, options) {
 	this.processOptions = function() {
 		processOptions.call(this);
 		this.overlayToolbar.addSelf();
+		this.generateToolbar.addSelf();
 		//resizing
 		this.gradeCanvas.reposition(80,0);
 		this.gradeCanvas.resize(this.width, this.height);
@@ -159,6 +161,32 @@ function OverlayOptionsToolbar(sketchInterface, refDiv) {
 
 	this.showPoints = function() {
 		return this.pointsCheckbox.checked;
+	}
+
+	this.initialize();
+	this.setupListeners();
+}
+
+function GenerateAnswersToolbar(sketchInterface, refDiv) {
+	this.sketchInterface = sketchInterface;
+	BasicFormToolbar.call(this, sketchInterface, refDiv);
+	this.generateButton = null;
+
+	this.initialize = function() {
+		this.generateButton = document.createElement('input');
+		this.generateButton.type = 'button';
+		this.generateButton.value = 'Generate answers';
+
+		this.mainForm.appendChild(this.generateButton);
+	}
+
+	this.setupListeners = function() {
+		var that = this;
+		this.generateButton.onclick = function(e) {
+			var co = that.sketchInterface.gradingOptions.getCriteria();
+			var vo = that.sketchInterface.displayOptions.getChoices();
+			that.sketchInterface.generatedSketch.generateAnswer(co, vo);
+		}
 	}
 
 	this.initialize();
