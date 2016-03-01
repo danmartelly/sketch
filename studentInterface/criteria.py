@@ -130,6 +130,8 @@ class Criteria():
                 if boolFuncXY(x,y):
                     answer.append((i,j))
         return answer
+    def updatePossibleScores(self,stroke, state, possibleDict, otherVars):
+        pass
     def requiredList(self, otherVars):
         # suggestion: make use of filteredList for other code
         return []
@@ -201,6 +203,23 @@ class MonotonicCriteria(Criteria):
                         if pixelDistance > self.pixelCloseness:
                             return (0., self.failMessage + '3 ' + str(self.trend)  + str(pixelDistance) + ' ' + str(biggest) )
                 return (1., None)
+        else:
+            self.trend = 1
+            score1 = self.grade(graphData)
+            self.trend = -1
+            score2 = self.grade(graphData)
+            self.trend = 0
+            score = max(score1,score2,key=lambda x:x[0])
+            return score
+    def updatePossibleScores(self, stroke, state, possibleDict, otherVars):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        prevj = pixelHeight
+        if len(stroke) > 0:
+            prevj = stroke[-1][1]
+        for (i, j) in possibleDict:
+            if (trend == 1 and j <= prevj) or (trend == -1 and j >= prevj):
+                possibleDict[(i,j)] += 1
+            # TODO: deal with trend = 0
 
 class Shape():
     def withinShape(self, point):
