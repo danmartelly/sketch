@@ -513,7 +513,7 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			inputDict.push(ia.getValue());
 		}
 		inputDict = new Sk.builtin.dict(inputDict);
-		var claz = this.skModule.tp$getattr(this.type);
+		var claz = this.skModule.tp$getattr(this.type + "Criteria");
 		this.classInst = Sk.misceval.callsim(claz, inputDict);
 		this.hasChanged = false;
 		this.memo = {};
