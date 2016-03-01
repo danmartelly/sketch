@@ -14,10 +14,15 @@ error = '''
 "error": 'Missing data. Only received %(formKeys)s'
 ''' % {'formKeys':form.keys()}
 
-if 'request' in form and str(form['request'].value) == 'generateAnswer' and\
-        all([k in form for k in ['criteriaOptions','visualOptions']]):
+if all([k in form for k in ['criteriaOptions','visualOptions', 'request']]):
+    genFunc = answerGenerator.generateRandomAnswer
     co = str(form['criteriaOptions'].value)
     vo = str(form['visualOptions'].value)
+	
+    if str(form['request'].value) == 'random':
+        genFunc = answerGenerator.generateRandomAnswer
+    elif str(form['request'].value) == 'greedy':
+        genFunc = answerGenerator.generateGreedyDecisions
     a = answerGenerator.generate(vo, co, answerGenerator.generateRandomAnswer)
     print '''
 %(a)s

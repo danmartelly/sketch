@@ -540,6 +540,18 @@ class FunctionFollowedCriteria(Criteria):
         self.domain = (-float('inf'), float('inf'))
         self.fraction = .9
         Criteria.__init__(self, kwargs)
+
+    #maximum added score of 1
+    def updatePossibleScores(self,stroke, state, possibleDict, otherVars):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        yCloseness = float(self.pixelCloseness)/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
+        for (i,j) in possibleDict:
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            y = ymax - j*(ymax-ymin)/pixelHeight
+            if x < self.domain[0] or x > self.domain[1]:
+                possibleDict[(i,j)] += 1
+            elif abs(self.f(x)-y) < yCloseness:
+                possibleDict[(i,j)] += 1
         
     def grade(self, graphData):
         mini, maxi = self.domain

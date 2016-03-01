@@ -6,7 +6,7 @@ function GeneratedSketch(refDiv, options) {
 		this.nextPrevToolbar = new NextPrevToolbar(this, this.toolbarDiv);
 	}
 
-	this.generateAnswer = function(criteriaOptions, visualOptions) {
+	this.generateAnswer = function(criteriaOptions, visualOptions, type) {
 		var that = this;
 		// do a post with the criteria and visual options
 		// get json data

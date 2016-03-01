@@ -170,22 +170,32 @@ function OverlayOptionsToolbar(sketchInterface, refDiv) {
 function GenerateAnswersToolbar(sketchInterface, refDiv) {
 	this.sketchInterface = sketchInterface;
 	BasicFormToolbar.call(this, sketchInterface, refDiv);
-	this.generateButton = null;
+	this.randomButton = null;
+	this.greedyButton = null;
 
 	this.initialize = function() {
-		this.generateButton = document.createElement('input');
-		this.generateButton.type = 'button';
-		this.generateButton.value = 'Generate answers';
+		this.randomButton = document.createElement('input');
+		this.randomButton.type = 'button';
+		this.randomButton.value = 'Generate Random';
+		this.mainForm.appendChild(this.randomButton);
 
-		this.mainForm.appendChild(this.generateButton);
+		this.greedyButton = document.createElement('input');
+		this.greedyButton.type = 'button';
+		this.greedyButton.value = 'Generate Greedy';
+		this.mainForm.appendChild(this.greedyButton);
 	}
 
 	this.setupListeners = function() {
 		var that = this;
-		this.generateButton.onclick = function(e) {
+		this.randomButton.onclick = function(e) {
 			var co = that.sketchInterface.gradingOptions.getCriteria();
 			var vo = that.sketchInterface.displayOptions.getChoices();
-			that.sketchInterface.generatedSketch.generateAnswer(co, vo);
+			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'random');
+		}
+		this.randomButton.onclick = function(e) {
+			var co = that.sketchInterface.gradingOptions.getCriteria();
+			var vo = that.sketchInterface.displayOptions.getChoices();
+			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'greedy');
 		}
 	}
 
