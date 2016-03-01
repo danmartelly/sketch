@@ -20,7 +20,7 @@ function GeneratedSketch(refDiv, options) {
 			'visualOptions':visualOptions};
 		$.post('receiveData.py', request).done(
 			function(data, status){
-				console.log('got data', data);
+				//console.log('got data', data);
 				data = JSON.parse(data);
 				that.showGeneratedSketch(data[0]);
 				that.sketches = data;

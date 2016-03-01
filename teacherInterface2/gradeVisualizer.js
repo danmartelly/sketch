@@ -172,6 +172,7 @@ function GenerateAnswersToolbar(sketchInterface, refDiv) {
 	BasicFormToolbar.call(this, sketchInterface, refDiv);
 	this.randomButton = null;
 	this.greedyButton = null;
+        this.changingButton = null;
 
 	this.initialize = function() {
 		this.randomButton = document.createElement('input');
@@ -183,6 +184,12 @@ function GenerateAnswersToolbar(sketchInterface, refDiv) {
 		this.greedyButton.type = 'button';
 		this.greedyButton.value = 'Generate Greedy';
 		this.mainForm.appendChild(this.greedyButton);
+
+		this.changingButton = document.createElement('input');
+		this.changingButton.type = 'button';
+		this.changingButton.value = 'Generate Changing Goodness';
+		this.mainForm.appendChild(this.changingButton);
+
 	}
 
 	this.setupListeners = function() {
@@ -196,6 +203,11 @@ function GenerateAnswersToolbar(sketchInterface, refDiv) {
 			var co = that.sketchInterface.gradingOptions.getCriteria();
 			var vo = that.sketchInterface.displayOptions.getChoices();
 			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'greedy');
+		}
+		this.changingButton.onclick = function(e) {
+			var co = that.sketchInterface.gradingOptions.getCriteria();
+			var vo = that.sketchInterface.displayOptions.getChoices();
+			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'changingGood');
 		}
 	}
 

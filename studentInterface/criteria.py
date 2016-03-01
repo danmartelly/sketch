@@ -61,15 +61,15 @@ class InputArg():
     FUNCTION = 6
     SHAPE = 7
     DOMAIN = 8
-    mapping = {INTEGER:'integer',
-        FLOAT:'float',
-        STRING:'string',
-        LIST:'list',
-        CODE:'code',
-        BOOL:'boolean',
-        FUNCTION:'function',
-        SHAPE:'shape',
-        DOMAIN:'domain'
+    mapping = {INTEGER:('integer',int),
+        FLOAT:('float',float),
+        STRING:('string',str),
+        LIST:('list',list),
+        CODE:('code',lambda x:x),
+        BOOL:('boolean',bool),
+        FUNCTION:('function',lambda x:x),
+        SHAPE:('shape', lambda x:x),
+        DOMAIN:('domain', lambda x:x)
     }
     def __init__(self, name, inputType, default, required=False):
         self.name = name
@@ -80,9 +80,11 @@ class InputArg():
         d = {}
         d['name'] = self.name
         d['default'] = self.default
-        d['type'] = InputArg.mapping[self.inputType]        
+        d['type'] = InputArg.mapping[self.inputType][0] 
         d['required'] = self.required
         return d
+    def processInput(self, val):
+        return InputArg.mapping[self.inputType][1](val)
 
 class Criteria():
     args = [InputArg('weight',InputArg.FLOAT, 1), 
@@ -93,7 +95,7 @@ class Criteria():
         unusedArgs = []
         for inp in self.args:
             if inp.name in kwargs:
-                setattr(self, inp.name, kwargs.pop(inp.name))
+                setattr(self, inp.name, inp.processInput(kwargs.pop(inp.name)))
             elif inp.required:
                 missingArgs.append(inp.name)
             else:
@@ -216,9 +218,22 @@ class MonotonicCriteria(Criteria):
         prevj = pixelHeight
         if len(stroke) > 0:
             prevj = stroke[-1][1]
+        prevy = ymax - prevj*(ymax-ymin)/pixelHeight
+        if state == None: state = prevj
+        elif trend == 1: state = min(state, prevj)
+        elif trend == -1: state = max(state, prevj)
         for (i, j) in possibleDict:
-            if (trend == 1 and j <= prevj) or (trend == -1 and j >= prevj):
-                possibleDict[(i,j)] += 1
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            y = ymax - j*(ymax-ymin)/pixelHeight
+            if x < self.domain[0] or x > self.domain[1]:
+                possibleDict[(i,j)] += self.weight
+            elif self.trend == 1:
+                multiplier = max(min(1 + float(state-j)/self.pixelCloseness, 1), 0)
+                possibleDict[(i,j)] += self.weight*multiplier
+            elif self.trend == -1:
+                multiplier = max(min(1 + float(j-state)/self.pixelCloseness, 1), 0)
+                possibleDict[(i,j)] += self.weight*multiplier
+
             # TODO: deal with trend = 0
 
 class Shape():
@@ -568,9 +583,9 @@ class FunctionFollowedCriteria(Criteria):
             x = xmin + i*(xmax-xmin)/pixelWidth
             y = ymax - j*(ymax-ymin)/pixelHeight
             if x < self.domain[0] or x > self.domain[1]:
-                possibleDict[(i,j)] += 1
+                possibleDict[(i,j)] += self.weight
             elif abs(self.f(x)-y) < yCloseness:
-                possibleDict[(i,j)] += 1
+                possibleDict[(i,j)] += self.weight
         
     def grade(self, graphData):
         mini, maxi = self.domain

@@ -23,6 +23,8 @@ if all([k in form for k in ['criteriaOptions','visualOptions', 'request']]):
         genFunc = answerGenerator.generateRandomAnswer
     elif str(form['request'].value) == 'greedy':
         genFunc = answerGenerator.generateGreedyDecisions
+    elif str(form['request'].value) == 'changingGood':
+        genFunc = answerGenerator.generateChangingGoodness
     a = answerGenerator.generate(vo, co, genFunc)
     print '''
 %(a)s
