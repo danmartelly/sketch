@@ -192,7 +192,7 @@ function GenerateAnswersToolbar(sketchInterface, refDiv) {
 			var vo = that.sketchInterface.displayOptions.getChoices();
 			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'random');
 		}
-		this.randomButton.onclick = function(e) {
+		this.greedyButton.onclick = function(e) {
 			var co = that.sketchInterface.gradingOptions.getCriteria();
 			var vo = that.sketchInterface.displayOptions.getChoices();
 			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'greedy');

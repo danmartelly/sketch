@@ -23,7 +23,7 @@ if all([k in form for k in ['criteriaOptions','visualOptions', 'request']]):
         genFunc = answerGenerator.generateRandomAnswer
     elif str(form['request'].value) == 'greedy':
         genFunc = answerGenerator.generateGreedyDecisions
-    a = answerGenerator.generate(vo, co, answerGenerator.generateRandomAnswer)
+    a = answerGenerator.generate(vo, co, genFunc)
     print '''
 %(a)s
 ''' % {'a':json.dumps(a)}

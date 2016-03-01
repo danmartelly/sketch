@@ -534,7 +534,7 @@ class FunctionFollowedCriteria(Criteria):
         """f should take in one paramater, x, and output y"""
         f = kwargs['f']
         if type(f) != type(lambda x: x):
-            f = eval(f)
+            f = eval("lambda x: " + f)
         kwargs['f'] = f
         self.pixelCloseness = 40
         self.domain = (-float('inf'), float('inf'))

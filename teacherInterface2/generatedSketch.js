@@ -14,7 +14,8 @@ function GeneratedSketch(refDiv, options) {
 			criteriaOptions = JSON.stringify(criteriaOptions);
 		if (typeof visualOptions != "string")
 			visualOptions = JSON.stringify(visualOptions);
-		var request = {'request':'generateAnswer',
+		console.log('request type', type)
+		var request = {'request':type,
 			'criteriaOptions':criteriaOptions, 
 			'visualOptions':visualOptions};
 		$.post('receiveData.py', request).done(
@@ -85,7 +86,7 @@ function NextPrevToolbar(sketchInterface, refDiv) {
 	this.next = function() {
 		var sketches = this.sketchInterface.sketches;
 		if(sketches.length == 0) return;
-		this.sketchInterface.curIndex -= 1 + sketches.length;
+		this.sketchInterface.curIndex -= 1 - sketches.length;
 		this.sketchInterface.curIndex %= sketches.length;
 		this.sketchInterface.showGeneratedSketch(sketches[this.sketchInterface.curIndex]);
 		this.numberDisplay.innerHTML = "" + (this.sketchInterface.curIndex+1) + "/" + sketches.length;
