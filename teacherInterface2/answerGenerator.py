@@ -46,6 +46,9 @@ def generateGreedyDecisions(axisData, grader):
     for i in range(pixelWidth):
         # here are all the next pixels we are considering
         possible = {(i,j):0 for j in range(pixelHeight)}
+        if len(stroke) > 0:
+            for j in range(stroke[-1][1]-5, stroke[-1][1]+5):
+                possible[(i,j)] = .3
         # each criteria will add a score to possible dictionary
         for critIndex in range(len(grader.criteria)):
             crit = grader.criteria[critIndex]
