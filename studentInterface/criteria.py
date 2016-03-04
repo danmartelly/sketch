@@ -134,6 +134,10 @@ class Criteria():
         return answer
     def updatePossibleScores(self,stroke, state, possibleDict, otherVars):
         pass
+    def requiredPolygons(self, otherVars):
+        return None
+    def forbiddenPolygons(self, otherVars):
+        return None
     def requiredList(self, otherVars):
         # suggestion: make use of filteredList for other code
         return []
@@ -623,6 +627,33 @@ class FunctionFollowedCriteria(Criteria):
             return (0., self.failMessage)
         else:
             return (1., counter)
+
+    def requiredPolygons(self, otherVars):
+        return None
+
+    def forbiddenPolygons(self, otherVars):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        allPolys = []
+        topPoly = []
+        bottomPoly = []
+        for i in range(pixelWidth):
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            y = self.f(x)
+            j = (ymax - y)/float(ymax-ymin)*pixelHeight
+            # top
+            if (j-self.pixelCloseness > 0):
+                topPoly.append((i,min(j-self.pixelCloseness,pixelHeight)))
+            elif len(topPoly) > 0:
+                allPolys.append(topPoly)
+                topPoly = []
+            # bottom
+            if (j+self.pixelCloseness < pixelHeight):
+                bottomPoly.append((i,max(j+self.pixelCloseness, 0)))
+            elif len(bottomPoly) > 0:
+                allPolys.append(bottomPoly)
+                bottomPoly = []
+        return allPolys
+
     def requiredList(self, otherVars):
         yCloseness = float(self.pixelCloseness)/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
         def acceptRequired(x,y):
