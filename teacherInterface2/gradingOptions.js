@@ -441,7 +441,47 @@ function DomainInput(info, refCriteria) {
 	this.initialize();
 }
 
-function PointsInput(info, criteria) {
+function PointInput(info, criteria) {
+	InputArg.call(this, info, refCriteria);
+	this.xInp = null;
+	this.yInp = null;
+	this.initialize = function() {
+		var textnode = document.createTextNode("x: ");
+		this.refCriteria.mainForm.appendChild(textnode);
+		this.xInp = document.createElement('inp');
+		this.xInp.type = 'number';
+		this.xInp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(this.xInp);
+
+		var textnode = document.createTextNode("y: ");
+		this.refCriteria.mainForm.appendChild(textnode);
+		this.yInp = document.createElement('inp');
+		this.yInp.type = 'number';
+		this.yInp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(this.yInp);
+	}
+
+	this.getValue = function() {
+		var x = Sk.builtin.float_(this.xInp.value);
+		var y = Sk.builtin.float_(this.yInp.value);
+		return Sk.builtin.tuple([x,y]);
+	}
+
+	this.setValue = function(val) {
+		this.xInp.value = val[0];
+		this.yInp.value = val[1];
+	}
+
+	this.getKeyValuePair = function() {
+		var x = this.xInp.value;
+		var y = this.yInp.value;
+		return [this.info.name, [x,y]];
+	}
+	
+	this.initialize();
+}
+
+function MultiPointInput(info, criteria) {
 
 }
 
@@ -451,7 +491,8 @@ inputMapping = {
 'boolean':BooleanInput,
 'function':FunctionInput,
 'domain':DomainInput,
-'multiplePoints':PointsInput
+'point':PointInput,
+'multiplePoints':MultiPointInput
 }
 
 function PythonCriteria(gradingOptions, refDiv, type) {

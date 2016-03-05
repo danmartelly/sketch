@@ -328,8 +328,12 @@ class RegionFilledCriteria(Criteria):
         else:
             return (0., self.failMessage)
 
+class TestCriteria(Criteria):
+    args = Criteria.args + [InputArg('test',InputArg.POINT,[],True)]
+
 class PointsCriteria(Criteria):
-    args = Criteria.args + [InputArg('list',InputArg.MULTIPLEPOINTS,[],True)]
+    args = Criteria.args + [InputArg('list',InputArg.MULTIPLEPOINTS,[],True),
+                            InputArg('pixelCloseness', InputArg.INTEGER, 10)]
     failMessage = 'Some critical points were missed'
     '''Check that the drawn graph contains this critical point within some range
     Required arguments: *list: which is a list of 2 length tuples containing (x,y)'''

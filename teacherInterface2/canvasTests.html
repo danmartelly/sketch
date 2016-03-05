@@ -1,0 +1,59 @@
+<html>
+<body>
+<canvas id="testCanvas" width=600 height=400 style="border:1px solid #000000;"></canvas>
+</body>
+<script>
+	var canvas = document.getElementById("testCanvas");
+	var ctx = canvas.getContext('2d');
+	function squareSmart(startx, starty, width, height) {
+		ctx.rect(startx, starty, width, height);
+		ctx.fill();
+	}
+
+	function squareStupid(startx, starty, width, height) {
+		ctx.beginPath();
+		ctx.moveTo(startx,starty);
+		for (var i = startx; i < startx+width; i++)
+			ctx.lineTo(i, starty);
+		for (var j = starty; j < starty+height; j++)
+			ctx.lineTo(startx+width,j);
+		for (var i = startx+width; i> startx; i--)
+			ctx.lineTo(i,starty+height);
+		for (var j = starty+height; j>starty; j--)
+			ctx.lineTo(startx,j);
+		ctx.closePath();
+		ctx.fill()
+	}
+	function randomSquares(number, func) {
+		for (var count = 0; count < number; count++) {
+			startx = Math.random()*500;
+			starty = Math.random()*300;
+			func(startx, starty, 100, 100);
+		}
+	}
+
+	//generate a bunch of random squares
+	var start, end, time;
+	/*start = new Date().getMilliseconds();
+	randomSquares(1000,squareSmart);
+	end = new Date().getMilliseconds();
+	time = end - start;
+	console.log('smartness', time);*/
+
+	/*start = new Date().getMilliseconds();
+	randomSquares(10000,squareStupid);
+	end = new Date().getMilliseconds();
+	time = end - start;
+	console.log('stupidness', time);*/
+	ctx.beginPath();
+	ctx.moveTo(100,100);
+	ctx.lineTo(200,100);
+	ctx.lineTo(120,120);
+	ctx.lineTo(200,200);
+	//ctx.lineTo(120,140);
+	//ctx.lineTo(100,200);
+	ctx.closePath();
+	ctx.fill()
+
+</script>
+</html>
