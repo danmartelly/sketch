@@ -629,29 +629,68 @@ class FunctionFollowedCriteria(Criteria):
             return (1., counter)
 
     def requiredPolygons(self, otherVars):
-        return None
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        allPolys = []
+        topEdge = []
+        bottomEdge = []
+        imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
+        imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
+        for i in range(imin,imax):
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            y = self.f(x)
+            j = int((ymax - y)/float(ymax-ymin)*pixelHeight)
+            # if green is within bounds
+            if (j+self.pixelCloseness > 0 or j-self.pixelCloseness < pixelHeight):
+                topEdge.append((i,max(0,min(j-self.pixelCloseness, pixelHeight))))
+                bottomEdge.append((i,min(pixelHeight,max(j+self.pixelCloseness,0))))
+            elif len(topEdge) > 0:
+                topEdge.reverse()
+                topEdge.extend(bottomEdge)
+                allPolys.append(topEdge)
+                topEdge = []
+                bottomEdge = []
+        if len(topEdge) > 0: 
+            topEdge.reverse()
+            topEdge.extend(bottomEdge)
+            allPolys.append(topEdge)
+        return allPolys
 
     def forbiddenPolygons(self, otherVars):
         (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
         allPolys = []
         topPoly = []
         bottomPoly = []
-        for i in range(pixelWidth):
+        imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
+        imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
+        def finishPoly(l, edge):
+            first = l[0]
+            last = l[-1]
+            l.append((last[0],edge))
+            l.append((first[0],edge))
+        for i in range(imin,imax):
             x = xmin + i*(xmax-xmin)/pixelWidth
             y = self.f(x)
-            j = (ymax - y)/float(ymax-ymin)*pixelHeight
+            j = int((ymax - y)/float(ymax-ymin)*pixelHeight)
             # top
             if (j-self.pixelCloseness > 0):
                 topPoly.append((i,min(j-self.pixelCloseness,pixelHeight)))
             elif len(topPoly) > 0:
+                finishPoly(topPoly, 0)
                 allPolys.append(topPoly)
                 topPoly = []
             # bottom
             if (j+self.pixelCloseness < pixelHeight):
                 bottomPoly.append((i,max(j+self.pixelCloseness, 0)))
             elif len(bottomPoly) > 0:
+                finishPoly(bottomPoly, pixelHeight)
                 allPolys.append(bottomPoly)
                 bottomPoly = []
+        if len(topPoly) > 0: 
+            finishPoly(topPoly, 0)
+            allPolys.append(topPoly)
+        if len(bottomPoly) > 0: 
+            finishPoly(bottomPoly, pixelHeight)
+            allPolys.append(bottomPoly)
         return allPolys
 
     def requiredList(self, otherVars):
@@ -683,3 +722,7 @@ grader = Grader()
 grader.addCriteria(DomainUsedCriteria())
 gd = util.GraphData(dataFuncs.getStudentData(user, 'parallelPower1'))
 print grader.grade(gd)'''
+
+'''cr = FunctionFollowedCriteria({"f":lambda x:x**2, "domain":[-1,1]})
+otherVars = {"xmin":-2, "xmax":2, "ymin":-1, "ymax":1, "pixelWidth":60, "pixelHeight":40}
+print cr.forbiddenPolygons(otherVars)'''

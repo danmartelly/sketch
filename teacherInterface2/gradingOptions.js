@@ -143,6 +143,14 @@ function BasicCriteria(gradingOptions, refDiv) {
 		console.log("set args has not been implemented yet");
 	}
 
+	this.requiredPolygons = function() {
+		return null;
+	}
+
+	this.forbiddenPolygons = function() {
+		return null;
+	}
+
 	this.requiredList = function() {
 		return [];
 	}
@@ -533,6 +541,25 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		this.otherVars = new Sk.builtin.dict(this.otherVars);
 	}
 
+	this.requiredPolygons = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('requiredPolygons');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		if (ret.v == null)
+			return null;
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var poly = [];
+			var p = ret.v[i].v;
+			for (var j = 0; j < p.length; j++) {
+				var pij = p[j];
+				poly.push([pij.v[0].v, pij.v[1].v]);
+			}
+			l.push(poly);
+		}
+		return l;
+	}
+
 	this.requiredList = function() {
 		this.update();
 		if ('requiredList' in this.memo) {
@@ -547,6 +574,26 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		}
 		this.memo['requiredList'] = l;
 		return l;
+	}
+
+	this.forbiddenPolygons = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('forbiddenPolygons');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		if (ret.v == null)
+			return null;
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var poly = [];
+			var p = ret.v[i].v;
+			for (var j = 0; j < p.length; j++) {
+				var pij = p[j];
+				poly.push([pij.v[0].v, pij.v[1].v]);
+			}
+			l.push(poly);
+		}
+		return l;
+
 	}
 
 	this.forbiddenList = function() {

@@ -224,48 +224,62 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 
 	// draw intersection of required things in green
 	this.drawRequiredOverlay = function() {
-		// iterate through criteria, 
-		// iterate through all pixels in canvas
-		// if criteria says that the pixel is not allowed, do not draw it
-		// all other pixels can be drawn
-		var ctx = this.canvas.getContext('2d');
-		var imgData = ctx.getImageData(0,0,this.width, this.height);
-		var setPixData = function(i,j,g,a) {
-			var imgIndex = (i + j*imgData.width)*4;
-			imgData.data[imgIndex+1] = g;
-			imgData.data[imgIndex+3] = a;
-		};
 		var criteria = this.sketchInterface.gradingOptions.criteriaList;
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
-			var reqList = crit.requiredList();
-			for (var ind2 = 0; ind2 < reqList.length; ind2++) {
-				var i = reqList[ind2][0], j = reqList[ind2][1];
-				setPixData(i,j,150,100);
+			var polys = crit.requiredPolygons();
+			if (polys != null) {
+				for (var ind2 = 0; ind2 < polys.length; ind2++) {
+					this.drawPolygon(polys[ind2], 0,150,0,100);
+				}
+			} else {
+				this.colorPoints(crit.requiredList(), 0, 150, 0, 100);
 			}
 		}
-		ctx.putImageData(imgData, 0, 0);
 	}
 
 	// draw union of things to avoid in red
 	this.drawForbiddenOverlay = function() {
-		var ctx = this.canvas.getContext('2d');
-		var imgData = ctx.getImageData(0,0,this.width, this.height);
-		var setPixData = function(i,j,r,a) {
-			var imgIndex = (i + j*imgData.width)*4;
-			imgData.data[imgIndex] = r;
-			imgData.data[imgIndex+3] = a;
-		};
 		var criteria = this.sketchInterface.gradingOptions.criteriaList;
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
-			var forbList = crit.forbiddenList();
-			for (var ind2 = 0; ind2 < forbList.length; ind2++) {
-				var i = forbList[ind2][0], j = forbList[ind2][1];
-				setPixData(i,j,200,100);
+			var polys = crit.forbiddenPolygons();
+			if (polys != null) {
+				for (var ind2 = 0; ind2 < polys.length; ind2++) {
+					this.drawPolygon(polys[ind2], 200,0,0,100);
+				}
+			} else {
+				this.colorPoints(crit.forbiddenList(), 200, 0, 0, 100);
 			}
 		}
-		ctx.putImageData(imgData, 0, 0);
+	}
+
+	this.colorPoints = function(indexList, r, g, b, a) {
+		var ctx = this.canvas.getContext('2d');
+		var imgData = ctx.getImageData(0,0,this.width, this.height);
+		var setPixData = function(i,j,r,g,b,a) {
+			var imgIndex = (i + j*imgData.width)*4;
+			imgData.data[imgIndex] = r;
+			imgData.data[imgIndex+1] = g;
+			imgData.data[imgIndex+2] = b;
+			imgData.data[imgIndex+3] = a;
+		};
+		for (var i = 0; i < indexList.length; i++) {
+			setPixData(indexList[i][0], indexList[i][1],r,g,b,a);
+		}
+	}
+
+	this.drawPolygon = function(indexList, r, g, b, a) {
+		if (indexList.length == 0) return;
+		var ctx = this.canvas.getContext('2d');
+		ctx.fillStyle = "rgba(" + r + ", " + g + ", " + b + ", " + a/256 + ")";
+		ctx.beginPath();
+		ctx.moveTo(indexList[0][0], indexList[0][1]);
+		for (var i = 1; i < indexList.length; i++) {
+			ctx.lineTo(indexList[i][0], indexList[i][1]);
+		}
+		ctx.closePath();
+		ctx.fill();
 	}
 
 	this.drawRelationshipOverlay = function() {
