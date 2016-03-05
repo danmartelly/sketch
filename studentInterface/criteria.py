@@ -154,6 +154,7 @@ class Criteria():
         return [0,0]
     def relationshipIcon(self, otherVars):
         return None
+    # list of {'x':1, 'y':2, 'pixelRadius':5}
     def getCriticalPoints(self, otherVars):
         return []
  
@@ -332,7 +333,7 @@ class TestCriteria(Criteria):
     args = Criteria.args + [InputArg('test',InputArg.POINT,[],True)]
 
     def getCriticalPoints(self, otherVars):
-        return [self.test]
+        return [{'x':self.test[0], 'y':self.test[1], 'pixelRadius':10}]
 
 class PointsCriteria(Criteria):
     args = Criteria.args + [InputArg('list',InputArg.MULTIPLEPOINTS,[],True),
