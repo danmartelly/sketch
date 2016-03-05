@@ -441,12 +441,17 @@ function DomainInput(info, refCriteria) {
 	this.initialize();
 }
 
+function PointsInput(info, criteria) {
+
+}
+
 inputMapping = {
 'float':FloatInput,
 'integer':IntegerInput,
 'boolean':BooleanInput,
 'function':FunctionInput,
-'domain':DomainInput
+'domain':DomainInput,
+'multiplePoints':PointsInput
 }
 
 function PythonCriteria(gradingOptions, refDiv, type) {
@@ -609,6 +614,46 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			l.push([p.v[0].v, p.v[1].v]);
 		}
 		this.memo['forbiddenList'] = l;
+		return l;
+	}
+
+	this.isRelationshipPresent = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('isRelationshipPresent');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		if (ret.v == 1)
+			return true;
+		else
+			return false;
+	}
+
+	this.relationshipRange = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('relationshipRange');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var l = [ret.v[0].v, ret.v[1].v];
+		return l;
+	}
+
+	this.relationshipIcon = function(callbackFunc) {
+		this.update();
+		var func = this.classInst.tp$getattr('relationshipIcon');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var img = new Image();
+		img.src = ret.v;
+		img.onload = function(){callbackFunc(img);};
+		return img;
+	}
+
+	this.getCriticalPoints = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('getCriticalPoints');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var p = ret.v[i];
+			l.push([p.v[0].v, p.v[1].v]);
+		}
 		return l;
 	}
 

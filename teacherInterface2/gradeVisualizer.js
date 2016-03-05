@@ -296,7 +296,11 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 			var imax = this.sketchInterface.xAxis.indexFromX(xmax);
 			var w = imax - imin;
 			ctx.drawImage(this.bracketIcon,imin,50,w,20);
-			ctx.drawImage(crit.relationshipIcon(),imin + w/2,20);
+			var callback = function(icon) {
+				ctx.drawImage(icon, imin+w/2,20);
+			};
+			crit.relationshipIcon(callback);
+			//ctx.drawImage(crit.relationshipIcon(),imin + w/2,20);
 		}
 	}
 

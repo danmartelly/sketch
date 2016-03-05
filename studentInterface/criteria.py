@@ -61,6 +61,8 @@ class InputArg():
     FUNCTION = 6
     SHAPE = 7
     DOMAIN = 8
+    POINT = 9
+    MULTIPLEPOINTS = 10
     mapping = {INTEGER:('integer',int),
         FLOAT:('float',float),
         STRING:('string',str),
@@ -69,7 +71,9 @@ class InputArg():
         BOOL:('boolean',bool),
         FUNCTION:('function',lambda x:x),
         SHAPE:('shape', lambda x:x),
-        DOMAIN:('domain', lambda x:x)
+        DOMAIN:('domain', lambda x:x),
+        POINT:('point', lambda x:x),
+        MULTIPLEPOINTS:('multiplePoints', lambda x:x)
     }
     def __init__(self, name, inputType, default, required=False):
         self.name = name
@@ -153,13 +157,6 @@ class Criteria():
     def getCriticalPoints(self, otherVars):
         return []
  
-class TestCriteria(Criteria):
-    args = Criteria.args + [InputArg('test',InputArg.BOOL,True)]
-    def requiredList(self, otherVars):
-        return [(1,1),(1,2),(2,2),(2,1)]
-    def forbiddenList(self, otherVars):
-        return [(11,11),(11,12),(12,12),(12,11)]
-
 class MonotonicCriteria(Criteria):
     failMessage = 'Not monotonic'
     args = Criteria.args + [InputArg('domain',InputArg.DOMAIN,[-float('inf'), float('inf')]),
@@ -239,6 +236,18 @@ class MonotonicCriteria(Criteria):
                 possibleDict[(i,j)] += self.weight*multiplier
 
             # TODO: deal with trend = 0
+    def isRelationshipPresent(self, otherVars):
+        return True
+    def relationshipRange(self, otherVars):
+        return self.domain
+    def relationshipIcon(self, otherVars):
+        if self.trend == 1:
+            return "up.jpg"
+        elif self.trend == -1:
+            return "down.jpg"
+        else:
+            return "updown.jpg"
+
 
 class Shape():
     def withinShape(self, point):
@@ -320,7 +329,7 @@ class RegionFilledCriteria(Criteria):
             return (0., self.failMessage)
 
 class PointsCriteria(Criteria):
-    args = Criteria.args + [InputArg('list',InputArg.LIST,[],True)]
+    args = Criteria.args + [InputArg('list',InputArg.MULTIPLEPOINTS,[],True)]
     failMessage = 'Some critical points were missed'
     '''Check that the drawn graph contains this critical point within some range
     Required arguments: *list: which is a list of 2 length tuples containing (x,y)'''
