@@ -332,7 +332,7 @@ class TestCriteria(Criteria):
     args = Criteria.args + [InputArg('test',InputArg.POINT,[],True)]
 
     def getCriticalPoints(self, otherVars):
-        return self.test
+        return [self.test]
 
 class PointsCriteria(Criteria):
     args = Criteria.args + [InputArg('list',InputArg.MULTIPLEPOINTS,[],True),
