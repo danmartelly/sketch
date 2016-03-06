@@ -342,16 +342,17 @@ class PointsCriteria(Criteria):
     '''Check that the drawn graph contains this critical point within some range
     Required arguments: *list: which is a list of 2 length tuples containing (x,y)'''
     def __init__(self, kwargs):
-        pointList = kwargs['list']
+        self.pointList = kwargs['list']
         kwargs['list'] = None
+        
+        self.pixelCloseness = 10
+        Criteria.__init__(self, kwargs)
+    def grade(self, graphData):
         self.pList = []
         if type(pointList) != type([]) and type(pointList) != type((0,)):
             pointList = eval(pointList)
         for p in pointList:
             self.pList.append(util.Point(p[0],p[1]))
-        self.pixelCloseness = 10
-        Criteria.__init__(self, kwargs)
-    def grade(self, graphData):
         copyList = self.pList[:]
         for p1Indices in graphData.blackPixels:
             for i in range(len(copyList)-1,-1,-1):
