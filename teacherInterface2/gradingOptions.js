@@ -494,7 +494,6 @@ function MultiPointInput(info, criteria) {
 	this.initialize = function() {
 		this.myDiv = document.createElement('div');
 		this.refCriteria.mainForm.appendChild(this.myDiv);
-		this.mainForm = this.myDiv;
 
 		this.addButton = document.createElement('input');
 		this.addButton.type = 'button';
@@ -508,24 +507,20 @@ function MultiPointInput(info, criteria) {
 		this.deleteButton.onclick = this.deleteNode;
 		this.myDiv.appendChild(this.deleteButton);
 
+		// hacks
+		this.mainForm = this.myDiv;
+		this.gradingOptions = this.refCriteria.gradingOptions;
+
 		this.pointInput = new PointInput(info, this);
-		this.pointInput.update = this.update;
 	}
 
 	var that = this;
-	this.update = function() {
-		that.refCriteria.hasChanged = true;
-		that.refCriteria.gradingOptions.gradeInterface.gradeCanvas.draw();
-	}
-
 	this.addNode = function() {
-		console.log('adding');
 		that.next = new MultiPointInput(that.info, that.refCriteria);
 		that.next.prev = that;
 	}
 
 	this.deleteNode = function() {
-		console.log('deleting');
 		if (that.prev == null)
 			return;
 		// fix pointers
@@ -786,7 +781,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			var pr = d.mp$lookup(Sk.builtin.str('pixelRadius')).v;
 			l.push({'x':x, 'y':y, 'pixelRadius':pr});
 		}
-		console.log('critic2', ret);
 		return l;
 	}
 

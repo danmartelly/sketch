@@ -365,6 +365,11 @@ class PointsCriteria(Criteria):
             return (1., None)
         else:
             return (0., self.failMessage + str(copyList) + 'missed')
+    def getCriticalPoints(self, otherVars):
+        ans = []
+        for p in self.pointList:
+            ans.append({'x':p[0], 'y':p[1], 'pixelRadius':self.pixelCloseness})
+        return ans
         
 
 class DerivativeCriteria(Criteria):
