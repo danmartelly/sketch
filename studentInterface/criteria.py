@@ -336,8 +336,8 @@ class TestCriteria(Criteria):
         return [{'x':self.test[0], 'y':self.test[1], 'pixelRadius':10}]
 
 class PointsCriteria(Criteria):
-    args = Criteria.args + [InputArg('list',InputArg.MULTIPLEPOINTS,[],True),
-                            InputArg('pixelCloseness', InputArg.INTEGER, 10)]
+    args = Criteria.args + [InputArg('pixelCloseness', InputArg.INTEGER, 10),
+                            InputArg('list',InputArg.MULTIPLEPOINTS,[],True)]
     failMessage = 'Some critical points were missed'
     '''Check that the drawn graph contains this critical point within some range
     Required arguments: *list: which is a list of 2 length tuples containing (x,y)'''
