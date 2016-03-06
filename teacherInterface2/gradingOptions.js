@@ -543,6 +543,7 @@ function MultiPointInput(info, criteria) {
 			l.push(node.pointInput.getValue());
 			node = node.next;
 		}
+		console.log(l);
 		return Sk.builtin.list(l);
 	}
 
@@ -781,6 +782,7 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			var pr = d.mp$lookup(Sk.builtin.str('pixelRadius')).v;
 			l.push({'x':x, 'y':y, 'pixelRadius':pr});
 		}
+		console.log('critic2', ret);
 		return l;
 	}
 

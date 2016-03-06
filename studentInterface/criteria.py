@@ -329,12 +329,6 @@ class RegionFilledCriteria(Criteria):
         else:
             return (0., self.failMessage)
 
-class TestCriteria(Criteria):
-    args = Criteria.args + [InputArg('test',InputArg.POINT,[],True)]
-
-    def getCriticalPoints(self, otherVars):
-        return [{'x':self.test[0], 'y':self.test[1], 'pixelRadius':10}]
-
 class PointsCriteria(Criteria):
     args = Criteria.args + [InputArg('pixelCloseness', InputArg.INTEGER, 10),
                             InputArg('list',InputArg.MULTIPLEPOINTS,[],True)]
@@ -366,7 +360,6 @@ class PointsCriteria(Criteria):
             return (0., self.failMessage + str(copyList) + 'missed')
     def getCriticalPoints(self, otherVars):
         ans = []
-        print(self.pointList)
         for p in self.pointList:
             ans.append({'x':p[0], 'y':p[1], 'pixelRadius':self.pixelCloseness})
         return ans
