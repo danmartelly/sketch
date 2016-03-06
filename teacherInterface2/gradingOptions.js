@@ -442,23 +442,24 @@ function DomainInput(info, refCriteria) {
 }
 
 function PointInput(info, criteria) {
-	InputArg.call(this, info, refCriteria);
+	InputArg.call(this, info, criteria);
 	this.xInp = null;
 	this.yInp = null;
 	this.initialize = function() {
 		var textnode = document.createTextNode("x: ");
 		this.refCriteria.mainForm.appendChild(textnode);
-		this.xInp = document.createElement('inp');
+		this.xInp = document.createElement('input');
 		this.xInp.type = 'number';
 		this.xInp.onchange = this.update;
 		this.refCriteria.mainForm.appendChild(this.xInp);
 
-		var textnode = document.createTextNode("y: ");
+		var textnode = document.createTextNode(" y: ");
 		this.refCriteria.mainForm.appendChild(textnode);
-		this.yInp = document.createElement('inp');
+		this.yInp = document.createElement('input');
 		this.yInp.type = 'number';
 		this.yInp.onchange = this.update;
 		this.refCriteria.mainForm.appendChild(this.yInp);
+		this.refCriteria.mainForm.appendChild(document.createElement('br'));
 	}
 
 	this.getValue = function() {
@@ -482,7 +483,93 @@ function PointInput(info, criteria) {
 }
 
 function MultiPointInput(info, criteria) {
+	InputArg.call(this, info, criteria);
+	this.pointInput = null;
+	this.next = null;
+	this.prev = null;
+	this.addButton = null;
+	this.deleteButton = null;
+	this.myDiv = null;
 
+	this.initialize = function() {
+		this.myDiv = document.createElement('div');
+		this.refCriteria.mainForm.appendChild(this.myDiv);
+		this.mainForm = this.myDiv;
+
+		this.addButton = document.createElement('input');
+		this.addButton.type = 'button';
+		this.addButton.value = 'add';
+		this.addButton.onclick = this.addNode;
+		this.myDiv.appendChild(this.addButton);
+
+		this.deleteButton = document.createElement('input');
+		this.deleteButton.type = 'button';
+		this.deleteButton.value = 'delete';
+		this.deleteButton.onclick = this.deleteNode;
+		this.myDiv.appendChild(this.deleteButton);
+
+		this.pointInput = new PointInput(info, this);
+		this.pointInput.update = this.update;
+	}
+
+	var that = this;
+	this.update = function() {
+		that.refCriteria.hasChanged = true;
+		that.refCriteria.gradingOptions.gradeInterface.gradeCanvas.draw();
+	}
+
+	this.addNode = function() {
+		console.log('adding');
+		that.next = new MultiPointInput(that.info, that.refCriteria);
+		that.next.prev = that;
+	}
+
+	this.deleteNode = function() {
+		console.log('deleting');
+		if (that.prev == null)
+			return;
+		// fix pointers
+		if (that.prev != null)
+			that.prev.next = that.next;
+		if (that.next != null)
+			that.next.prev = that.prev
+		// remove div which contains all this
+		that.refCriteria.mainForm.removeChild(that.myDiv);
+	}
+
+	this.getValue = function() {
+		// find head
+		var node = this;
+		while (node.prev != null)
+			node = node.prev;
+		// iterate through to get all things
+		var l = [];
+		while (node != null) {
+			l.push(node.pointInput.getValue());
+			node = node.next;
+		}
+		return Sk.builtin.list(l);
+	}
+
+	this.setValue = function(val) {
+		console.log('set value for multipoint not yet implemented');
+	}
+
+	this.getKeyValuePair = function() {
+		// find head
+		var node = this;
+		while (node.prev != null)
+			node = node.prev;
+		// iterate through to get all things
+		var l = [];
+		while (node != null) {
+			l.push(node.getKeyValuePair()[1]);
+			node = node.next;
+		}
+		return [this.info.name, l];
+	}
+
+	this.initialize();
 }
 
 inputMapping = {
@@ -692,9 +779,14 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		var ret = Sk.misceval.callsim(func, this.otherVars);
 		var l = [];
 		for (var i = 0; i < ret.v.length; i++) {
-			var p = ret.v[i];
-			l.push([p.v[0].v, p.v[1].v]);
+			var d = ret.v[i];
+			universal = d;
+			var x = d.mp$lookup(Sk.builtin.str('x')).v;
+			var y = d.mp$lookup(Sk.builtin.str('y')).v;
+			var pr = d.mp$lookup(Sk.builtin.str('pixelRadius')).v;
+			l.push({'x':x, 'y':y, 'pixelRadius':pr});
 		}
+		console.log('critic2', ret);
 		return l;
 	}
 

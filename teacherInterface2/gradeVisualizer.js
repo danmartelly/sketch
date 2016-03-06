@@ -315,7 +315,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 				var p = pts[ind2];
 				var x = p.x;
 				var y = p.y;
-				var pixels = p.pixelCloseness;
+				var pixels = p.pixelRadius;
 				var i = this.sketchInterface.xAxis.indexFromX(x);
 				var j = this.sketchInterface.yAxis.indexFromY(y);
 				console.log('x',x,'y',y,'pc',pixels,'i',i,'j',j,'p',p);
