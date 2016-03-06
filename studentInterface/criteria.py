@@ -344,14 +344,13 @@ class PointsCriteria(Criteria):
     def __init__(self, kwargs):
         self.pointList = kwargs['list']
         kwargs['list'] = None
-        
-        self.pixelCloseness = 10
+        if type(self.pointList) != type([]) and type(self.pointList) != type((0,)):
+            self.pointList = eval(self.pointList)
+
         Criteria.__init__(self, kwargs)
     def grade(self, graphData):
         self.pList = []
-        if type(pointList) != type([]) and type(pointList) != type((0,)):
-            pointList = eval(pointList)
-        for p in pointList:
+        for p in self.pointList:
             self.pList.append(util.Point(p[0],p[1]))
         copyList = self.pList[:]
         for p1Indices in graphData.blackPixels:
@@ -367,6 +366,7 @@ class PointsCriteria(Criteria):
             return (0., self.failMessage + str(copyList) + 'missed')
     def getCriticalPoints(self, otherVars):
         ans = []
+        print(self.pointList)
         for p in self.pointList:
             ans.append({'x':p[0], 'y':p[1], 'pixelRadius':self.pixelCloseness})
         return ans
