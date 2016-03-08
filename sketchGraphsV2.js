@@ -10,7 +10,7 @@ Form:
 - Submission
 */
 
-var defaultOptions = {
+var defaultDisplayOptions = {
 			'tutor' : false,
 			'xaxis' : {
 				'label': "xaxis",
@@ -54,7 +54,7 @@ function SketchInterface(refDiv, options) {
 	// {'label':'blah', 'mandatory':true, 'max uses':1}
 
 	this.initialize = function() {
-		this.fillOptions(this.options, defaultOptions);
+		this.fillOptions(this.options, defaultDisplayOptions);
 		var that = this;
 		this.refDiv.style.position = 'relative';
 		//canvases
@@ -96,7 +96,7 @@ function SketchInterface(refDiv, options) {
 
 	this.updateOptions = function(newOptions) {
 		this.options = newOptions;
-		this.fillOptions(this.options, defaultOptions);
+		this.fillOptions(this.options, defaultDisplayOptions);
 		this.processOptions();
 	}
 

@@ -1,0 +1,41 @@
+.container {
+	clear:both;
+	background-color:#eeeeee;
+}
+
+#optionSelection {
+	background-color:blue;
+	width:40%;
+	float:left;
+	padding:10px;
+}
+
+#visualization {
+	background-color:red;
+	width:40%;
+	float:left;
+	padding:10px;
+}
+
+/*
+ACCORDION STUFF
+*/
+
+.accordion-section-title {
+	color:#fff;
+	border-bottom:1px solid #1a1a1a;
+	width:100%;
+	background:#333;
+}
+
+.accordion-section-title.active, .accordion-section-title:hover {
+	background:#4c4c4c;
+}
+
+.accordion-section-content {
+	display:none;
+}
+
+.accordion-section-content.open {
+	display:inline;
+}
