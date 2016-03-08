@@ -1,12 +1,11 @@
-function DisplayOptions(sketchInterface, refDiv) {
+function DisplayOptions(dataHandler, refDiv) {
 	this.refDiv = refDiv;
-	this.sketchInterface = sketchInterface;
+	this.dataHandler = dataHandler;
 	this.xAxisOptions = null;
 	this.yAxisOptions = null;
 	this.imageOptions = null;
 	this.critPointOptions = null;
 	this.funcOptions = null;
-	this.sketchDiv = null;
 	this.previewButton = null;
 	var that = this;
 
@@ -50,7 +49,7 @@ function DisplayOptions(sketchInterface, refDiv) {
 		form.appendChild(this.previewButton);
 		this.refDiv.appendChild(form);
 
-		this.setChoices(defaultOptions);
+		this.setChoices(defaultDisplayOptions);
 	}
 
 	this.getChoices = function() {
@@ -71,7 +70,7 @@ function DisplayOptions(sketchInterface, refDiv) {
 	}
 
 	this.preview = function(e) {
-		that.sketchInterface.updateOptions(that.getChoices());
+		that.dataHandler.setDisplayOptions(that.getChoices());
 	}
 
 	this.mergeObjects = function(obj1, obj2, attrModifier1, attrModifier2) {

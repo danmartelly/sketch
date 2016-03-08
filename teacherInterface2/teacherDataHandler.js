@@ -7,7 +7,7 @@ function DataHandler() {
 
 DataHandler.prototype.setDisplayOptions = function(newDisplayOptions) {
 	this.displayOptions = newDisplayOptions;
-	for (var i = 0; i < displayChangeListeners.length; i++) {
+	for (var i = 0; i < this.displayChangeListeners.length; i++) {
 		this.displayChangeListeners[i].processDisplayOptions(this.displayOptions);
 	}
 }
@@ -22,7 +22,7 @@ DataHandler.prototype.addDisplayOptionsListener = function(obj) {
 
 DataHandler.prototype.setCriteriaOptions = function(newCriteriaOptions) {
 	this.criteriaOptions = newCriteriaOptions;
-	for (var i = 0; i < criteriaChangeListeners.length; i++) {
+	for (var i = 0; i < this.criteriaChangeListeners.length; i++) {
 		this.criteriaChangeListeners[i].processCriteriaOptions(this.criteriaOptions);
 	}
 }

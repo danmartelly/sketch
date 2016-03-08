@@ -3,13 +3,19 @@
 	<meta charset="utf-8"/>
 	<title>Teacher Interface for Graph Questions</title>
 	<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<!--Can be helpful for debugging timing things-->
+	<script type='text/javascript' src='CONSOLE.js'></script>
 	<!--Start accordion things-->
 	<script type="text/javascript" src="accordion.js"></script>
 	<link rel="stylesheet" type="text/css" href="teacher2.css"/>
 	<!--End accordion things-->
+	<script type="text/javascript" src="../sketchGraphsV2.js"></script>
 	<!--Model import-->
 	<script type="text/javascript" src="teacherDataHandler.js"></script>
 	<!--View/Controller imports-->
+	<script type="text/javascript" src="displayOptions.js"></script>
+	<script type="text/javascript" src='pyCodeVar.js'></script>
+	<script type="text/javascript" src='gradingOptions.js'></script>
 </head>
 <body>
 <div id="optionsContainer" class="container">
@@ -18,13 +24,11 @@
 		<div class="accordion-section">
 			<a class="accordion-section-title" href="#displayOptionsDiv">Display Options</a>
 			<div id="displayOptionsDiv" class="accordion-section-content">
-				display options div blah blah blah
 			</div>
 		</div>
 		<div class="accordion-section">
 			<a class="accordion-section-title" href="#criteriaOptionsDiv">Criteria Options</a>
 			<div id="criteriaOptionsDiv" class="accordion-section-content">
-				criteria options div blah blah blah
 			</div>
 		</div>
 	</div>
@@ -70,7 +74,8 @@
 		var dataHandler = new DataHandler();
 		console.log(dataHandler);
 		// set up 
-		//var displayOptionsSelector = new DisplayOptions()
+		var displayOptionsSelector = new DisplayOptions(dataHandler, document.getElementById("displayOptionsDiv"));
+		var criteriaOptionsSelector = new GradingOptions(dataHandler, document.getElementById("criteriaOptionsDiv"));
 	}
 </script>
 </html>

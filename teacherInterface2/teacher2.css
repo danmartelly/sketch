@@ -4,14 +4,14 @@
 }
 
 #optionSelection {
-	background-color:blue;
+	background-color:#aaaaaa;
 	width:40%;
 	float:left;
 	padding:10px;
 }
 
 #visualization {
-	background-color:red;
+	background-color:#aaaaee;
 	width:40%;
 	float:left;
 	padding:10px;
@@ -34,8 +34,11 @@ ACCORDION STUFF
 
 .accordion-section-content {
 	display:none;
+	height:80%;
+	border-style:solid;
 }
 
 .accordion-section-content.open {
 	display:inline;
+	overflow-y:auto;
 }

@@ -10,9 +10,9 @@ for (var prop in criteriaCode) {
 	possibleCriteria[prop] = PythonCriteria;
 }
 
-function GradingOptions(gradeInterface, refDiv) {
+function GradingOptions(dataHandler, refDiv) {
 	this.refDiv = refDiv;
-	this.gradeInterface = gradeInterface;
+	this.dataHandler = dataHandler;
 	this.addItemMenu = null;
 	this.optionsDiv = null;
 	this.criteriaList = [];
