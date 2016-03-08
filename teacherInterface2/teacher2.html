@@ -10,12 +10,15 @@
 	<link rel="stylesheet" type="text/css" href="teacher2.css"/>
 	<!--End accordion things-->
 	<script type="text/javascript" src="../sketchGraphsV2.js"></script>
+	<script type='text/javascript' src='../sketchTools.js'></script>
 	<!--Model import-->
 	<script type="text/javascript" src="teacherDataHandler.js"></script>
 	<!--View/Controller imports-->
 	<script type="text/javascript" src="displayOptions.js"></script>
 	<script type="text/javascript" src='pyCodeVar.js'></script>
 	<script type="text/javascript" src='gradingOptions.js'></script>
+	<script type="text/javascript" src='studentView.js'></script>
+	<script type="text/javascript" src='teacherView.js'></script>
 </head>
 <body>
 <div id="optionsContainer" class="container">
@@ -37,13 +40,11 @@
 		<div class="accordion-section">
 			<a class="accordion-section-title" href="#studentView">Student View</a>
 			<div id="studentView" class="accordion-section-content">
-				see student view div blah blah blah
 			</div>
 		</div>
 		<div class="accordion-section">
 			<a class="accordion-section-title" href="#teacherView">Teacher View</a>
 			<div id="teacherView" class="accordion-section-content">
-				see teacher view div blah blah blah
 			</div>
 		</div>
 	</div>
@@ -72,10 +73,12 @@
 		findAndInitializeAccordions();
 		// set up model
 		var dataHandler = new DataHandler();
-		console.log(dataHandler);
-		// set up 
+		// set up options selection
 		var displayOptionsSelector = new DisplayOptions(dataHandler, document.getElementById("displayOptionsDiv"));
 		var criteriaOptionsSelector = new GradingOptions(dataHandler, document.getElementById("criteriaOptionsDiv"));
+		var studentView = new StudentView(dataHandler, document.getElementById("studentView"));
+		var teacherView = new TeacherView(dataHandler, document.getElementById("teacherView"));
+		// set up testing things
 	}
 </script>
 </html>

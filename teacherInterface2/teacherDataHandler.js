@@ -1,6 +1,6 @@
 function DataHandler() {
 	this.displayOptions = {};
-	this.criteriaOptions = {};
+	this.criteriaOptions = [];
 	this.displayChangeListeners = []; //will call
 	this.criteriaChangeListeners = [];
 }

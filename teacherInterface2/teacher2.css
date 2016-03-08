@@ -11,10 +11,26 @@
 }
 
 #visualization {
-	background-color:#aaaaee;
-	width:40%;
+	background-color:white;
+	width:500px;
 	float:left;
 	padding:10px;
+}
+
+#studentView {
+	height:80%;
+}
+
+#teacherView {
+	height:80%;
+}
+
+#drawTestingDiv {
+	height:80%;
+}
+
+#generateDiv {
+	height:80%;
 }
 
 /*
