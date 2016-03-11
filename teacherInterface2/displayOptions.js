@@ -49,7 +49,15 @@ function DisplayOptions(dataHandler, refDiv) {
 		form.appendChild(this.previewButton);
 		this.refDiv.appendChild(form);
 
-		this.setChoices(defaultDisplayOptions);
+		this.processDisplayOptions(this.dataHandler.getDisplayOptions());
+		this.dataHandler.addDisplayOptionsListener(this);
+	}
+
+	this.processDisplayOptions = function(options) {
+		this.xAxisOptions.setChoices(options['xaxis']);
+		this.yAxisOptions.setChoices(options['yaxis']);
+		this.imageOptions.setChoices(options['img']);
+		this.critPointOptions.setChoices(options['critPoints']);
 	}
 
 	this.getChoices = function() {
@@ -59,14 +67,6 @@ function DisplayOptions(dataHandler, refDiv) {
 		options['img'] = this.imageOptions.getChoices();
 		options['critPoints'] = this.critPointOptions.getChoices();
 		return options
-	}
-
-	this.setChoices = function(options) {
-		this.xAxisOptions.setChoices(options['xaxis']);
-		this.yAxisOptions.setChoices(options['yaxis']);
-		this.imageOptions.setChoices(options['img']);
-		this.critPointOptions.setChoices(options['critPoints']);
-		this.preview();
 	}
 
 	this.preview = function(e) {

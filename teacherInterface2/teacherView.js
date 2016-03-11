@@ -1,19 +1,42 @@
 function TeacherView(dataHandler, refDiv, options) {
 	SketchInterface.call(this, refDiv, options);
 	this.dataHandler = dataHandler;
+	this.gradingOptions = null;
 
 	this.initialize = function() {
 		this.gradeCanvas = new GradeCanvas(this, this.refDiv, this.width, this.height);
 		
 		this.overlayToolbar = new OverlayOptionsToolbar(this, this.toolbarDiv);
+		//remove other toolbars
+		this.drawingToolbar.removeSelf();
+		this.submitToolbar.removeSelf();
+		this.submitToolbar.mainForm.removeChild(this.submitToolbar.feedbackDiv);
+
+		this.dataHandler.addDisplayOptionsListener(this);
+		this.dataHandler.addCriteriaOptionsListener(this);
 
 		this.processOptions();
+	}
+
+	this.processDisplayOptions = function(options) {
+		this.updateOptions(options);
+	}
+
+	this.processCriteriaOptions = function(options) {
+		this.gradeCanvas.draw();
+	}
+
+	this.getCriteriaInstancesList = function() {
+		if (this.gradingOptions == null)
+			return [];
+		return this.gradingOptions.criteriaList;
 	}
 
 	var processOptions = this.processOptions;
 	this.processOptions = function() {
 		processOptions.call(this);
 		this.overlayToolbar.addSelf();
+		this.submitToolbar.removeSelf();
 		//resizing
 		this.gradeCanvas.reposition(80,0);
 		this.gradeCanvas.resize(this.width, this.height);
@@ -146,7 +169,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 
 	// draw intersection of required things in green
 	this.drawRequiredOverlay = function() {
-		var criteria = this.sketchInterface.dataHandler.getCriteriaOptions();
+		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
 			var polys = crit.requiredPolygons();
@@ -155,14 +178,14 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 					this.drawPolygon(polys[ind2], 0,150,0,100);
 				}
 			} else {
-				this.colorPoints(crit.requiredList(), 0, 150, 0, 100);
+				//this.colorPoints(crit.requiredList(), 0, 150, 0, 100);
 			}
 		}
 	}
 
 	// draw union of things to avoid in red
 	this.drawForbiddenOverlay = function() {
-		var criteria = this.sketchInterface.dataHandler.getCriteriaOptions();
+		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
 			var polys = crit.forbiddenPolygons();
@@ -171,7 +194,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 					this.drawPolygon(polys[ind2], 200,0,0,100);
 				}
 			} else {
-				this.colorPoints(crit.forbiddenList(), 200, 0, 0, 100);
+				//this.colorPoints(crit.forbiddenList(), 200, 0, 0, 100);
 			}
 		}
 	}
@@ -206,7 +229,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 
 	this.drawRelationshipOverlay = function() {
 		var ctx = this.canvas.getContext('2d');
-		var criteria = this.sketchInterface.dataHandler.getCriteriaOptions();
+		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
 			if (!crit.isRelationshipPresent()) {
@@ -228,7 +251,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 
 	this.drawCriticalPointOverlay = function() {
 		var ctx = this.canvas.getContext('2d');
-		var criteria = this.sketchInterface.dataHandler.getCriteriaOptions();
+		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
 			var pts = crit.getCriticalPoints();

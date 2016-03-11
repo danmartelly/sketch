@@ -1,13 +1,22 @@
-function GeneratedSketch(refDiv, options) {
-	SketchInterface.call(this, refDiv, options);	
+function GeneratedSketch(dataHandler, refDiv) {
+	SketchInterface.call(this, refDiv);	
+	this.dataHandler = dataHandler;
 	this.sketches = [];
 	this.curIndex = 0;
+
 	this.initialize = function() {
 		this.nextPrevToolbar = new NextPrevToolbar(this, this.toolbarDiv);
+		this.dataHandler.addDisplayOptionsListener(this);
 	}
 
-	this.generateAnswer = function(criteriaOptions, visualOptions, type) {
+	this.processDisplayOptions = function(options) {
+		this.updateOptions(options);
+	}
+
+	this.generateAnswer = function(type) {
 		var that = this;
+		var criteriaOptions = this.dataHandler.getCriteriaOptions();
+		var visualOptions = this.dataHandler.getDisplayOptions();
 		// do a post with the criteria and visual options
 		// get json data
 		if (typeof criteriaOptions != "string")

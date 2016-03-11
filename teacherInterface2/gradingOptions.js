@@ -52,6 +52,11 @@ function GradingOptions(dataHandler, refDiv) {
 		}
 	}
 
+	this.criteriaChanged = function() {
+		this.dataHandler.setCriteriaOptions(this.getCriteria());
+
+	}
+
 	this.addCriteria = function(type) {
 		var criteria = new possibleCriteria[type](this, this.optionsDiv, type);
 		this.criteriaList.push(criteria);
@@ -179,7 +184,8 @@ function BasicCriteria(gradingOptions, refDiv) {
 		var nodeList = this.container.getElementsByTagName('input');
 		for (var i = 0; i < nodeList.length; i++) {
 			nodeList[i].onchange = function(e) {
-				that.gradingOptions.gradeInterface.gradeCanvas.draw();
+				that.gradingOptions.criteriaChanged();
+				that.gradingOptions.dataHandler.gradeCanvas.draw();
 			};
 		}
 	}
@@ -209,7 +215,7 @@ function InputArg(info, refCriteria) {
 	var that = this;
 	this.update = function() {
 		that.refCriteria.hasChanged = true;
-		that.refCriteria.gradingOptions.gradeInterface.gradeCanvas.draw();
+		that.refCriteria.gradingOptions.criteriaChanged();
 	}
 
 	this.setValue = function(val) {
@@ -655,12 +661,13 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		this.hasChanged = false;
 		this.memo = {};
 
-		var xmin = ['xmin', this.gradingOptions.gradeInterface.xAxis.min];
-		var xmax = ['xmax', this.gradingOptions.gradeInterface.xAxis.max];
-		var ymin = ['ymin', this.gradingOptions.gradeInterface.yAxis.min];
-		var ymax = ['ymax', this.gradingOptions.gradeInterface.yAxis.max];
-		var pixelWidth = ['pixelWidth', this.gradingOptions.gradeInterface.width];
-		var pixelHeight = ['pixelHeight', this.gradingOptions.gradeInterface.height];
+		var dos = this.gradingOptions.dataHandler.getDisplayOptions();
+		var xmin = ['xmin', dos['xaxis']['min']];
+		var xmax = ['xmax', dos['xaxis']['max']];
+		var ymin = ['ymin', dos['yaxis']['min']];
+		var ymax = ['ymax', dos['yaxis']['max']];
+		var pixelWidth = ['pixelWidth', dos['xaxis']['pixelDim']];
+		var pixelHeight = ['pixelHeight', dos['yaxis']['pixelDim']];
 		var lst = [xmin, xmax, ymin, ymax, pixelWidth, pixelHeight];
 		this.otherVars = [];
 		for (var i = 0; i < lst.length; i++) {
@@ -782,7 +789,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			var pr = d.mp$lookup(Sk.builtin.str('pixelRadius')).v;
 			l.push({'x':x, 'y':y, 'pixelRadius':pr});
 		}
-		console.log('critic2', ret);
 		return l;
 	}
 
