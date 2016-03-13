@@ -25,6 +25,7 @@
 	<script type="text/javascript" src='teacherView.js'></script>
 	<script type="text/javascript" src='loadSaveOptions.js'></script>
 	<script type="text/javascript" src='generatedSketch.js'></script>
+	<script type="text/javascript" src="teacherTest.js"></script>
 </head>
 <body>
 <div id="optionsContainer" class="container">
@@ -67,7 +68,6 @@
 		<div class="accordion-section">
 			<a class="accordion-section-title" href="#drawTestingDiv">Draw Testing</a>
 			<div id="drawTestingDiv" class="accordion-section-content">
-				I'm going to test this with my own drawings div blah blah blah
 			</div>
 		</div>
 		<div class="accordion-section">
@@ -92,6 +92,7 @@
 		teacherView.gradingOptions = criteriaOptionsSelector;
 		var loadSave = new LoadSaveOptions(dataHandler, document.getElementById("loadSaveDiv"));
 		// set up testing things
+		var teacherTest = new TeacherTest(dataHandler, document.getElementById("drawTestingDiv"));
 		var generator = new GeneratedSketch(dataHandler, document.getElementById("generateDiv"));
 	}
 </script>

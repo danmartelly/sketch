@@ -343,7 +343,6 @@ function HiddenData(sketchInterface, refDiv) {
 	}
 
 	this.update = function() {
-		console.log('updating');
 		var axisSave = this.sketchInterface.axisLineCanvas.getSaveData();
 		var drawingSave = this.sketchInterface.drawingCanvas.getSaveData();
 		var criticalSave = this.sketchInterface.criticalPointCanvas.getSaveData();
@@ -1236,7 +1235,6 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 
 	// stroke in format [[x1,y1], [x2, y2]] etc
 	this.sketchStroke = function(stroke) {
-		console.log(stroke);
 		if (stroke.length == 0)
 			return;
 		if (stroke.length == 1) {
