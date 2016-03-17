@@ -17,12 +17,12 @@ function TeacherTest(dataHandler, refDiv, options) {
 				'criticalPoints':criticalSave, 'recording':recording};
 			var criteria = that.dataHandler.getCriteriaOptions();
 			var dataToSend = {
-				request: 'teacherTest',
+				request: 'gradeSubmission',
 				criteria: JSON.stringify(criteria),
-				data: JSON.stringify(data)
+				drawData: JSON.stringify(data)
 			};
 			subTool.loadingImage.style.display = 'inline';
-			$.post('serverInterface.py', data).done(
+			$.post('serverInterface.py', dataToSend).done(
 			function(data, status){
 				console.log('status', status);
 				console.log('data', data);

@@ -9,19 +9,19 @@ function findAndInitializeAccordions() {
 
 	$('.accordion-section-title').click(function(e) {
 		// Grab current anchor value
-        var currentAttrValue = $(this).attr('href');
+	        var currentAttrValue = $(this).attr('href');
+ 	
+	        if($(e.target).is('.active')) {
+        	    close_accordion_sections(this);
+	        }else {
+        	    close_accordion_sections(this);
  
-        if($(e.target).is('.active')) {
-            close_accordion_sections(this);
-        }else {
-            close_accordion_sections(this);
+	            // Add active class to section title
+        	    $(this).addClass('active');
+	            // Open up the hidden content panel
+        	    $('.accordion ' + currentAttrValue).slideDown(300).addClass('open'); 
+	        }
  
-            // Add active class to section title
-            $(this).addClass('active');
-            // Open up the hidden content panel
-            $('.accordion ' + currentAttrValue).slideDown(300).addClass('open'); 
-        }
- 
-        e.preventDefault();
+	        e.preventDefault();
 	});
 }

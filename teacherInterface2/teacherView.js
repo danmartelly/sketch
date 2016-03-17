@@ -57,7 +57,7 @@ function OverlayOptionsToolbar(sketchInterface, refDiv) {
 	this.initialize = function() {
 		this.allowedDrawCheckbox = document.createElement('input');
 		this.allowedDrawCheckbox.type = 'checkbox';
-		this.allowedDrawCheckbox.checked = false;
+		this.allowedDrawCheckbox.checked = true;
 		this.mainForm.appendChild(this.allowedDrawCheckbox);
 		var label = document.createElement('label');
 		label.innerHTML = 'Where to draw overlay';

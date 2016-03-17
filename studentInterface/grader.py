@@ -1,4 +1,5 @@
 import random
+import json
 import criteria
 import dataFuncs
 import graphUtil as util
@@ -11,6 +12,15 @@ def magicGrade():
 def gradeProblem(studentData, problemID):
     grader = criteria.createGraderFromProbID(problemID)
     graphData = util.GraphData(studentData)
+    grade = grader.grade(graphData)
+    return (grade[0]*100, grade[1])
+
+#data is a JSON string containing axes data, drawing data, ...
+# criteria
+def gradeGivenCriteria(data, criteriaJSON):
+    critList = json.loads(criteriaJSON)
+    grader = criteria.createGrader(critList)
+    graphData = util.GraphData(data)
     grade = grader.grade(graphData)
     return (grade[0]*100, grade[1])
 

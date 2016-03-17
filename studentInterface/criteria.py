@@ -644,7 +644,7 @@ class FunctionFollowedCriteria(Criteria):
         else:
             return (1., counter)
 
-    def requiredPolygons(self, otherVars):
+    def requiredPolygonsUnused(self, otherVars):
         (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
         allPolys = []
         topEdge = []
@@ -671,7 +671,46 @@ class FunctionFollowedCriteria(Criteria):
             allPolys.append(topEdge)
         return allPolys
 
-    def forbiddenPolygons(self, otherVars):
+    def requiredPolygons(self, otherVars):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        allPolys = []
+        highEdge = []
+        lowEdge = []
+        imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
+        imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
+        for i in range(imin-self.pixelCloseness,imax+self.pixelCloseness):
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            xprev = xmin + (i-1)*(xmax-xmin)/pixelWidth
+            y = self.f(x)
+            yprev = self.f(xprev)
+            j = (ymax - y)/float(ymax-ymin)*pixelHeight
+            jprev = (ymax-yprev)/float(ymax-ymin)*pixelHeight
+            perpSlope = (-float(j-jprev), 1.)
+            mag = (perpSlope[0]**2 + perpSlope[1]**2)**.5
+            highi = round(i + perpSlope[0]*self.pixelCloseness/mag)
+            highj = round(j + perpSlope[1]*self.pixelCloseness/mag)
+            lowi = round(i - perpSlope[0]*self.pixelCloseness/mag)
+            lowj = round(j - perpSlope[1]*self.pixelCloseness/mag)
+            # add to edges if possible
+            if (highj > 0 or lowj < pixelHeight):
+                if highi >= imin and highi <= imax and highj > 0:
+                    highEdge.append((highi,max(0,min(highj, pixelHeight))))
+                if lowi >= imin and lowi <= imax and lowj < pixelHeight:
+                    lowEdge.append((lowi,min(pixelHeight,max(lowj,0))))
+            elif len(highEdge) > 0:
+                highEdge.reverse()
+                highEdge.extend(lowEdge)
+                allPolys.append(highEdge)
+                highEdge = []
+                lowEdge = []
+
+        if len(highEdge) > 0: 
+            highEdge.reverse()
+            highEdge.extend(lowEdge)
+            allPolys.append(highEdge)
+        return allPolys
+
+    def forbiddenPolygonsOld(self, otherVars):
         (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
         allPolys = []
         topPoly = []
@@ -708,6 +747,54 @@ class FunctionFollowedCriteria(Criteria):
             finishPoly(bottomPoly, pixelHeight)
             allPolys.append(bottomPoly)
         return allPolys
+
+    def forbiddenPolygons(self, otherVars):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        allPolys = []
+        topPoly = []
+        bottomPoly = []
+        imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
+        imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
+        def finishPoly(l, edge):
+            first = l[0]
+            last = l[-1]
+            l.append((last[0],edge))
+            l.append((first[0],edge))
+        for i in range(imin-self.pixelCloseness,imax+self.pixelCloseness):
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            xprev = xmin + (i-1)*(xmax-xmin)/pixelWidth
+            y = self.f(x)
+            yprev = self.f(xprev)
+            j = (ymax - y)/float(ymax-ymin)*pixelHeight
+            jprev = (ymax-yprev)/float(ymax-ymin)*pixelHeight
+            perpSlope = (-float(j-jprev), 1.)
+            mag = (perpSlope[0]**2 + perpSlope[1]**2)**.5
+            highi = round(i + perpSlope[0]*self.pixelCloseness/mag)
+            highj = round(j + perpSlope[1]*self.pixelCloseness/mag)
+            lowi = round(i - perpSlope[0]*self.pixelCloseness/mag)
+            lowj = round(j - perpSlope[1]*self.pixelCloseness/mag)
+            # top
+            if (lowi >= imin and lowi <= imax and lowj > 0):
+                topPoly.append((lowi,min(lowj,pixelHeight)))
+            elif len(topPoly) > 0:
+                finishPoly(topPoly, 0)
+                allPolys.append(topPoly)
+                topPoly = []
+            # bottom
+            if (highi >= imin and highi <= imax and highj < pixelHeight):
+                bottomPoly.append((highi,max(highj, 0)))
+            elif len(bottomPoly) > 0:
+                finishPoly(bottomPoly, pixelHeight)
+                allPolys.append(bottomPoly)
+                bottomPoly = []
+        if len(topPoly) > 0: 
+            finishPoly(topPoly, 0)
+            allPolys.append(topPoly)
+        if len(bottomPoly) > 0: 
+            finishPoly(bottomPoly, pixelHeight)
+            allPolys.append(bottomPoly)
+        return allPolys
+
 
     def requiredList(self, otherVars):
         yCloseness = float(self.pixelCloseness)/(otherVars['pixelHeight']/(otherVars['ymax'] - otherVars['ymin']))
