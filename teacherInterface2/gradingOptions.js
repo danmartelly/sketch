@@ -1,9 +1,9 @@
 var possibleCriteria = {
-	'Custom Code':CustomPythonCriteria,
+	//'Custom Code':CustomPythonCriteria,
 };
 
 for (var prop in criteriaCode) {
-	if (prop == "Criteria" || !criteriaCode.hasOwnProperty(prop)) {
+	if (prop == "Criteria" || prop.indexOf("Criteria") == -1 || !criteriaCode.hasOwnProperty(prop)) {
 		continue;
 	}
 	prop = prop.slice(0, prop.length-8);
@@ -236,6 +236,7 @@ function FloatInput(info, refCriteria) {
 		var textnode = document.createTextNode(info.name + " ");
                 this.refCriteria.mainForm.appendChild(textnode);
 		this.inp = document.createElement('input');
+		this.inp.style.width = "40px";
 		this.inp.type = 'number';
 		this.inp.value = info.default;
 		this.refCriteria.mainForm.appendChild(this.inp);
@@ -272,6 +273,7 @@ function IntegerInput(info, refCriteria) {
 		var textnode = document.createTextNode(info.name + " ");
                 this.refCriteria.mainForm.appendChild(textnode);
 		this.inp = document.createElement('input');
+		this.inp.style.width = "40px";
 		this.inp.type = 'number';
 		this.inp.value = info.default;
 		this.refCriteria.mainForm.appendChild(this.inp);
@@ -411,6 +413,7 @@ function DomainInput(info, refCriteria) {
 		var textnode = document.createTextNode("Domain min: ");
 		this.refCriteria.mainForm.appendChild(textnode);
 		this.minInp = document.createElement('input');
+		this.minInp.style.width = "40px";
 		this.minInp.type = 'number';
 		this.minInp.onchange = this.update;
 		this.refCriteria.mainForm.appendChild(this.minInp);
@@ -418,6 +421,7 @@ function DomainInput(info, refCriteria) {
 		textnode = document.createTextNode("Domain max: ");
 		this.refCriteria.mainForm.appendChild(textnode);
 		this.maxInp = document.createElement('input');
+		this.maxInp.style.width = "40px";
 		this.maxInp.type = 'number';
 		this.maxInp.onchange = this.update;
 		this.refCriteria.mainForm.appendChild(this.maxInp);
