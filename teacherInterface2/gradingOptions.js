@@ -6,7 +6,6 @@ for (var prop in criteriaCode) {
 	if (prop == "Criteria" || prop.indexOf("Criteria") == -1 || !criteriaCode.hasOwnProperty(prop)) {
 		continue;
 	}
-	prop = prop.slice(0, prop.length-8);
 	possibleCriteria[prop] = PythonCriteria;
 }
 
@@ -214,6 +213,7 @@ function InputArg(info, refCriteria) {
 
 	var that = this;
 	this.update = function() {
+		console.log('updating', that.refCriteria);
 		that.refCriteria.hasChanged = true;
 		that.refCriteria.gradingOptions.criteriaChanged();
 	}
@@ -233,9 +233,10 @@ function FloatInput(info, refCriteria) {
 	InputArg.call(this, info, refCriteria);
 	this.inp = null;
 	this.initialize = function() {
-		var textnode = document.createTextNode(info.name + " ");
+		var textnode = document.createTextNode(info.displayName + ": ");
                 this.refCriteria.mainForm.appendChild(textnode);
 		this.inp = document.createElement('input');
+		this.inp.title = info.helpText;
 		this.inp.style.width = "40px";
 		this.inp.type = 'number';
 		this.inp.value = info.default;
@@ -270,9 +271,10 @@ function IntegerInput(info, refCriteria) {
 	InputArg.call(this, info, refCriteria);
 	this.inp = null;
 	this.initialize = function() {
-		var textnode = document.createTextNode(info.name + " ");
+		var textnode = document.createTextNode(info.displayName + " ");
                 this.refCriteria.mainForm.appendChild(textnode);
 		this.inp = document.createElement('input');
+		this.inp.title = info.helpText;
 		this.inp.style.width = "40px";
 		this.inp.type = 'number';
 		this.inp.value = info.default;
@@ -306,9 +308,10 @@ function IntegerInput(info, refCriteria) {
 function BooleanInput(info, refCriteria) {
 	InputArg.call(this, info, refCriteria);
 	this.initialize = function() {
-		var textnode = document.createTextNode(info.name + " ");
+		var textnode = document.createTextNode(info.displayName + " ");
                 this.refCriteria.mainForm.appendChild(textnode);
 		var inp = document.createElement('input');
+		inp.title = info.helpText;
 		inp.type = 'radio';
 		inp.name = info.name;
 		inp.value = true;
@@ -318,6 +321,7 @@ function BooleanInput(info, refCriteria) {
 		this.refCriteria.mainForm.appendChild(inp);
 		this.refCriteria.mainForm.appendChild(document.createTextNode('True'));
 		var inp = document.createElement('input');
+		inp.title = info.helpText;
 		inp.type = 'radio';
 		inp.name = info.name;
 		inp.value = false;
@@ -376,9 +380,10 @@ function FunctionInput(info, refCriteria) {
 	InputArg.call(this, info, refCriteria);
 	this.inp = null;
 	this.initialize = function() {
-		var textnode = document.createTextNode(info.name + " (only variable name should be x:  f(x) = ");
+		var textnode = document.createTextNode(info.displayName + " = ");
 		this.refCriteria.mainForm.appendChild(textnode);
 		this.inp = document.createElement('input');
+		this.inp.title = info.helpText;
 		this.inp.type = 'text';
 		this.inp.size = 50;
 		this.inp.onchange = this.update;
@@ -410,17 +415,19 @@ function DomainInput(info, refCriteria) {
 	this.minInp = null;
 	this.maxInp = null;
 	this.initialize = function() {
-		var textnode = document.createTextNode("Domain min: ");
+		var textnode = document.createTextNode(info.displayName + " min: ");
 		this.refCriteria.mainForm.appendChild(textnode);
 		this.minInp = document.createElement('input');
+		this.minInp.title = info.helpText;
 		this.minInp.style.width = "40px";
 		this.minInp.type = 'number';
 		this.minInp.onchange = this.update;
 		this.refCriteria.mainForm.appendChild(this.minInp);
 
-		textnode = document.createTextNode("Domain max: ");
+		textnode = document.createTextNode(info.displayName + " max: ");
 		this.refCriteria.mainForm.appendChild(textnode);
 		this.maxInp = document.createElement('input');
+		this.maxInp.title = info.helpText;
 		this.maxInp.style.width = "40px";
 		this.maxInp.type = 'number';
 		this.maxInp.onchange = this.update;
@@ -459,6 +466,7 @@ function PointInput(info, criteria) {
 		var textnode = document.createTextNode("x: ");
 		this.refCriteria.mainForm.appendChild(textnode);
 		this.xInp = document.createElement('input');
+		this.xInp.style.width = "40px";
 		this.xInp.type = 'number';
 		this.xInp.onchange = this.update;
 		this.refCriteria.mainForm.appendChild(this.xInp);
@@ -466,6 +474,7 @@ function PointInput(info, criteria) {
 		var textnode = document.createTextNode(" y: ");
 		this.refCriteria.mainForm.appendChild(textnode);
 		this.yInp = document.createElement('input');
+		this.yInp.style.width = "40px";
 		this.yInp.type = 'number';
 		this.yInp.onchange = this.update;
 		this.refCriteria.mainForm.appendChild(this.yInp);
@@ -486,6 +495,7 @@ function PointInput(info, criteria) {
 	this.getKeyValuePair = function() {
 		var x = this.xInp.value;
 		var y = this.yInp.value;
+		console.log('point getkeyvaluepair call', x, y);
 		return [this.info.name, [x,y]];
 	}
 	
@@ -519,9 +529,9 @@ function MultiPointInput(info, criteria) {
 
 		// hacks
 		this.mainForm = this.myDiv;
-		this.gradingOptions = this.refCriteria.gradingOptions;
 
 		this.pointInput = new PointInput(info, this);
+		this.pointInput.refCriteria = this.refCriteria;
 	}
 
 	var that = this;
@@ -562,6 +572,7 @@ function MultiPointInput(info, criteria) {
 	}
 
 	this.getKeyValuePair = function() {
+		console.log(this);
 		// find head
 		var node = this;
 		while (node.prev != null)
@@ -569,7 +580,7 @@ function MultiPointInput(info, criteria) {
 		// iterate through to get all things
 		var l = [];
 		while (node != null) {
-			l.push(node.getKeyValuePair()[1]);
+			l.push(node.pointInput.getKeyValuePair()[1]);
 			node = node.next;
 		}
 		return [this.info.name, l];
@@ -599,19 +610,22 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 	this.hasChanged = true;
 
 	this.initialize = function() {
-		this.setTitleText(type);
-		// figure out what inputs will look like
-		var inputs = criteriaInputs[this.type + "Criteria"];
-                for (var i = 0; i < inputs.length; i++) {
-			this.addInput(inputs[i]);
-		}
-
 		// save code into this.code
 		this.code = criteriaCode["InputArg"] + "\n\n";
-		this.code += criteriaCode["Criteria"] + "\n\n" + criteriaCode[type+"Criteria"];
+		this.code += criteriaCode["Criteria"] + "\n\n" + criteriaCode[this.type];
 
 		// put code into module
 		this.skModule = Sk.importMainWithBody("<stdin>", false, this.code);
+		var claz = this.skModule.tp$getattr(this.type);
+
+		this.setTitleText(claz.tp$getattr("title").v);
+		this.setHelpText(claz.tp$getattr("helpText").v);
+
+		// figure out what inputs will look like
+		var inputs = criteriaInputs[this.type];
+                for (var i = 0; i < inputs.length; i++) {
+			this.addInput(inputs[i]);
+		}
 	}
 
 	this.addInput = function(info) {
@@ -660,7 +674,7 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 			inputDict.push(ia.getValue());
 		}
 		inputDict = new Sk.builtin.dict(inputDict);
-		var claz = this.skModule.tp$getattr(this.type + "Criteria");
+		var claz = this.skModule.tp$getattr(this.type);
 		this.classInst = Sk.misceval.callsim(claz, inputDict);
 		this.hasChanged = false;
 		this.memo = {};

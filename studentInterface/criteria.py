@@ -75,14 +75,18 @@ class InputArg():
         POINT:('point', lambda x:x),
         MULTIPLEPOINTS:('multiplePoints', lambda x:x)
     }
-    def __init__(self, name, inputType, default, required=False):
+    def __init__(self, name, displayName, helpText, inputType, default, required=False):
         self.name = name
+        self.displayName = displayName
+        self.helpText = helpText
         self.inputType = inputType
         self.default = default
         self.required = required
     def getDict(self):
         d = {}
         d['name'] = self.name
+        d['displayName'] = self.displayName
+        d['helpText'] = self.helpText
         d['default'] = self.default
         d['type'] = InputArg.mapping[self.inputType][0] 
         d['required'] = self.required
@@ -91,8 +95,10 @@ class InputArg():
         return InputArg.mapping[self.inputType][1](val)
 
 class Criteria():
-    args = [InputArg('weight',InputArg.FLOAT, 1), 
-            InputArg('failFast', InputArg.BOOL, False)]
+    title = "Base Criteria Class Title (Update title variable)"
+    helpText = ""
+    args = [InputArg('weight', "Grade Weight: ", "What weight will this criteria have relative to others", InputArg.FLOAT, 1), 
+            InputArg('failFast', "Fail Immediately: ", "When True, a student who does not pass this criteria instantly gets 0% as a grade", InputArg.BOOL, False)]
     failMessage = 'Criteria failed in some way'
     def __init__(self, kwargs):
         missingArgs = []
@@ -159,10 +165,11 @@ class Criteria():
         return []
  
 class MonotonicCriteria(Criteria):
+    title = "Monotonicity Test Criteria"
     failMessage = 'Not monotonic'
-    args = Criteria.args + [InputArg('domain',InputArg.DOMAIN,[-float('inf'), float('inf')]),
-                            InputArg('trend', InputArg.INTEGER, 0, True),
-                            InputArg('pixelCloseness', InputArg.INTEGER, 10)]
+    args = Criteria.args + [InputArg('domain', "Domain", "What range of x values this criteria will be checked on", InputArg.DOMAIN,[-float('inf'), float('inf')]),
+                            InputArg('trend', "Trend", "1 means monotonically increasing, -1 means decreasing, 0 means either way", InputArg.INTEGER, 0, True),
+                            InputArg('pixelCloseness', "Error margin (pixels)", "How far away in the wrong direction the student can go", InputArg.INTEGER, 10)]
     """Check that data is monotonic. Can also specify whether a positive or
    negative trend is there"""
     def __init__(self, kwargs):
@@ -252,8 +259,9 @@ class MonotonicCriteria(Criteria):
 
 
 class PointsCriteria(Criteria):
-    args = Criteria.args + [InputArg('pixelCloseness', InputArg.INTEGER, 10),
-                            InputArg('list',InputArg.MULTIPLEPOINTS,[],True)]
+    title = "Critical Point Check"
+    args = Criteria.args + [InputArg('pixelCloseness', "Precision (pixels)", "How close the drawing has to get to the specified point to get full credit", InputArg.INTEGER, 10),
+                            InputArg('list', "Points", "", InputArg.MULTIPLEPOINTS,[],True)]
     failMessage = 'Some critical points were missed'
     '''Check that the drawn graph contains this critical point within some range
     Required arguments: *list: which is a list of 2 length tuples containing (x,y)'''
@@ -288,7 +296,8 @@ class PointsCriteria(Criteria):
         
 
 class DerivativeCriteria(Criteria):
-    args = Criteria.args + [InputArg('list',InputArg.LIST,[],True)]
+    title = "Fixed Derivative Check"
+    args = Criteria.args + [InputArg('list',"deriv", "no help text", InputArg.LIST,[],True)]
     failMessage = 'The slope of your graph at some important points doesn\' match the answer'
     '''Check that the derivative graph has an appropriate derivative at the given x values
     Required arguments: *list: which is a list of 2 length tuples containing (x, dy/dx)'''
@@ -323,9 +332,10 @@ class DerivativeCriteria(Criteria):
  
 
 class IsFunctionCriteria(Criteria):
+    title = "Graph is a Function Check"
     failMessage = "Your graph needs to be a function (one y value per x value)"
-    args = Criteria.args + [InputArg('domain',InputArg.DOMAIN,[-float('inf'), float('inf')]),
-                            InputArg('fraction',InputArg.FLOAT,.8)]
+    args = Criteria.args + [InputArg('domain', "Domain", "What range of x values the drawing needs to be a function in", InputArg.DOMAIN,[-float('inf'), float('inf')]),
+                            InputArg('fraction', "Fraction of good", "What fraction of the points drawn need to follow the rule", InputArg.FLOAT,.8)]
     '''Check if graph is close to a function (one y value per x value)
     Or at least that repeat y values are close to each other indicating a vertical line'''
     def __init__(self, kwargs):
@@ -357,10 +367,11 @@ class IsFunctionCriteria(Criteria):
             return (1., None)
 
 class FunctionFollowedCriteria(Criteria):
-    args = Criteria.args + [InputArg('domain',InputArg.DOMAIN,[-float('inf'), float('inf')]),
-                            InputArg('fraction',InputArg.FLOAT,.8),
-                            InputArg('f',InputArg.FUNCTION, "", True),
-                            InputArg('pixelCloseness', InputArg.INTEGER, 10)]
+    title = "Stick to Function Check"
+    args = Criteria.args + [InputArg('domain', "Domain", "For what x values you want to apply the criteria", InputArg.DOMAIN,[-float('inf'), float('inf')]),
+                            InputArg('fraction', "Fraction Good", "What fraction of points drawn need to be inside the appropriate region", InputArg.FLOAT,.8),
+                            InputArg('f', "Function", "Needs to be specified with valid Python syntax", InputArg.FUNCTION, "", True),
+                            InputArg('pixelCloseness', "Error margin (pixels):", "How close the drawing has to be to the correct answer", InputArg.INTEGER, 10)]
 
     failMessage = 'Did not match our function'
     """Check if graph follows function through domain specified
@@ -425,33 +436,6 @@ class FunctionFollowedCriteria(Criteria):
         else:
             return (1., counter)
 
-    def requiredPolygonsUnused(self, otherVars):
-        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
-        allPolys = []
-        topEdge = []
-        bottomEdge = []
-        imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
-        imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
-        for i in range(imin,imax):
-            x = xmin + i*(xmax-xmin)/pixelWidth
-            y = self.f(x)
-            j = int((ymax - y)/float(ymax-ymin)*pixelHeight)
-            # if green is within bounds
-            if (j+self.pixelCloseness > 0 or j-self.pixelCloseness < pixelHeight):
-                topEdge.append((i,max(0,min(j-self.pixelCloseness, pixelHeight))))
-                bottomEdge.append((i,min(pixelHeight,max(j+self.pixelCloseness,0))))
-            elif len(topEdge) > 0:
-                topEdge.reverse()
-                topEdge.extend(bottomEdge)
-                allPolys.append(topEdge)
-                topEdge = []
-                bottomEdge = []
-        if len(topEdge) > 0: 
-            topEdge.reverse()
-            topEdge.extend(bottomEdge)
-            allPolys.append(topEdge)
-        return allPolys
-
     def requiredPolygons(self, otherVars):
         (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
         allPolys = []
@@ -489,44 +473,6 @@ class FunctionFollowedCriteria(Criteria):
             highEdge.reverse()
             highEdge.extend(lowEdge)
             allPolys.append(highEdge)
-        return allPolys
-
-    def forbiddenPolygonsOld(self, otherVars):
-        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
-        allPolys = []
-        topPoly = []
-        bottomPoly = []
-        imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
-        imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
-        def finishPoly(l, edge):
-            first = l[0]
-            last = l[-1]
-            l.append((last[0],edge))
-            l.append((first[0],edge))
-        for i in range(imin,imax):
-            x = xmin + i*(xmax-xmin)/pixelWidth
-            y = self.f(x)
-            j = int((ymax - y)/float(ymax-ymin)*pixelHeight)
-            # top
-            if (j-self.pixelCloseness > 0):
-                topPoly.append((i,min(j-self.pixelCloseness,pixelHeight)))
-            elif len(topPoly) > 0:
-                finishPoly(topPoly, 0)
-                allPolys.append(topPoly)
-                topPoly = []
-            # bottom
-            if (j+self.pixelCloseness < pixelHeight):
-                bottomPoly.append((i,max(j+self.pixelCloseness, 0)))
-            elif len(bottomPoly) > 0:
-                finishPoly(bottomPoly, pixelHeight)
-                allPolys.append(bottomPoly)
-                bottomPoly = []
-        if len(topPoly) > 0: 
-            finishPoly(topPoly, 0)
-            allPolys.append(topPoly)
-        if len(bottomPoly) > 0: 
-            finishPoly(bottomPoly, pixelHeight)
-            allPolys.append(bottomPoly)
         return allPolys
 
     def forbiddenPolygons(self, otherVars):

@@ -41,7 +41,6 @@ function TeacherView(dataHandler, refDiv, options) {
 		this.gradeCanvas.reposition(80,0);
 		this.gradeCanvas.resize(this.width, this.height);
 		this.gradeCanvas.draw();
-		
 	}
 
 	this.initialize();
@@ -272,7 +271,6 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 			var crit = criteria[ind];
 			var pts = crit.getCriticalPoints();
 			for (var ind2 = 0; ind2 < pts.length; ind2++) {
-				console.log('sup');
 				var p = pts[ind2];
 				var x = p.x;
 				var y = p.y;
