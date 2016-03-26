@@ -277,7 +277,6 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 				var pixels = p.pixelRadius;
 				var i = this.sketchInterface.xAxis.indexFromX(x);
 				var j = this.sketchInterface.yAxis.indexFromY(y);
-				console.log('x',x,'y',y,'pc',pixels,'i',i,'j',j,'p',p);
 				ctx.beginPath();
 				ctx.arc(i,j, pixels, 0, 2*Math.PI);
 				ctx.moveTo(i,j);

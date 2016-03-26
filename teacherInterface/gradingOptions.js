@@ -107,6 +107,7 @@ function BasicCriteria(gradingOptions, refDiv) {
 	this.container = null;
 	this.mainForm = null;
 	this.removeButton = null;
+	this.displayCheckbox = null;
 	this.helpText = '';
 	this.titleText = '';
 	var that = this;
@@ -121,6 +122,14 @@ function BasicCriteria(gradingOptions, refDiv) {
 		this.removeButton.value = 'Remove Criteria';
 		this.removeButton.onclick = this.remove;
 		this.container.appendChild(this.removeButton);
+		// display checkbox
+		this.displayChecbkox = document.createElement('input');
+		this.displayCheckbox.type = 'checkbox';
+		this.displayCheckbox.checked = true;
+		var label = document.createElement('label');
+		label.innerHTML = "Visualize in Teacher View";
+		this.container.appendChild(this.displayCheckbox);
+		this.container.appendChild(label);
 		// put title text
 		this.titleText = document.createElement('h5');
 		this.container.appendChild(this.titleText);
@@ -213,7 +222,6 @@ function InputArg(info, refCriteria) {
 
 	var that = this;
 	this.update = function() {
-		console.log('updating', that.refCriteria);
 		that.refCriteria.hasChanged = true;
 		that.refCriteria.gradingOptions.criteriaChanged();
 	}
@@ -495,7 +503,6 @@ function PointInput(info, criteria) {
 	this.getKeyValuePair = function() {
 		var x = this.xInp.value;
 		var y = this.yInp.value;
-		console.log('point getkeyvaluepair call', x, y);
 		return [this.info.name, [x,y]];
 	}
 	
@@ -563,7 +570,6 @@ function MultiPointInput(info, criteria) {
 			l.push(node.pointInput.getValue());
 			node = node.next;
 		}
-		console.log(l);
 		return Sk.builtin.list(l);
 	}
 
@@ -572,7 +578,6 @@ function MultiPointInput(info, criteria) {
 	}
 
 	this.getKeyValuePair = function() {
-		console.log(this);
 		// find head
 		var node = this;
 		while (node.prev != null)
