@@ -1,12 +1,11 @@
-function DisplayOptions(sketchInterface, refDiv) {
+function DisplayOptions(dataHandler, refDiv) {
 	this.refDiv = refDiv;
-	this.sketchInterface = sketchInterface;
+	this.dataHandler = dataHandler;
 	this.xAxisOptions = null;
 	this.yAxisOptions = null;
 	this.imageOptions = null;
 	this.critPointOptions = null;
 	this.funcOptions = null;
-	this.sketchDiv = null;
 	this.previewButton = null;
 	var that = this;
 
@@ -49,6 +48,16 @@ function DisplayOptions(sketchInterface, refDiv) {
 		this.previewButton.onclick = this.preview;
 		form.appendChild(this.previewButton);
 		this.refDiv.appendChild(form);
+
+		this.processDisplayOptions(this.dataHandler.getDisplayOptions());
+		this.dataHandler.addDisplayOptionsListener(this);
+	}
+
+	this.processDisplayOptions = function(options) {
+		this.xAxisOptions.setChoices(options['xaxis']);
+		this.yAxisOptions.setChoices(options['yaxis']);
+		this.imageOptions.setChoices(options['img']);
+		this.critPointOptions.setChoices(options['critPoints']);
 	}
 
 	this.getChoices = function() {
@@ -57,12 +66,11 @@ function DisplayOptions(sketchInterface, refDiv) {
 		options['yaxis'] = this.yAxisOptions.getChoices();
 		options['img'] = this.imageOptions.getChoices();
 		options['critPoints'] = this.critPointOptions.getChoices();
-		console.log(options);
 		return options
 	}
 
 	this.preview = function(e) {
-		that.sketchInterface.updateOptions(that.getChoices());
+		that.dataHandler.setDisplayOptions(that.getChoices());
 	}
 
 	this.mergeObjects = function(obj1, obj2, attrModifier1, attrModifier2) {
@@ -200,6 +208,24 @@ function AxisOptions(refDiv) {
 		return options
 	}
 
+	this.setChoices = function(options) {
+		if (options.hasOwnProperty('scaleType') && options['scaleType'] == 'linear')
+			this.linearRadio.checked = true;
+		else
+			this.logRadio.checked = true;
+		if (options.hasOwnProperty('setBy') && options['setBy'] == 'teacher') {
+			this.teacherRadio.checked = true;
+			this.minText.value = options['min'];
+			this.maxText.value = options['max'];
+			this.stepText.value = options['step'];
+		} else {
+			this.studentRadio.checked = true;
+		}
+
+		this.labelText.value = options['label'];
+		this.pixelInput.value = options['pixelDim'];
+	}
+
 	this.initialize();
 }
 
@@ -293,7 +319,7 @@ function CritPointOption(refDiv, prev, next) {
 		var node = this;
 		while (node.prev != null)
 			node = node.prev;
-		// iterate through to get all options
+		// iterate through to get all options 
 		var choices = [];
 		while (node != null) {
 			if (node.labelText.value != "") {
@@ -307,6 +333,11 @@ function CritPointOption(refDiv, prev, next) {
 		}
 		return choices;
 	}
+
+	this.setChoices = function(options) {
+		console.log('set choices for critical points implementation not complete');
+	}
+
 	this.initialize();
 }
 
@@ -377,6 +408,10 @@ function BackgroundImageOption(refDiv) {
 		options['yoffset'] = this.yoffset.value;
 		options['imgsrc'] = this.imgsrc;
 		return options;
+	}
+
+	this.setChoices = function(options) {
+		console.log('set choices for image implementation not complete');
 	}
 
 	this.initialize();

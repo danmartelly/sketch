@@ -1,6 +1,7 @@
 import inspect
 import imp
 import sys
+import json
 
 def getModule(name, filename):
     f = open(filename, 'U')
@@ -34,16 +35,40 @@ def makeJavascript(codeDict):
         first = str(k)
         second = repr(str(codeDict[k]))[1:-1].replace('"',r'\"')
         thing = '"{!s}": "{!s}"'.format(first, second)
-        js += thing
-    return js + '}'
+        js += thing + ",\n"
+    return js[:-2] + '}'
 
-#print splitPyFile('blah','testSplit.py', lambda x: 'est' in x)
+def getJavascriptInputs(filename, filterFunc = None):
+    if filterFunc == None:
+        filterFunc = lambda x: True
+    mod = getModule('blah', filename)
+    failed = []
+    inputs = {}
+    # get lists of InputArg instance
+    for k in mod.__dict__:
+        c = mod.__dict__[k]
+        if filterFunc(k) and inspect.isclass(c):
+            try:
+                inputs[k] = c.args
+            except:
+                failed.append(k)
+    answer = {}
+    for k in inputs:
+        d = inputs[k]
+        new = []
+        for inp in d:
+            new.append(inp.getDict())
+        answer[k] = new
+    answer = json.dumps(answer)
+    return answer, failed
 
-code, failed = splitPyFile(r'../studentInterface/criteria.py', lambda x: 'Criteria' in x)
-#print code
-print '""""'.replace('"','\\"')
 
+code, failed = splitPyFile(r'../studentInterface/criteria.py', lambda x: 'Criteria' in x or x == 'InputArg')
+print 'failed from getting classes:', failed
+inputs, failed = getJavascriptInputs(r'../studentInterface/criteria.py', lambda x: 'Criteria' in x)
+print 'failed from getting inputs:', failed
 f = open('pyCodeVar.js','w')
-f.write('criteriaCode = ' + makeJavascript(code))
+f.write('criteriaCode = ' + makeJavascript(code) + ';\n')
+f.write('criteriaInputs = ' + inputs + ';\n')
 f.close()
 

@@ -1,21 +1,99 @@
 <html>
 <head>
 	<meta charset="utf-8"/>
-	<title>Graph Question Set Up</title>
-	<script type='text/javascript' src='../sketchGraphsV2.js'></script>
+	<title>Teacher Interface for Graph Questions</title>
+	<!--jquery mostly used for post calls to servers-->
+	<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<!--Skulpt for dealing with running python on web broswer-->
 	<script type='text/javascript' src='../skulpt-dist/skulpt.min.js'></script>
 	<script type='text/javascript' src='../skulpt-dist/skulpt-stdlib.js'></script>
-	<script type="text/javascript" src='displayOptions.js'></script>
+	<!--Can be helpful for debugging timing things-->
+	<script type='text/javascript' src='CONSOLE.js'></script>
+	<!--Start accordion things-->
+	<script type="text/javascript" src="accordion.js"></script>
+	<link rel="stylesheet" type="text/css" href="teacher.css"/>
+	<!--End accordion things-->
+	<script type="text/javascript" src="../sketchGraphsV2.js"></script>
+	<script type='text/javascript' src='../sketchTools.js'></script>
+	<!--Model import-->
+	<script type="text/javascript" src="teacherDataHandler.js"></script>
+	<!--View/Controller imports-->
+	<script type="text/javascript" src="displayOptions.js"></script>
 	<script type="text/javascript" src='pyCodeVar.js'></script>
 	<script type="text/javascript" src='gradingOptions.js'></script>
-	<script type='text/javascript' src='gradeVisualizer.js'></script>
+	<script type="text/javascript" src='studentView.js'></script>
+	<script type="text/javascript" src='teacherView.js'></script>
+	<script type="text/javascript" src='loadSaveOptions.js'></script>
+	<script type="text/javascript" src='generatedSketch.js'></script>
+	<script type="text/javascript" src="teacherTest.js"></script>
 </head>
 <body>
-	<div id = 'sketch'></div>
+<div id="optionsContainer" class="container">
+	<h3>Option Selection</h3>
+	<div class="accordion" id="optionSelection">
+		<div class="accordion-section">
+			<a class="accordion-section-title" href="#displayOptionsDiv">Display Options</a>
+			<div id="displayOptionsDiv" class="accordion-section-content">
+			</div>
+		</div>
+		<div class="accordion-section">
+			<a class="accordion-section-title" href="#criteriaOptionsDiv">Criteria Options</a>
+			<div id="criteriaOptionsDiv" class="accordion-section-content">
+			</div>
+		</div>
+		<div class="accordion-section">
+			<a class="accordion-section-title" href="#loadSaveDiv">Load/Save Options</a>
+			<div id="loadSaveDiv" class="accordion-section-content">
+			</div>
+		</div>
+	</div>
+
+	<div class="accordion" id="visualization">
+		<div class="accordion-section">
+			<a class="accordion-section-title" href="#studentView">Student View</a>
+			<div id="studentView" class="accordion-section-content">
+			</div>
+		</div>
+		<div class="accordion-section">
+			<a class="accordion-section-title" href="#teacherView">Teacher View</a>
+			<div id="teacherView" class="accordion-section-content">
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="testingContainer" class="container">
+	<h3>Testing Tools</h3>
+	<div class="accordion">
+		<div class="accordion-section">
+			<a class="accordion-section-title" href="#drawTestingDiv">Draw Testing</a>
+			<div id="drawTestingDiv" class="accordion-section-content">
+			</div>
+		</div>
+	<!--	<div class="accordion-section">
+			<a class="accordion-section-title" href="#generateDiv">Auto-Generate</a>
+			<div id="generateDiv" class="accordion-section-content">
+			</div>
+		</div>-->
+	</div>
+</div>
 </body>
-<script text="javascript/text">
-window.onload = function() {
-	var si = new GradeInterface(document.getElementById('sketch'));
-};
+<script type="text/javascript">
+	window.onload = function() {
+		findAndInitializeAccordions();
+		// set up model
+		var dataHandler = new DataHandler();
+		dataHandler.setDisplayOptions(defaultDisplayOptions);
+		// set up options selection
+		var displayOptionsSelector = new DisplayOptions(dataHandler, document.getElementById("displayOptionsDiv"));
+		var criteriaOptionsSelector = new GradingOptions(dataHandler, document.getElementById("criteriaOptionsDiv"));
+		var studentView = new StudentView(dataHandler, document.getElementById("studentView"));
+		var teacherView = new TeacherView(dataHandler, document.getElementById("teacherView"));
+		teacherView.gradingOptions = criteriaOptionsSelector;
+		var loadSave = new LoadSaveOptions(dataHandler, document.getElementById("loadSaveDiv"));
+		// set up testing things
+		var teacherTest = new TeacherTest(dataHandler, document.getElementById("drawTestingDiv"));
+		//var generator = new GeneratedSketch(dataHandler, document.getElementById("generateDiv"));
+	}
 </script>
 </html>

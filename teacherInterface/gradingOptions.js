@@ -1,16 +1,17 @@
 var possibleCriteria = {
-	'Domain Filled':DomainFilledCriteria,
-	'Domain Avoided':DomainAvoidedCriteria,
-	'Function Followed':FunctionFollowedCriteria,
-	'Function Avoided':FunctionAvoidedCriteria,
-	'Montonicity':MonotonicCriteria,
-	'Python Code':PythonCriteria,
-	'Critical Points':CriticalPointCriteria,
+	//'Custom Code':CustomPythonCriteria,
 };
 
-function GradingOptions(gradeInterface, refDiv) {
+for (var prop in criteriaCode) {
+	if (prop == "Criteria" || prop.indexOf("Criteria") == -1 || !criteriaCode.hasOwnProperty(prop)) {
+		continue;
+	}
+	possibleCriteria[prop] = PythonCriteria;
+}
+
+function GradingOptions(dataHandler, refDiv) {
 	this.refDiv = refDiv;
-	this.gradeInterface = gradeInterface;
+	this.dataHandler = dataHandler;
 	this.addItemMenu = null;
 	this.optionsDiv = null;
 	this.criteriaList = [];
@@ -50,9 +51,15 @@ function GradingOptions(gradeInterface, refDiv) {
 		}
 	}
 
+	this.criteriaChanged = function() {
+		this.dataHandler.setCriteriaOptions(this.getCriteria());
+
+	}
+
 	this.addCriteria = function(type) {
-		var criteria = new possibleCriteria[type](this, this.optionsDiv);
+		var criteria = new possibleCriteria[type](this, this.optionsDiv, type);
 		this.criteriaList.push(criteria);
+		return criteria; // in case it's needed for chaining
 	}
 
 	this.removeCriteria = function(criteria) {
@@ -63,6 +70,13 @@ function GradingOptions(gradeInterface, refDiv) {
 		}
 	}
 
+	this.removeAllCriteria = function() {
+		for (var i = 0; i < this.criteriaList.length; i++) {
+			this.optionsDiv.removeChild(this.criteriaList[i].container);
+		}
+		this.criteriaList = [];
+	}
+
 	//get a list of the criteria in python format string
 	this.getCriteria = function() {
 		var data = [];
@@ -70,6 +84,17 @@ function GradingOptions(gradeInterface, refDiv) {
 			data.push(this.criteriaList[i].getCriteria());
 		}
 		return data;
+	}
+
+	this.setCriteria = function(newList) {
+		this.removeAllCriteria();
+		for (var i = 0; i < newList.length; i++) {
+			var type = newList[i].type;
+			var args = newList[i].args;
+			var criteria = this.addCriteria(type);
+			criteria.setArgs(args);
+		}
+		this.gradeInterface.gradeCanvas.draw();
 	}
 
 	this.initialize();
@@ -118,20 +143,24 @@ function BasicCriteria(gradingOptions, refDiv) {
 		return {'type':'BasicCriteria'}
 	}
 
-	this.isNothingRequired = function() {
-		return true;
+	this.setArgs = function(argsDic) {
+		console.log("set args has not been implemented yet");
 	}
 
-	this.isRequired = function(x,y) {
-		return !this.isNothingRequired();
+	this.requiredPolygons = function() {
+		return null;
 	}
 
-	this.isNothingForbidden = function() {
-		return true;
+	this.forbiddenPolygons = function() {
+		return null;
 	}
 
-	this.isForbidden = function(x,y) {
-		return !this.isNothingForbidden();
+	this.requiredList = function() {
+		return [];
+	}
+
+	this.forbiddenList = function() {
+		return [];
 	}
 
 	this.isRelationshipPresent = function() {
@@ -154,7 +183,8 @@ function BasicCriteria(gradingOptions, refDiv) {
 		var nodeList = this.container.getElementsByTagName('input');
 		for (var i = 0; i < nodeList.length; i++) {
 			nodeList[i].onchange = function(e) {
-				that.gradingOptions.gradeInterface.gradeCanvas.draw();
+				that.gradingOptions.criteriaChanged();
+				that.gradingOptions.dataHandler.gradeCanvas.draw();
 			};
 		}
 	}
@@ -176,615 +206,614 @@ function BasicCriteria(gradingOptions, refDiv) {
 	this.setupListeners();
 }
 
-function DomainFilledCriteria(gradingOptions, refDiv) {
-	BasicCriteria.call(this, gradingOptions, refDiv);
-	this.minInput = null;
-	this.maxInput = null;
-	this.xmin = -Infinity;
-	this.xmax = Infinity;
-	this.fractionInput = null;
 
+function InputArg(info, refCriteria) {
+	this.info = info;
+	this.refCriteria = refCriteria;
+
+	var that = this;
+	this.update = function() {
+		console.log('updating', that.refCriteria);
+		that.refCriteria.hasChanged = true;
+		that.refCriteria.gradingOptions.criteriaChanged();
+	}
+
+	this.setValue = function(val) {
+		console.log("set value not implemented yet", this.constructor.name);
+	}
+
+	// returns [key, value] or null if the value is equal to the default value
+	this.getKeyValuePair = function() {
+		//return [this.info.name, this.info.default];
+		return null;
+	}
+}
+
+function FloatInput(info, refCriteria) {
+	InputArg.call(this, info, refCriteria);
+	this.inp = null;
 	this.initialize = function() {
-		this.setHelpText('Choose how much of the domain should be drawn on.');
-		this.setTitleText('Use this domain');
-		// minimum
-		var textnode = document.createTextNode('Minimum: ');
-		this.mainForm.appendChild(textnode);
-		this.minInput = document.createElement('input');
-		this.minInput.type = 'number';
-		this.mainForm.appendChild(this.minInput);
-		//maximum
-		textnode = document.createTextNode('  Maximum: ');
-		this.mainForm.appendChild(textnode);
-		this.maxInput = document.createElement('input');
-		this.maxInput.type = 'number';
-		this.mainForm.appendChild(this.maxInput);
-		// fraction
-		textnode = document.createTextNode('  Fraction Filled (between 0 and 1): ');
-		this.mainForm.appendChild(textnode);
-		this.fractionInput = document.createElement('input');
-		this.fractionInput.type = 'number';
-		this.fractionInput.defaultValue = .9;
-		this.mainForm.appendChild(this.fractionInput);
-		this.setAllOnchange();
+		var textnode = document.createTextNode(info.displayName + ": ");
+                this.refCriteria.mainForm.appendChild(textnode);
+		this.inp = document.createElement('input');
+		this.inp.title = info.helpText;
+		this.inp.style.width = "40px";
+		this.inp.type = 'number';
+		this.inp.value = info.default;
+		this.refCriteria.mainForm.appendChild(this.inp);
+		var br = document.createElement('br');
+		this.refCriteria.mainForm.appendChild(br);
 	}
 
 	this.setupListeners = function() {
 		var that = this;
-		this.minInput.onchange = function(e) {
-			that.xmin = Number(this.value);
-			if (Number.isNaN(that.xmin))
-				that.xmin = -Infinity;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
-
-		this.maxInput.onchange = function(e) {
-			that.xmax = Number(this.value);
-			if (Number.isNaN(that.xmax))
-				that.xmax = Infinity;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
+		this.inp.onchange = this.update;
 	}
 
-	this.getCriteria = function() {
-		var data = {'type':'DomainUsed'};
-		if (this.xmax != Infinity || this.xmin != -Infinity) {
-			data['domain'] = [this.xmin, this.xmax];
-		}
-		var fracVal = this.fractionInput.value;
-		if (fracVal != "" && !Number.isNaN(Number(fracVal))) {
-			data['fraction'] = Number(fracVal);
-		}
-		return data;
+	this.getValue = function() {
+		return new Sk.builtin.float_(this.inp.value);
 	}
 
-	this.isNothingRequired = function() {
-		return false;
+	this.setValue = function(val) {
+		this.inp.value = val;
 	}
 
-	this.isRequired = function(x,y) {
-		return x > this.xmin && x < this.xmax;
+	this.getKeyValuePair = function() {
+		if (this.inp.value != this.info.default)
+			return [this.info.name, this.inp.value];
+		return null;
 	}
-
 	this.initialize();
 	this.setupListeners();
 }
-function DomainAvoidedCriteria(gradingOptions, refDiv) {
-	DomainFilledCriteria.call(this, gradingOptions, refDiv);
 
+function IntegerInput(info, refCriteria) {
+	InputArg.call(this, info, refCriteria);
+	this.inp = null;
 	this.initialize = function() {
-		this.setHelpText('Choose what domain students should not draw on');
-		this.setTitleText('Avoid this domain');
-	}
-
-	this.getCriteria = function() {
-		var data = {'type':'DomainAvoided'};
-		if (this.xmax != Infinity || this.xmin != -Infinity) {
-			data['domain'] = [this.xmin, this.xmax];
-		}
-		var fracVal = this.fractionInput.value;
-		if (fracVal != "" && !Number.isNaN(Number(fracVal))) {
-			data['fraction'] = Number(fracVal);
-		}
-		return data;
-	}
-
-	this.isNothingRequired = function() {
-		return true;
-	}
-
-	this.isRequired = function(x,y) {
-		return false;
-	}
-
-
-	this.isNothingForbidden = function() {
-		return false;
-	}
-
-	this.isForbidden = function(x, y) {
-		return x > this.xmin && x < this.xmax;
-	}
-
-	this.initialize();
-}
-
-function FunctionFollowedCriteria(gradingOptions, refDiv) {
-	BasicCriteria.call(this, gradingOptions, refDiv);
-	this.minInput = null;
-	this.maxInput = null;
-	this.equationInput = null;
-	this.xClosenessInput = null;
-	this.yClosenessInput = null;
-	this.fractionInput = null;
-	this.xmin = -Infinity;
-	this.xmax = Infinity;
-	this.xclose = null;
-	this.yclose = null;
-	this.func = null;
-	this.plotList = [];
-	var that = this;
-
-	this.initialize = function() {
-		this.setHelpText('Values within region must be close enough to python equation specified.');
-		this.setTitleText('Follow Function Criteria');
-		// minimum
-		var textnode = document.createTextNode('Minimum: ');
-		this.mainForm.appendChild(textnode);
-		this.minInput = document.createElement('input');
-		this.minInput.type = 'number';
-		this.mainForm.appendChild(this.minInput);
-		//maximum
-		textnode = document.createTextNode('  Maximum: ');
-		this.mainForm.appendChild(textnode);
-		this.maxInput = document.createElement('input');
-		this.maxInput.type = 'number';
-		this.mainForm.appendChild(this.maxInput);
-		this.mainForm.appendChild(document.createElement('br'));
-		// equation
-		textnode = document.createTextNode('y = ');
-		this.mainForm.appendChild(textnode);
-		this.equationInput = document.createElement('input');
-		this.equationInput.defaultValue = 0;
-		this.mainForm.appendChild(this.equationInput);
-		// x closeness
-		textnode = document.createTextNode('  X closeness:');
-		this.mainForm.appendChild(textnode);
-		this.xClosenessInput = document.createElement('input');
-		this.xClosenessInput.type = 'number';
-		this.xClosenessInput.defaultValue = 0;
-		this.mainForm.appendChild(this.xClosenessInput);
-		// y closeness
-		textnode = document.createTextNode('  Y closeness:');
-		this.mainForm.appendChild(textnode);
-		this.yClosenessInput = document.createElement('input');
-		this.yClosenessInput.type = 'number';
-		this.yClosenessInput.defaultValue = 0;
-		this.mainForm.appendChild(this.yClosenessInput);
-
-		this.mainForm.appendChild(document.createElement('br'));
-		// fraction
-		textnode = document.createTextNode('  Fraction of points following constraint (between 0 and 1): ');
-		this.mainForm.appendChild(textnode);
-		this.fractionInput = document.createElement('input');
-		this.fractionInput.type = 'number';
-		this.fractionInput.defaultValue = .9;
-		this.mainForm.appendChild(this.fractionInput);
-
-		this.setAllOnchange();
+		var textnode = document.createTextNode(info.displayName + " ");
+                this.refCriteria.mainForm.appendChild(textnode);
+		this.inp = document.createElement('input');
+		this.inp.title = info.helpText;
+		this.inp.style.width = "40px";
+		this.inp.type = 'number';
+		this.inp.value = info.default;
+		this.refCriteria.mainForm.appendChild(this.inp);
+		var br = document.createElement('br');
+		this.refCriteria.mainForm.appendChild(br);
 	}
 
 	this.setupListeners = function() {
 		var that = this;
-		this.minInput.onchange = function(e) {
-			that.xmin = Number(this.value);
-			if (Number.isNaN(that.xmin))
-				that.xmin = -Infinity;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
-
-		this.maxInput.onchange = function(e) {
-			that.xmax = Number(this.value);
-			if (Number.isNaN(that.xmax))
-				that.xmax = Infinity;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
-
-		this.equationInput.onchange = function(e) {
-			that.parseEquation(this.value);
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
-
-		this.xClosenessInput.onchange = function(e) {
-			that.xclose = Number(this.value);
-			if (Number.isNaN(that.xclose))
-				that.xclose = null;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
-
-		this.yClosenessInput.onchange = function(e) {
-			that.yclose = Number(this.value);
-			if (Number.isNaN(that.yclose))
-				that.yclose = null;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
+		this.inp.onchange = this.update;
 	}
 
-	this.getCriteria = function() {
-		var data = {'type':'FunctionFollowed'};
-		if (this.xmax != Infinity || this.xmin != -Infinity) {
-			data['domain'] = [this.xmin, this.xmax];
-		}
-		var fracVal = this.fractionInput.value;
-		if (fracVal != "" && !Number.isNaN(Number(fracVal))) {
-			data['fraction'] = Number(fracVal);
-		}
-		data['f'] = 'lambda x: ' + this.equationInput.value;
-		data['xclose'] = this.xclose;
-		data['yclose'] = this.yclose;
-		return data;
+	this.getValue = function() {
+		return new Sk.builtin.int_(Number(this.inp.value));
 	}
 
-	this.parseEquation = function(string) {
-		var code = '#from bnm.math import *\n';
-		code += 'def f(x):\n';
-		code += '    x = float(x)\n';
-		code += '    return ' + string;
-		var f = null;
-		try {
-			var module = Sk.importMainWithBody("<stdin>", false, code);
-			f = module.tp$getattr('f');
-			this.func = function(x) {
-				var ret = Sk.misceval.callsim(f, x);
-				return Number(ret.v);
+	this.setValue = function(val) {
+		this.inp.value = val;
+	}
+
+	this.getKeyValuePair = function() {
+		if (this.inp.value != this.info.default)
+			return [this.info.name, this.inp.value];
+		return null;
+	}
+	this.initialize();
+	this.setupListeners();
+}
+
+function BooleanInput(info, refCriteria) {
+	InputArg.call(this, info, refCriteria);
+	this.initialize = function() {
+		var textnode = document.createTextNode(info.displayName + " ");
+                this.refCriteria.mainForm.appendChild(textnode);
+		var inp = document.createElement('input');
+		inp.title = info.helpText;
+		inp.type = 'radio';
+		inp.name = info.name;
+		inp.value = true;
+		if (info.default == true)
+			inp.checked = true;
+		inp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(inp);
+		this.refCriteria.mainForm.appendChild(document.createTextNode('True'));
+		var inp = document.createElement('input');
+		inp.title = info.helpText;
+		inp.type = 'radio';
+		inp.name = info.name;
+		inp.value = false;
+		if (info.default == false)
+			inp.checked = true;
+		inp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(inp);
+		this.refCriteria.mainForm.appendChild(document.createTextNode('False'));
+		var br = document.createElement('br');
+		this.refCriteria.mainForm.appendChild(br);
+	}
+
+	this.getValue = function() {
+		var children = this.refCriteria.mainForm.children;
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+			if (child.name == this.info.name && child.checked) {
+				if (child.value == 'true')
+					return Sk.builtin.bool.true$;
+				else
+					return Sk.builtin.bool.false$;
 			}
-		} catch (e) {
-			alert(e);
-			this.func = null;
-		}
-		//this.func = Equation.parseEquation(string);
-		this.plotList = [];
-		if (this.func == null) {
-			return;
-		}
-		var i, j, x, y;
-		for (i = 0; i < this.gradingOptions.gradeInterface.width; i++) {
-			x = this.gradingOptions.gradeInterface.xAxis.xFromIndex(i);
-			y = this.func(x);
-			if (typeof(y) != 'number')
-				return;
-			j = this.gradingOptions.gradeInterface.yAxis.indexFromY(y);
-			this.plotList.push([i,j]);
 		}
 	}
 
-	this.isNothingRequired = function() {
-		console.log('func,xclose,yclose',this.func,this.xclose,this.yclose);
-		return this.func == null || this.xclose == null || this.yclose == null;
+	this.setValue = function(val) {
+		var children = this.refCriteria.mainForm.children;
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+			if (child.name == this.info.name && child.value == String(val)) {
+				child.checked = true;
+			}
+		}
 	}
 
-	this.isRequired = function(x,y) {
-		if (this.func == null || this.xclose == null || this.yclose == null)
-			return false;
-		if (x < this.xmin || x > this.xmax)
-			return false;
-		var fy = this.func(x);
-		if (Math.abs(y-fy) < this.yclose)
-			return true;
-		return false; 
+	this.getKeyValuePair = function() {
+		var val;
+		var children = this.refCriteria.mainForm.children;
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+			if (child.name == this.info.name && child.checked) {
+				if (child.value == 'true')
+					val = true;
+				else
+					val = false;
+			}
+		}
+		if (val != this.info.default) 
+			return [this.info.name, val];
+		return null;
 	}
-
-	this.isNothingForbidden = function() {
-		return this.func == null || this.xclose == null || this.yclose == null;
-	}
-
-	this.isForbidden = function(x,y) {
-		if (this.func == null || this.xclose == null || this.yclose == null)
-			return false;
-		if (x < this.xmin || x > this.xmax)
-			return false;
-		var fy = this.func(x);
-		if (Math.abs(y-fy) < this.yclose)
-			return false;
-		return true; 
-	}
-
 	this.initialize();
-	this.setupListeners();
 }
 
-function FunctionAvoidedCriteria(gradingOptions, refDiv) {
-	FunctionFollowedCriteria.call(this, gradingOptions, refDiv);
-
+function FunctionInput(info, refCriteria) {
+	InputArg.call(this, info, refCriteria);
+	this.inp = null;
 	this.initialize = function() {
-		this.setHelpText("Student's drawings in this region must be avoided");
-		this.setTitleText('Avoid the function');
+		var textnode = document.createTextNode(info.displayName + " = ");
+		this.refCriteria.mainForm.appendChild(textnode);
+		this.inp = document.createElement('input');
+		this.inp.title = info.helpText;
+		this.inp.type = 'text';
+		this.inp.size = 50;
+		this.inp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(this.inp);
+		this.refCriteria.mainForm.appendChild(document.createElement('br'));
 	}
 
-	this.getCriteria = function() {
-		var data = {'type':'FunctionAvoided'};
-		if (this.xmax != Infinity || this.xmin != -Infinity) {
-			data['domain'] = [this.xmin, this.xmax];
-		}
-		var fracVal = this.fractionInput.value;
-		if (fracVal != "" && !Number.isNaN(Number(fracVal))) {
-			data['fraction'] = Number(fracVal);
-		}
-		data['f'] = 'lambda x: ' + this.equationInput.value;
-		data['xclose'] = this.xclose;
-		data['yclose'] = this.yclose;
-		return data;
+	this.getValue = function() {
+		var code = 'def blah(x): \n    return ' + this.inp.value;
+		var module = Sk.importMainWithBody("<stdin>", false, code);
+		var func = module.tp$getattr('blah');
+		return func;
 	}
 
-
-	this.isNothingRequired = function() {
-		return true;
+	this.setValue = function(val) {
+		this.inp.value = val;
 	}
 
-	this.isRequired = function(x,y) {
-		return false;
+	this.getKeyValuePair = function() {
+		if (this.inp.value != this.info.default)
+			return [this.info.name, this.inp.value];
+		return null;
 	}
-
-	this.isNothingForbidden = function() {
-		console.log('func,xclose,yclose',this.func,this.xclose,this.yclose);
-
-		return this.func == null || this.xclose == null || this.yclose == null;
-	}
-
-	this.isForbidden = function(x,y) {
-		if (this.func == null || this.xclose == null || this.yclose == null)
-			return false;
-		if (x < this.xmin || x > this.xmax)
-			return false;
-		var fy = this.func({'x':x});
-		if (Math.abs(y-fy) < this.yclose)
-			return true;
-		return false;
-	}
-
 	this.initialize();
 }
 
-function MonotonicCriteria(gradingOptions, refDiv) {
-	BasicCriteria.call(this, gradingOptions, refDiv);
-	this.minInput = null;
-	this.maxInput = null;
-	this.xmin = -Infinity;
-	this.xmax = Infinity;
-	this.trend = 'up';
-	this.upIcon = null;
-	this.downIcon = null;
-	this.updownIcon = null;
-
+function DomainInput(info, refCriteria) {
+	InputArg.call(this, info, refCriteria);
+	this.minInp = null;
+	this.maxInp = null;
 	this.initialize = function() {
-		this.setHelpText('Check whether the graph is montonic.');
-		this.setTitleText('Montonicity');
-		// minimum
-		var textnode = document.createTextNode('Minimum: ');
-		this.mainForm.appendChild(textnode);
-		this.minInput = document.createElement('input');
-		this.minInput.type = 'number';
-		this.mainForm.appendChild(this.minInput);
-		//maximum
-		textnode = document.createTextNode('  Maximum: ');
-		this.mainForm.appendChild(textnode);
-		this.maxInput = document.createElement('input');
-		this.maxInput.type = 'number';
-		this.mainForm.appendChild(this.maxInput);
-		//dropdown up/down/doesn't matter
-		this.mainForm.appendChild(document.createElement('br'));
-		textnode = document.createTextNode('  Direction of monotonicity:');
-		this.mainForm.appendChild(textnode);
-		this.upDownSelect = document.createElement('select');
-		var choices = ['up','down',"doesn't matter"];
-		for (var i = 0; i < choices.length; i++) {
-			var newOption = document.createElement('option');
-			newOption.innerHTML = choices[i];
-			newOption.value = choices[i];
-			this.upDownSelect.appendChild(newOption);
-		}
-		this.mainForm.appendChild(this.upDownSelect);
-		// load images
-		this.upIcon = new Image(30,30);
-		this.upIcon.src = 'up.jpg';
-		this.downIcon = new Image(30,30);
-		this.downIcon.src = 'down.jpg';
-		this.updownIcon = new Image(30,30);
-		this.updownIcon.src = 'updown.jpg';
+		var textnode = document.createTextNode(info.displayName + " min: ");
+		this.refCriteria.mainForm.appendChild(textnode);
+		this.minInp = document.createElement('input');
+		this.minInp.title = info.helpText;
+		this.minInp.style.width = "40px";
+		this.minInp.type = 'number';
+		this.minInp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(this.minInp);
+
+		textnode = document.createTextNode(info.displayName + " max: ");
+		this.refCriteria.mainForm.appendChild(textnode);
+		this.maxInp = document.createElement('input');
+		this.maxInp.title = info.helpText;
+		this.maxInp.style.width = "40px";
+		this.maxInp.type = 'number';
+		this.maxInp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(this.maxInp);
+		this.refCriteria.mainForm.appendChild(document.createElement('br'));
 	}
 
-	this.setupListeners = function() {
-		var that = this;
-		this.minInput.onchange = function(e) {
-			that.xmin = Number(this.value);
-			if (Number.isNaN(that.xmin))
-				that.xmin = -Infinity;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
-
-		this.maxInput.onchange = function(e) {
-			that.xmax = Number(this.value);
-			if (Number.isNaN(that.xmax))
-				that.xmax = Infinity;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
-
-		this.upDownSelect.onchange = function(e) {
-			that.trend = this.value;
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
-		}
+	this.getValue = function() {
+		var min = Sk.builtin.float_(this.minInp.value);
+		var max = Sk.builtin.float_(this.maxInp.value);
+		return Sk.builtin.list([min, max]);
 	}
 
-	this.getCriteria = function() {
-		var data = {'type':'Monotonic'};
-		if (this.xmax != Infinity || this.xmin != -Infinity) {
-			data['domain'] = [this.xmin, this.xmax];
-		}
-		if (this.trend == 'up') {
-			data['trend'] = 1;
-		} else if (this.trend == 'down') {
-			data['trend'] = -1;
-		} else {
-			data['trend'] = 0
-		}
-		return data;
+	this.setValue = function(val) {
+		this.minInp.value = val[0];
+		this.maxInp.value = val[1];
 	}
 
-
-	this.isRelationshipPresent = function() {
-		return true;
-	}
-
-	this.relationshipRange = function() {
-		return [this.xmin, this.xmax];
-	}
-
-	this.relationshipIcon = function() {
-		if (this.trend == 'up')
-			return this.upIcon;
-		else if (this.trend == 'down')
-			return this.downIcon;
-		else
-			return this.updownIcon;
+	this.getKeyValuePair = function() {
+		var min = this.minInp.value;
+		var max = this.maxInp.value;
+		if (min == "" && max == "") return null;
+		if (min == "") min = -Infinity;
+		if (max == "") max = Infinity;
+		return [this.info.name, [Number(min), Number(max)]];
 	}
 
 	this.initialize();
-	this.setupListeners();
 }
 
-// behaves like Linked List
-function CritPoint(refDiv, prev, next) {
-	var that = this;
-	if (typeof(prev) === 'undefined') prev = null;
-	if (typeof(next) === 'undefined') next = null;
-	this.refDiv = refDiv;
-	this.next = next;
-	this.prev = prev;
-	this.myDiv = null;
-	this.xInput = null;
-	this.yInput = null;
-	this.pixelCloseness = null;
-	this.addBeforeButton = null;
-	this.addAfterButton = null;
+function PointInput(info, criteria) {
+	InputArg.call(this, info, criteria);
+	this.xInp = null;
+	this.yInp = null;
+	this.initialize = function() {
+		var textnode = document.createTextNode("x: ");
+		this.refCriteria.mainForm.appendChild(textnode);
+		this.xInp = document.createElement('input');
+		this.xInp.style.width = "40px";
+		this.xInp.type = 'number';
+		this.xInp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(this.xInp);
+
+		var textnode = document.createTextNode(" y: ");
+		this.refCriteria.mainForm.appendChild(textnode);
+		this.yInp = document.createElement('input');
+		this.yInp.style.width = "40px";
+		this.yInp.type = 'number';
+		this.yInp.onchange = this.update;
+		this.refCriteria.mainForm.appendChild(this.yInp);
+		this.refCriteria.mainForm.appendChild(document.createElement('br'));
+	}
+
+	this.getValue = function() {
+		var x = Sk.builtin.float_(this.xInp.value);
+		var y = Sk.builtin.float_(this.yInp.value);
+		return Sk.builtin.tuple([x,y]);
+	}
+
+	this.setValue = function(val) {
+		this.xInp.value = val[0];
+		this.yInp.value = val[1];
+	}
+
+	this.getKeyValuePair = function() {
+		var x = this.xInp.value;
+		var y = this.yInp.value;
+		console.log('point getkeyvaluepair call', x, y);
+		return [this.info.name, [x,y]];
+	}
+	
+	this.initialize();
+}
+
+function MultiPointInput(info, criteria) {
+	InputArg.call(this, info, criteria);
+	this.pointInput = null;
+	this.next = null;
+	this.prev = null;
+	this.addButton = null;
 	this.deleteButton = null;
+	this.myDiv = null;
 
 	this.initialize = function() {
-		var textnode;
-		//place the div for this particular instance
 		this.myDiv = document.createElement('div');
-		if (this.next == null) {
-			this.refDiv.appendChild(this.myDiv);
-		} else {
-			this.refDiv.insertBefore(this.myDiv, this.next.myDiv);
-		}
-		// 'put option before' button
-		this.addBeforeButton = document.createElement('button');
-		this.addBeforeButton.innerHTML = 'add';
-		this.addBeforeButton.onclick = this.addOptionBefore;
-		this.myDiv.appendChild(this.addBeforeButton);
-		// xinput
-		textnode = document.createTextNode("X: ");
-		this.myDiv.appendChild(textnode);
-		this.xInput = document.createElement('input');
-		this.xInput.type = 'number';
-		this.myDiv.appendChild(this.xInput);
-		// yinput
-		textnode = document.createTextNode('  Y: ');
-		this.myDiv.appendChild(textnode);
-		this.yInput = document.createElement('input');
-		this.yInput.type = 'number';
-		this.myDiv.appendChild(this.yInput);
-		// pixel distance
-		textnode = document.createTextNode('  pixel closeness: ');
-		this.myDiv.appendChild(textnode);
-		this.pixelCloseness = document.createElement('input');
-		this.pixelCloseness.type = 'number';
-		this.myDiv.appendChild(this.pixelCloseness);
-		// 'put option after' button
-		this.addAfterButton = document.createElement('button');
-		this.addAfterButton.innerHTML = 'add';
-		this.addAfterButton.onclick = this.addOptionAfter;
-		this.myDiv.appendChild(this.addAfterButton);
-		// delete button
-		this.deleteButton = document.createElement('button');
-		this.deleteButton.innerHTML = 'del';
+		this.refCriteria.mainForm.appendChild(this.myDiv);
+
+		this.addButton = document.createElement('input');
+		this.addButton.type = 'button';
+		this.addButton.value = 'add';
+		this.addButton.onclick = this.addNode;
+		this.myDiv.appendChild(this.addButton);
+
+		this.deleteButton = document.createElement('input');
+		this.deleteButton.type = 'button';
+		this.deleteButton.value = 'delete';
 		this.deleteButton.onclick = this.deleteNode;
 		this.myDiv.appendChild(this.deleteButton);
+
+		// hacks
+		this.mainForm = this.myDiv;
+
+		this.pointInput = new PointInput(info, this);
+		this.pointInput.refCriteria = this.refCriteria;
 	}
 
-	this.addOptionBefore = function(e) {
-		var origPrev = that.prev;
-		that.prev = new CritPoint(that.refDiv, origPrev, that);
+	var that = this;
+	this.addNode = function() {
+		that.next = new MultiPointInput(that.info, that.refCriteria);
+		that.next.prev = that;
 	}
 
-	this.addOptionAfter = function(e) {
-		var origNext = that.next;
-		that.next = new CritPoint(that.refDiv, that, origNext);
-	}
-
-	this.deleteNode = function(e) {
-		if (that.next == null && that.prev == null)
+	this.deleteNode = function() {
+		if (that.prev == null)
 			return;
 		// fix pointers
 		if (that.prev != null)
 			that.prev.next = that.next;
 		if (that.next != null)
-			that.next.prev = that.prev;
-		// remove the div
-		that.refDiv.removeChild(that.myDiv);
+			that.next.prev = that.prev
+		// remove div which contains all this
+		that.refCriteria.mainForm.removeChild(that.myDiv);
 	}
 
-	this.getChoices = function() {
+	this.getValue = function() {
 		// find head
 		var node = this;
 		while (node.prev != null)
 			node = node.prev;
-		// iterate through to get all options
-		var choices = [];
+		// iterate through to get all things
+		var l = [];
 		while (node != null) {
-			var obj = {};
-			obj['x'] = node.xInput.value;
-			obj['y'] = node.yInput.value;
-			obj['pixelCloseness'] = node.pixelCloseness.value;
-			choices.push(obj);
+			l.push(node.pointInput.getValue());
 			node = node.next;
 		}
-		return choices;
+		console.log(l);
+		return Sk.builtin.list(l);
 	}
+
+	this.setValue = function(val) {
+		console.log('set value for multipoint not yet implemented');
+	}
+
+	this.getKeyValuePair = function() {
+		console.log(this);
+		// find head
+		var node = this;
+		while (node.prev != null)
+			node = node.prev;
+		// iterate through to get all things
+		var l = [];
+		while (node != null) {
+			l.push(node.pointInput.getKeyValuePair()[1]);
+			node = node.next;
+		}
+		return [this.info.name, l];
+	}
+
 	this.initialize();
 }
-function CriticalPointCriteria(gradingOptions, refDiv) {
+
+inputMapping = {
+'float':FloatInput,
+'integer':IntegerInput,
+'boolean':BooleanInput,
+'function':FunctionInput,
+'domain':DomainInput,
+'point':PointInput,
+'multiplePoints':MultiPointInput
+}
+
+function PythonCriteria(gradingOptions, refDiv, type) {
+	type = type;
 	BasicCriteria.call(this, gradingOptions, refDiv);
+        this.type = type;
+	this.code = null;
+	this.skModule = null;
+	this.inputArgs = {};
+	this.otherVars = [];
+	this.hasChanged = true;
 
-	this.critLinkedList = null;
-	this.updateButton = null;
-	
 	this.initialize = function() {
-		this.setHelpText("Ensure students draw through certain critical points");
-		this.setTitleText("Critical Point Criteria");
-		this.critLinkedList = new CritPoint(this.container);
-		// update button
-		this.updateButton = document.createElement('input');
-		this.updateButton.type = 'button';
-		this.updateButton.value = 'Update Visualizer';
-		this.mainForm.appendChild(this.updateButton);
-	}
+		// save code into this.code
+		this.code = criteriaCode["InputArg"] + "\n\n";
+		this.code += criteriaCode["Criteria"] + "\n\n" + criteriaCode[this.type];
 
-	this.getCriticalPoints = function() {
-		var list = this.critLinkedList.getChoices();
-		var list2 = [];
-		// check that all fields have been filled correctly
-		for (var i = 0; i < list.length; i++) {
-			var x = list[i].x == "" ? Number.NaN : Number(list[i].x);
-			var y = list[i].x == "" ? Number.NaN : Number(list[i].y);
-			var pc = list[i].pixelCloseness == "" ? Number.NaN : Number(list[i].pixelCloseness);
-			if (Number.isNaN(x) || Number.isNaN(y) || Number.isNaN(pc)) {
-				continue
-			}
-			list2.push({'x':x, 'y':y, 'pixelCloseness':pc});
+		// put code into module
+		this.skModule = Sk.importMainWithBody("<stdin>", false, this.code);
+		var claz = this.skModule.tp$getattr(this.type);
+
+		this.setTitleText(claz.tp$getattr("title").v);
+		this.setHelpText(claz.tp$getattr("helpText").v);
+
+		// figure out what inputs will look like
+		var inputs = criteriaInputs[this.type];
+                for (var i = 0; i < inputs.length; i++) {
+			this.addInput(inputs[i]);
 		}
-		return list2;
 	}
 
-	this.setupListeners = function() {
-		var that = this;
-		this.updateButton.onclick = function(e) {
-			that.gradingOptions.gradeInterface.gradeCanvas.draw();
+	this.addInput = function(info) {
+		if (info.type in inputMapping) {
+			this.inputArgs[info.name] = new inputMapping[info.type](info, this);
+		} else {
+			var textnode = document.createTextNode(info.name + " ");
+	        this.mainForm.appendChild(textnode);
+			textnode = document.createTextNode(' ' + info.type + ' not implmented yet');
+			this.mainForm.appendChild(textnode);
+			var br = document.createElement('br');
+			this.mainForm.appendChild(br);
 		}
 	}
 
 	this.getCriteria = function() {
-		var data = {'type':'Points'};
-		data['list'] = this.getCriticalPoints();
-		return data;
+		var argsDic = {};
+		for (var key in this.inputArgs) {
+			if (!this.inputArgs.hasOwnProperty(key))
+				continue
+			var pair = this.inputArgs[key].getKeyValuePair();
+			if (pair != null)
+				argsDic[pair[0]] = pair[1];
+		}
+		return {'type':this.type, 'args':argsDic};
 	}
 
+	this.setArgs = function(argsDic) {
+		for (var key in argsDic) {
+			if (!argsDic.hasOwnProperty(key))
+				continue;
+			this.inputArgs[key].setValue(argsDic[key]);
+		}
+	}
+
+	this.update = function() {
+		if (!this.hasChanged) {
+			return;
+		}
+		var inputDict = [];
+		for (var key in this.inputArgs) {
+			if (!this.inputArgs.hasOwnProperty(key))
+				continue;
+			var ia = this.inputArgs[key];
+			inputDict.push(new Sk.builtin.str(ia.info.name));
+			inputDict.push(ia.getValue());
+		}
+		inputDict = new Sk.builtin.dict(inputDict);
+		var claz = this.skModule.tp$getattr(this.type);
+		this.classInst = Sk.misceval.callsim(claz, inputDict);
+		this.hasChanged = false;
+		this.memo = {};
+
+		var dos = this.gradingOptions.dataHandler.getDisplayOptions();
+		var xmin = ['xmin', dos['xaxis']['min']];
+		var xmax = ['xmax', dos['xaxis']['max']];
+		var ymin = ['ymin', dos['yaxis']['min']];
+		var ymax = ['ymax', dos['yaxis']['max']];
+		var pixelWidth = ['pixelWidth', dos['xaxis']['pixelDim']];
+		var pixelHeight = ['pixelHeight', dos['yaxis']['pixelDim']];
+		var lst = [xmin, xmax, ymin, ymax, pixelWidth, pixelHeight];
+		this.otherVars = [];
+		for (var i = 0; i < lst.length; i++) {
+			this.otherVars.push(new Sk.builtin.str(lst[i][0]));
+			this.otherVars.push(new Sk.builtin.float_(lst[i][1]));
+		}
+		this.otherVars = new Sk.builtin.dict(this.otherVars);
+	}
+
+	this.requiredPolygons = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('requiredPolygons');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		if (ret.v == null)
+			return null;
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var poly = [];
+			var p = ret.v[i].v;
+			for (var j = 0; j < p.length; j++) {
+				var pij = p[j];
+				poly.push([pij.v[0].v, pij.v[1].v]);
+			}
+			l.push(poly);
+		}
+		return l;
+	}
+
+	this.requiredList = function() {
+		this.update();
+		if ('requiredList' in this.memo) {
+			return this.memo['requiredList'];
+		}
+		var func = this.classInst.tp$getattr('requiredList');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var p = ret.v[i];
+			l.push([p.v[0].v, p.v[1].v]);
+		}
+		this.memo['requiredList'] = l;
+		return l;
+	}
+
+	this.forbiddenPolygons = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('forbiddenPolygons');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		if (ret.v == null)
+			return null;
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var poly = [];
+			var p = ret.v[i].v;
+			for (var j = 0; j < p.length; j++) {
+				var pij = p[j];
+				poly.push([pij.v[0].v, pij.v[1].v]);
+			}
+			l.push(poly);
+		}
+		return l;
+
+	}
+
+	this.forbiddenList = function() {
+		this.update();
+		if ('forbiddenList' in this.memo) {
+			return this.memo['forbiddenList'];
+		}
+		var func = this.classInst.tp$getattr('forbiddenList');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var p = ret.v[i];
+			l.push([p.v[0].v, p.v[1].v]);
+		}
+		this.memo['forbiddenList'] = l;
+		return l;
+	}
+
+	this.isRelationshipPresent = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('isRelationshipPresent');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		if (ret.v == 1)
+			return true;
+		else
+			return false;
+	}
+
+	this.relationshipRange = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('relationshipRange');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var l = [ret.v[0].v, ret.v[1].v];
+		return l;
+	}
+
+	this.relationshipIcon = function(callbackFunc) {
+		this.update();
+		var func = this.classInst.tp$getattr('relationshipIcon');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var img = new Image();
+		img.src = ret.v;
+		img.onload = function(){callbackFunc(img);};
+		return img;
+	}
+
+	this.getCriticalPoints = function() {
+		this.update();
+		var func = this.classInst.tp$getattr('getCriticalPoints');
+		var ret = Sk.misceval.callsim(func, this.otherVars);
+		var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var d = ret.v[i];
+			universal = d;
+			var x = d.mp$lookup(Sk.builtin.str('x')).v;
+			var y = d.mp$lookup(Sk.builtin.str('y')).v;
+			var pr = d.mp$lookup(Sk.builtin.str('pixelRadius')).v;
+			l.push({'x':x, 'y':y, 'pixelRadius':pr});
+		}
+		return l;
+	}
 
 	this.initialize();
-	this.setupListeners();
 }
 
-function PythonCriteria(gradingOptions, refDiv) {
+function CustomPythonCriteria(gradingOptions, refDiv) {
 	BasicCriteria.call(this, gradingOptions, refDiv);
 	this.code = null;
 	this.skModule = null;
@@ -867,7 +896,6 @@ function PythonCriteria(gradingOptions, refDiv) {
 		var critInst = this.skModule.tp$getattr('criteriaInstance');
 		var funcName = critInst.tp$getattr('isNothingRequired');
 		var ret = Sk.misceval.callsim(funcName);
-		console.log('ret1', ret.v);
 		return Boolean(ret.v);
 	}
 
@@ -895,274 +923,3 @@ function PythonCriteria(gradingOptions, refDiv) {
 	this.initialize();
 	this.setupListeners();
 }
-
-Equation = new function(string) {
-	var that = this;
-
-	this.tokenize = function(string) {
-		string = string.replace(/\s+/g, '');
-		var tokens = [];
-		var cur = '';
-		for (var i = 0; i < string.length; i++) {
-			var c = string.charAt(i);
-			cur += c;
-			if (!this.validPrefix(cur)) {
-				if (cur.length == 1) {
-					console.log('exiting1', tokens, cur);
-					return null;
-				} else {
-					var type = this.tokenType(cur.slice(0,-1));
-					tokens.push({'string':cur.slice(0,-1), 'type':type});
-					cur = c;
-					if (i != string.length - 1 && this.tokenType(cur) == 'invalid') {
-						console.log('exiting2', tokens, cur);
-						return null;
-					}
-				}
-			}
-			if (i == string.length-1) {
-				if (this.tokenType(cur) == 'invalid') {
-					console.log('exiting3', tokens, cur);
-					return null;
-				}
-				var type = this.tokenType(cur);
-				tokens.push({'string':cur, 'type':type});
-			}
-		}
-		return tokens;
-	}
-
-	this.validPrefix = function(token) {
-		var numberRe = /(\d+\.?\d*)|(\d*\.\d+)/g;
-		var variableRe = /([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|\d)*/g;
-		var moduleRe = /([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|\d)*\(?/g;
-		var mathModuleRe1 = /(math\.)/g;
-		var mathModuleRe2 = /(math\.)?([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|\d)*\(?/g;
-		var mathOperator = /\/|\*\*|\-|\+|\*/;
-		var parentheses = /\(|\)/;
-		var allRe = {
-			'number':numberRe, 
-			'variable':variableRe, 
-			'module':moduleRe, 
-			'math.1': mathModuleRe1,
-			'math.2': mathModuleRe2,
-			'op':mathOperator, 
-			'parens':parentheses
-		};
-
-		for (var prop in allRe) {
-			var m = token.match(allRe[prop]);
-			if (m != null && m.length == 1 && m[0].length == token.length) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	this.tokenType = function(token) {
-		// check if it's a number
-		var numberRe = /(\d+\.?\d*)|(\d*\.\d+)/g;
-		var variableRe = /([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|\d)*/g;
-		var moduleRe = /([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|\d)*\(?/g;
-		var mathModuleRe = /(math)?\.?([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|\d)*\(?/g;
-		var mathOperator = /\/|\*\*|\-|\+|\*/;
-		var parentheses = /\(|\)/;
-		var allRe = {
-			'number':numberRe, 
-			'variable':variableRe, 
-			'module':moduleRe, 
-			'math.': mathModuleRe,
-			'op':mathOperator, 
-			'parens':parentheses
-		};
-
-		for (var prop in allRe) {
-			var m = token.match(allRe[prop]);
-			if (m != null && m.length == 1 && m[0].length == token.length) {
-				return prop;
-			}
-		}
-		return 'invalid';
-	}
-
-	this.mathMapping = {
-		'math.ceil(': Math.ceil,
-		'math.fabs(': Math.abs,
-		'math.abs(':Math.abs,
-		'math.floor(': Math.floor,
-		'math.exp(': Math.exp,
-		'math.log(': Math.log,
-		'math.sqrt(': Math.sqrt,
-		'math.acos(': Math.acos,
-		'math.asin(': Math.asin,
-		'math.atan(': Math.atan,
-		'math.cos(': Math.cos,
-		'math.sin(': Math.sin,
-		'math.tan(': Math.tan,
-	};
-
-	this.lazyEval = function(nested, environ) {
-		// first lazy evaluate everything in parentheses
-		for (var i = 0; i < nested.length; i++) {
-			if (Object.prototype.toString.call(nested[i]) == "[object Array]") {
-				nested[i] = this.lazyEval(nested[i], environ);
-			}
-		}
-
-		var getLeft = function(i) {
-			var left = null;
-			if (nested[i-1].type == 'number') {
-				left = Number(nested[i-1].string);
-			} else if (nested[i-1].type == 'variable' && environ.hasOwnProperty(nested[i-1].string)) {
-				left = Number(environ[nested[i-1].string]);
-			}
-			return left;
-		};
-		var getRight = function(i) {
-			var right = null;
-			if (nested[i+1].type == 'number') {
-				right = Number(nested[i+1].string);
-			} else if (nested[i+1].type == 'variable' && environ.hasOwnProperty(nested[i+1].string)) {
-				right = Number(environ[nested[i+1].string]);
-			}
-			return right;
-		};
-
-		// look for module things
-		for (var i = 0; i < nested.length; i++) {
-			if (Object.prototype.toString.call(nested[i]) == "[object Array]") {
-				// nested thing probably has variable inside
-			} else if (nested[i].type == 'math.') {
-				if (!this.mathMapping.hasOwnProperty(nested[i].string)) {
-					console.log('math function not found');
-					return;
-				}
-				var right = getRight(i);
-				if (right == null) {
-					// should not be evaluated right now so hide it in parentheses
-					var parens = [nested[i], nested[i+1]];
-					nested.splice(i, 2, parens);
-				} else {
-					var result = this.mathMapping[nested[i].string].call(null, right);
-					nested.splice(i, 2, {'string':String(result), 'type':'number'})
-				}
-				i -= 1;
-			}
-		}
-
-		// now look for exponentials
-		for (var i = 0; i < nested.length; i++) {
-			if (Object.prototype.toString.call(nested[i]) == "[object Array]") {
-				// nested thing probably has variable inside
-			} else if (nested[i].type == 'op' && nested[i].string == '**') {
-				var left = getLeft(i);
-				var right = getRight(i);
-				if (left == null || right == null) {
-					var parens = [nested[i-1], nested[i], nested[i+1]];
-					nested.splice(i-1,3,parens);
-				} else {
-				nested.splice(i-1,3, {'string':String(Math.pow(left, right)), 'type':'number'});
-				}
-				i -= 2;
-			}
-		}
-
-		// now look for division/multiplication
-		for (var i = 0; i < nested.length; i++) {
-			if (Object.prototype.toString.call(nested[i]) == "[object Array]") {
-				// nested thing probably has variable inside
-			} else if (nested[i].type == 'op' && (nested[i].string == '/' || nested[i].string == '*')) {
-				var left = getLeft(i);
-				var right = getRight(i);
-				if (left == null || right == null) {
-					var parens = [nested[i-1], nested[i], nested[i+1]];
-					nested.splice(i-1,3,parens);
-				} else {
-					var result = (nested[i].string == '/') ? left/right : left*right;
-					nested.splice(i-1,3, {'string':String(result), 'type':'number'});
-				}
-				i -= 2;
-			}
-		}
-
-		// finally do addition/subtraction
-		for (var i = 0; i < nested.length; i++) {
-			if (Object.prototype.toString.call(nested[i]) == "[object Array]") {
-				// nested thing probably has variable inside
-			} else if (nested[i].type == 'op' && (nested[i].string == '-' || nested[i].string == '+')) {
-				var left = getLeft(i);
-				var right = getRight(i);
-				if (left == null || right == null) {
-					var parens = [nested[i-1], nested[i], nested[i+1]];
-					nested.splice(i-1,3,parens);
-				} else {
-					var result = (nested[i].string == '-') ? left-right : left+right;
-					nested.splice(i-1,3, {'string':String(result), 'type':'number'});
-				}
-				i -= 2;
-			}
-		}
-
-		if (nested.length == 1)
-			return nested[0];
-		return nested;
-	}
-
-	this.deepCopyArray = function(array) {
-		if (Object.prototype.toString.call(array) != "[object Array]")
-			return array;
-		var copy = [];
-		for (var i = 0; i < array.length; i++) {
-			if (Object.prototype.toString.call(array[i]) == "[object Array]") {
-				copy.push(that.deepCopyArray(array[i]));
-			} else {
-				copy.push(array[i]);
-			}
-		}
-		return copy;
-	}
-
-	// returns function into which parameters can be plugged in or null if input is invalid
-	this.parseEquation = function(string) {
-		var tokens = this.tokenize(string);
-		if (tokens == null) {
-			return null;
-		}
-		// redo list of tokens so that parentheses are shown as nested arrays
-		// e.g. '3*(5+math.sin(5))' --> ['3','*',['5','+','math.sin',['5']]]
-		var nested = [];
-		var listsInUse = [nested];
-		for (var i = 0; i < tokens.length; i++) {
-			var tok = tokens[i];
-			if (tok.type == 'parens' && tok.string == '(') {
-				listsInUse.push([]);
-			} else if (tok.type == 'math.' || tok.type == 'module') {
-				listsInUse[listsInUse.length-1].push(tok);
-				listsInUse.push([]);
-			} else if (tok.type == 'parens' && tok.string == ')') {
-				if (listsInUse.length == 1) {
-					console.log('non matching parens', nested);
-					return null;
-				}
-				listsInUse[listsInUse.length-2].push(listsInUse.pop());
-			} else {
-				listsInUse[listsInUse.length-1].push(tok);
-			}
-		}
-		//lazy evaluation to minimize constant terms, do (P)EMDAS
-		nested = this.lazyEval(nested, {});
-		// environ is an object with variable names matched to numbers
-		var func = function(environ) {
-			var ans = that.lazyEval(that.deepCopyArray(nested), environ);
-			if (Object.prototype.toString.call(ans) != "[object Array]" && ans.type == 'number') {
-				return Number(ans.string);
-			}
-			return ans;
-		};
-		return func;
-	}
-}();
-
-
-//test = Equation.parseEquation('math.sin(x)*2');
-//console.log(test({x:2}));
