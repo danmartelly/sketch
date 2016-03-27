@@ -24,7 +24,7 @@ var defaultDisplayOptions = {
 				'label': "yaxis",
 				'max': "2",
 				'min': "-2",
-				'step': "2",
+				'step': "1",
 				'setBy': 'teacher',
 				'scaleType': 'linear',
 				'pixelDim' : 300
@@ -63,8 +63,8 @@ function SketchInterface(refDiv, options) {
 		this.imageCanvas = new ImageCanvas(that, this.refDiv, this.width, this.height);
 		this.axisLineCanvas = new AxisLineCanvas(that, this.refDiv, this.width, this.height);
 		this.drawingCanvas = new DrawingCanvas(that, this.refDiv, this.width, this.height, true, true);
-		this.criticalPointCanvas = new CriticalPointCanvas(that, this.refDiv, this.width, this.height);
-		this.criticalPointCanvas.setMouseEventReceiver(this.drawingCanvas.canvas);
+		//this.criticalPointCanvas = new CriticalPointCanvas(that, this.refDiv, this.width, this.height);
+		//this.criticalPointCanvas.setMouseEventReceiver(this.drawingCanvas.canvas);
 		// toolbars
 		this.toolbarDiv = document.createElement('div');
 		this.toolbarDiv.style.position = 'absolute';
@@ -72,7 +72,7 @@ function SketchInterface(refDiv, options) {
 		this.drawingToolbar = new DrawingToolbar(that, this.toolbarDiv);
 		this.setXToolbar = new setAxisToolbar(that, this.toolbarDiv, true);
 		this.setYToolbar = new setAxisToolbar(that, this.toolbarDiv, false);
-		this.criticalPointToolbar = new CriticalPointToolbar(that, this.toolbarDiv);
+		//this.criticalPointToolbar = new CriticalPointToolbar(that, this.toolbarDiv);
 		this.submitToolbar = new SubmitToolbar(that, this.toolbarDiv);
 		// special hidden bar
 		this.hiddenData = new HiddenData(that, this.refDiv);
@@ -127,8 +127,8 @@ function SketchInterface(refDiv, options) {
 		this.drawingCanvas.resize(this.width, this.height);
 		this.imageCanvas.reposition(80, 0);
 		this.imageCanvas.resize(this.width, this.height);
-		this.criticalPointCanvas.resize(this.width, this.height);
-		this.criticalPointCanvas.reposition(80, 0);
+		//this.criticalPointCanvas.resize(this.width, this.height);
+		//this.criticalPointCanvas.reposition(80, 0);
 		this.xAxis.reposition(80, this.height);
 		this.xAxis.resize(this.width);
 		this.yAxis.resize(this.height);
@@ -150,7 +150,7 @@ function SketchInterface(refDiv, options) {
 		this.imageCanvas.setScale(Number(op['xscale']), Number(op['yscale']));
 
 		// toolbars
-		var tbs = [this.setXToolbar, this.setYToolbar, this.criticalPointToolbar];
+		var tbs = [this.setXToolbar, this.setYToolbar];//, this.criticalPointToolbar];
 		for (var i = 0; i < tbs.length; i++) {
 			tbs[i].removeSelf();
 		}
@@ -160,13 +160,13 @@ function SketchInterface(refDiv, options) {
 		if (this.options['yaxis']['setBy'] == 'student') {
 			this.setYToolbar.addSelf();
 		}
-		if (this.options['critPoints'].length > 0) {
+		/*if (this.options['critPoints'].length > 0) {
 			this.criticalPointToolbar.addSelf();
 			this.criticalPointCanvas.enable();
 			this.criticalPointCanvas.addPoints(this.options['critPoints']);
 		} else {
 			this.criticalPointCanvas.disable();
-		}
+		}*/
 		if (this.options['tutor']) {
 			this.submitToolbar.removeSelf();
 		} else {
@@ -243,7 +243,7 @@ function SketchInterface(refDiv, options) {
 		//drawing
 		this.drawingCanvas.loadData(data.drawing);
 		//critical points
-		this.criticalPointCanvas.loadData(data.criticalPoints);
+		//this.criticalPointCanvas.loadData(data.criticalPoints);
 		//recording
 		this.recording = data.recording;
 		this.studentDataLoaded = true;
@@ -345,10 +345,10 @@ function HiddenData(sketchInterface, refDiv) {
 	this.update = function() {
 		var axisSave = this.sketchInterface.axisLineCanvas.getSaveData();
 		var drawingSave = this.sketchInterface.drawingCanvas.getSaveData();
-		var criticalSave = this.sketchInterface.criticalPointCanvas.getSaveData();
+		//var criticalSave = this.sketchInterface.criticalPointCanvas.getSaveData();
 		var recording = this.sketchInterface.recording;
 		var data = {'axes':axisSave, 'drawing':drawingSave, 
-			'criticalPoints':criticalSave, 'recording':recording};
+			'recording':recording};
 		this.value(JSON.stringify(data));
 
 	}
@@ -1167,29 +1167,29 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 			return;
 		this.areListenersSetUp = true;
 		var that = this;
-
-		this.canvas.onmousedown = function(e) {
+		console.log(this.canvas);
+		this.inputCanvas.onmousedown = function(e) {
 			if (!that.drawingEnabled)
 				return;
 			that.activeTool.onmousedown(e);
 			return;
 		}
 
-		this.canvas.onmouseup = function(e) {
+		this.inputCanvas.onmouseup = function(e) {
 			if (!that.drawingEnabled)
 				return;
 			that.activeTool.onmouseup(e);
 			return;
 		}
 
-		this.canvas.onmouseleave = function(e) {
+		this.inputCanvas.onmouseleave = function(e) {
 			if (!that.drawingEnabled)
 				return;
 			that.activeTool.onmouseleave(e);
 			return;
 		}
 
-		this.canvas.onmousemove = function(e) {
+		this.inputCanvas.onmousemove = function(e) {
 			if (!that.drawingEnabled)
 				return;
 			that.activeTool.onmousemove(e);

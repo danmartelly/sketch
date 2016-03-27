@@ -38,6 +38,17 @@ function GradingOptions(dataHandler, refDiv) {
 			this.addItemMenu.appendChild(newOption);
 		}
 		this.refDiv.appendChild(this.addItemMenu);
+
+		//extra options
+		this.visualAllButton = document.createElement("input");
+		this.visualAllButton.type = "button";
+		this.visualAllButton.value = "Visualize All";
+		this.refDiv.appendChild(this.visualAllButton);
+
+		this.visualNoneButton = document.createElement("input");
+		this.visualNoneButton.type = "button";
+		this.visualNoneButton.value = "Visualize None";
+		this.refDiv.appendChild(this.visualNoneButton);
 	}
 
 	this.setupListeners = function() {
@@ -49,6 +60,19 @@ function GradingOptions(dataHandler, refDiv) {
 			// set back to say 'Add Criteria'
 			this.selectedIndex = 0;
 		}
+		var that = this;
+		this.visualAllButton.onclick = function(e) {
+			for (var i = 0; i < that.criteriaList.length; i++) {
+				that.criteriaList[i].setShouldVisualize(true);
+				that.criteriaChanged();
+			}
+		}
+		this.visualNoneButton.onclick = function(e) {
+			for (var i = 0; i < that.criteriaList.length; i++) {
+				that.criteriaList[i].setShouldVisualize(false);
+			}
+			that.criteriaChanged();
+		}
 	}
 
 	this.criteriaChanged = function() {
@@ -59,6 +83,7 @@ function GradingOptions(dataHandler, refDiv) {
 	this.addCriteria = function(type) {
 		var criteria = new possibleCriteria[type](this, this.optionsDiv, type);
 		this.criteriaList.push(criteria);
+		this.criteriaChanged();
 		return criteria; // in case it's needed for chaining
 	}
 
@@ -68,6 +93,7 @@ function GradingOptions(dataHandler, refDiv) {
 			this.optionsDiv.removeChild(this.criteriaList[index].container);
 			this.criteriaList.splice(index, 1);
 		}
+		this.criteriaChanged();
 	}
 
 	this.removeAllCriteria = function() {
@@ -107,14 +133,20 @@ function BasicCriteria(gradingOptions, refDiv) {
 	this.container = null;
 	this.mainForm = null;
 	this.removeButton = null;
-	this.displayCheckbox = null;
+	this.visualToggle = null;
+	this.visualText = null;
+	this.shouldVisualize = true;
+	this.hasErrored = false;
+	this.errorText = null;
 	this.helpText = '';
 	this.titleText = '';
 	var that = this;
 
 	this.initialize = function() {
 		this.container = document.createElement('div');
-		this.container.style.border = "solid";
+		this.container.style['border-style'] = "solid";
+		this.container.style['border-width'] = "3px";
+		this.container.style['border-color'] = "green";
 		this.refDiv.appendChild(this.container);
 		// remove button
 		this.removeButton = document.createElement('input');
@@ -122,14 +154,23 @@ function BasicCriteria(gradingOptions, refDiv) {
 		this.removeButton.value = 'Remove Criteria';
 		this.removeButton.onclick = this.remove;
 		this.container.appendChild(this.removeButton);
-		// display checkbox
-		this.displayChecbkox = document.createElement('input');
-		this.displayCheckbox.type = 'checkbox';
-		this.displayCheckbox.checked = true;
-		var label = document.createElement('label');
-		label.innerHTML = "Visualize in Teacher View";
-		this.container.appendChild(this.displayCheckbox);
-		this.container.appendChild(label);
+		// error stuff
+		this.errorText = document.createElement('label');
+		this.errorText.style.color = "red";
+		this.errorText.style.float = "right";
+		this.container.appendChild(this.errorText);
+		//status text
+		this.visualText = document.createElement('label');
+		this.visualText.innerHTML = "VISUALIZED";
+		this.visualText.style.color = "green";
+		this.visualText.style.float = 'right';
+		this.container.appendChild(this.visualText);
+		// toggle button
+		this.visualToggle = document.createElement('input');
+		this.visualToggle.type = 'button';
+		this.visualToggle.value = "Toggle Visualization";
+		this.visualToggle.style.float = 'right';
+		this.container.appendChild(this.visualToggle);
 		// put title text
 		this.titleText = document.createElement('h5');
 		this.container.appendChild(this.titleText);
@@ -145,6 +186,32 @@ function BasicCriteria(gradingOptions, refDiv) {
 		var that = this;
 		this.removeButton.onclick = function(e) {
 			that.gradingOptions.removeCriteria(that);
+		}
+		this.visualToggle.onclick = function(e) {
+			that.setShouldVisualize(!that.shouldVisualize);
+			that.gradingOptions.criteriaChanged();
+		}
+	}
+
+	this.setShouldVisualize = function(bool) {
+		this.shouldVisualize = bool;
+		this.updateLook();
+	}
+
+	this.updateLook = function() {
+		this.errorText.innerHTML = "";
+		if (this.shouldVisualize) {
+			this.visualText.innerHTML = "VISUALIZED";
+			this.visualText.style.color = 'green';
+			this.container.style['border-color'] = 'green';
+			if (this.hasErrored) {
+				this.container.style['border-color'] = 'red';
+				this.errorText.innerHTML = "visualizing error: invalid inputs";
+			}
+		} else {
+			this.visualText.innerHTML = "UNVISUALIZED";
+			this.visualText.style.color = 'black';
+			this.container.style['border-color'] = '#ddd';
 		}
 	}
 
@@ -193,7 +260,7 @@ function BasicCriteria(gradingOptions, refDiv) {
 		for (var i = 0; i < nodeList.length; i++) {
 			nodeList[i].onchange = function(e) {
 				that.gradingOptions.criteriaChanged();
-				that.gradingOptions.dataHandler.gradeCanvas.draw();
+				that.gradingOptions.gradeInterface.gradeCanvas.draw();
 			};
 		}
 	}
@@ -670,6 +737,8 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		if (!this.hasChanged) {
 			return;
 		}
+		this.hasErrored = false;
+		this.updateLook();
 		var inputDict = [];
 		for (var key in this.inputArgs) {
 			if (!this.inputArgs.hasOwnProperty(key))
@@ -702,8 +771,15 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 
 	this.requiredPolygons = function() {
 		this.update();
-		var func = this.classInst.tp$getattr('requiredPolygons');
-		var ret = Sk.misceval.callsim(func, this.otherVars);
+		try {
+			var func = this.classInst.tp$getattr('requiredPolygons');
+			var ret = Sk.misceval.callsim(func, this.otherVars);
+		} catch (err) {
+			this.hasErrored = true;
+			this.updateLook();
+			console.log("Error", err);
+			return [];
+		}
 		if (ret.v == null)
 			return null;
 		var l = [];
@@ -724,8 +800,15 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		if ('requiredList' in this.memo) {
 			return this.memo['requiredList'];
 		}
-		var func = this.classInst.tp$getattr('requiredList');
-		var ret = Sk.misceval.callsim(func, this.otherVars);
+		try {
+			var func = this.classInst.tp$getattr('requiredList');
+			var ret = Sk.misceval.callsim(func, this.otherVars);
+		} catch (err) {
+			this.hasErrored = true;
+			this.updateLook();
+			console.log("Error", err);
+			return [];
+		}
 		var l = [];
 		for (var i = 0; i < ret.v.length; i++) {
 			var p = ret.v[i];
@@ -737,8 +820,15 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 
 	this.forbiddenPolygons = function() {
 		this.update();
-		var func = this.classInst.tp$getattr('forbiddenPolygons');
-		var ret = Sk.misceval.callsim(func, this.otherVars);
+		try {
+			var func = this.classInst.tp$getattr('forbiddenPolygons');
+			var ret = Sk.misceval.callsim(func, this.otherVars);
+		} catch (err) {
+			this.hasErrored = true;
+			this.updateLook();
+			console.log("Error", err);
+			return [];
+		}
 		if (ret.v == null)
 			return null;
 		var l = [];
@@ -760,8 +850,15 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		if ('forbiddenList' in this.memo) {
 			return this.memo['forbiddenList'];
 		}
-		var func = this.classInst.tp$getattr('forbiddenList');
-		var ret = Sk.misceval.callsim(func, this.otherVars);
+		try {
+			var func = this.classInst.tp$getattr('forbiddenList');
+			var ret = Sk.misceval.callsim(func, this.otherVars);
+		} catch (err) {
+			this.hasErrored = true;
+			this.updateLook();
+			console.log("Error", err);
+			return [];
+		}
 		var l = [];
 		for (var i = 0; i < ret.v.length; i++) {
 			var p = ret.v[i];
@@ -773,8 +870,15 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 
 	this.isRelationshipPresent = function() {
 		this.update();
-		var func = this.classInst.tp$getattr('isRelationshipPresent');
-		var ret = Sk.misceval.callsim(func, this.otherVars);
+		try {
+			var func = this.classInst.tp$getattr('isRelationshipPresent');
+			var ret = Sk.misceval.callsim(func, this.otherVars);
+		} catch (err) {
+			this.hasErrored = true;
+			this.updateLook();
+			console.log("Error", err);
+			return false;
+		}
 		if (ret.v == 1)
 			return true;
 		else
@@ -801,8 +905,15 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 
 	this.getCriticalPoints = function() {
 		this.update();
-		var func = this.classInst.tp$getattr('getCriticalPoints');
-		var ret = Sk.misceval.callsim(func, this.otherVars);
+		try {
+			var func = this.classInst.tp$getattr('getCriticalPoints');
+			var ret = Sk.misceval.callsim(func, this.otherVars);
+		} catch (err) {
+			this.hasErrored = true;
+			this.updateLook();
+			console.log("Error", err);
+			return [];
+		}
 		var l = [];
 		for (var i = 0; i < ret.v.length; i++) {
 			var d = ret.v[i];

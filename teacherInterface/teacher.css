@@ -1,13 +1,14 @@
 .container {
 	clear:both;
-	background-color:#ffe;
 }
 
 #optionSelection {
-	background-color:#aaaaaa;
 	width:40%;
 	float:left;
 	padding:10px;
+	border-style:solid;
+	border-width:2px;
+	border-color:grey;
 }
 
 #visualization {
@@ -15,6 +16,9 @@
 	width:500px;
 	float:left;
 	padding:10px;
+	border-style:solid;
+	border-width:2px;
+	border-color:grey;
 }
 
 #studentView {
@@ -50,8 +54,10 @@ ACCORDION STUFF
 
 .accordion-section-content {
 	display:none;
-	height:80%;
+	height:100%;
 	border-style:solid;
+	border-width:2px;
+	border-color:#eee;
 }
 
 .accordion-section-content.open {

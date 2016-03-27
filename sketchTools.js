@@ -89,8 +89,8 @@ DrawingTool.prototype.onmouseleave = function(e) {
 	this.currentX = this.lastX;
 	this.currentY = this.lastY;
 	if (this.isPressed) {
-		this.isPressed = false;
 		this.mouseDraw(e);
+		this.isPressed = false;
 		this.sketchInterface.hiddenData.update();
 		return true;
 	}

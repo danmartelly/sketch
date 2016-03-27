@@ -14,7 +14,7 @@ function TeacherTest(dataHandler, refDiv, options) {
 			var criticalSave = that.criticalPointCanvas.getSaveData();
 			var recording = that.recording;
 			var data = {'axes':axisSave, 'drawing':drawingSave, 
-				'criticalPoints':criticalSave, 'recording':recording};
+				'recording':recording};
 			var criteria = that.dataHandler.getCriteriaOptions();
 			var dataToSend = {
 				request: 'gradeSubmission',

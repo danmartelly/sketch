@@ -6,7 +6,6 @@ function TeacherView(dataHandler, refDiv, options) {
 	this.initialize = function() {
 		this.gradeCanvas = new GradeCanvas(this, this.refDiv, this.width, this.height);
 		
-		this.overlayToolbar = new OverlayOptionsToolbar(this, this.toolbarDiv);
 		//remove other toolbars
 		this.drawingToolbar.removeSelf();
 		this.submitToolbar.removeSelf();
@@ -35,7 +34,6 @@ function TeacherView(dataHandler, refDiv, options) {
 	var processOptions = this.processOptions;
 	this.processOptions = function() {
 		processOptions.call(this);
-		this.overlayToolbar.addSelf();
 		this.submitToolbar.removeSelf();
 		//resizing
 		this.gradeCanvas.reposition(80,0);
@@ -44,119 +42,6 @@ function TeacherView(dataHandler, refDiv, options) {
 	}
 
 	this.initialize();
-}
-
-function OverlayOptionsToolbar(sketchInterface, refDiv) {
-	this.sketchInterface = sketchInterface;
-	BasicFormToolbar.call(this, sketchInterface, refDiv);
-	this.allowedDrawCheckbox = null;
-	this.relationshipCheckbox = null;
-	this.pointsCheckbox = null;
-
-	this.initialize = function() {
-		this.allowedDrawCheckbox = document.createElement('input');
-		this.allowedDrawCheckbox.type = 'checkbox';
-		this.allowedDrawCheckbox.checked = true;
-		this.mainForm.appendChild(this.allowedDrawCheckbox);
-		var label = document.createElement('label');
-		label.innerHTML = 'Where to draw overlay';
-		this.mainForm.appendChild(label);
-
-		this.relationshipCheckbox = document.createElement('input');
-		this.relationshipCheckbox.type = 'checkbox';
-		this.relationshipCheckbox.checked = true;
-		this.mainForm.appendChild(this.relationshipCheckbox);
-		var label = document.createElement('label');
-		label.innerHTML = 'Show icons overlay';
-		this.mainForm.appendChild(label);
-
-		this.pointsCheckbox = document.createElement('input');
-		this.pointsCheckbox.type = 'checkbox';
-		this.pointsCheckbox.checked = true;
-		this.mainForm.appendChild(this.pointsCheckbox);
-		var label = document.createElement('label');
-		label.innerHTML = 'Show points overlay';
-		this.mainForm.appendChild(label);
-
-	}
-
-	this.setupListeners = function() {
-		var that = this;
-		this.allowedDrawCheckbox.onclick = function(e) {
-			that.sketchInterface.gradeCanvas.draw();
-		}
-
-		this.relationshipCheckbox.onclick = function(e) {
-			that.sketchInterface.gradeCanvas.draw();
-		}
-
-		this.pointsCheckbox.onclick = function(e) {
-			that.sketchInterface.gradeCanvas.draw();
-		}
-	}
-
-	this.showAllowedForbidden = function() {
-		return this.allowedDrawCheckbox.checked;
-	}
-
-	this.showRelationships = function() {
-		return this.relationshipCheckbox.checked;
-	}
-
-	this.showPoints = function() {
-		return this.pointsCheckbox.checked;
-	}
-
-	this.initialize();
-	this.setupListeners();
-}
-
-function GenerateAnswersToolbar(sketchInterface, refDiv) {
-	this.sketchInterface = sketchInterface;
-	BasicFormToolbar.call(this, sketchInterface, refDiv);
-	this.randomButton = null;
-	this.greedyButton = null;
-        this.changingButton = null;
-
-	this.initialize = function() {
-		this.randomButton = document.createElement('input');
-		this.randomButton.type = 'button';
-		this.randomButton.value = 'Generate Random';
-		this.mainForm.appendChild(this.randomButton);
-
-		this.greedyButton = document.createElement('input');
-		this.greedyButton.type = 'button';
-		this.greedyButton.value = 'Generate Greedy';
-		this.mainForm.appendChild(this.greedyButton);
-
-		this.changingButton = document.createElement('input');
-		this.changingButton.type = 'button';
-		this.changingButton.value = 'Generate Changing Goodness';
-		this.mainForm.appendChild(this.changingButton);
-
-	}
-
-	this.setupListeners = function() {
-		var that = this;
-		this.randomButton.onclick = function(e) {
-			var co = that.sketchInterface.gradingOptions.getCriteria();
-			var vo = that.sketchInterface.displayOptions.getChoices();
-			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'random');
-		}
-		this.greedyButton.onclick = function(e) {
-			var co = that.sketchInterface.gradingOptions.getCriteria();
-			var vo = that.sketchInterface.displayOptions.getChoices();
-			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'greedy');
-		}
-		this.changingButton.onclick = function(e) {
-			var co = that.sketchInterface.gradingOptions.getCriteria();
-			var vo = that.sketchInterface.displayOptions.getChoices();
-			that.sketchInterface.generatedSketch.generateAnswer(co, vo, 'changingGood');
-		}
-	}
-
-	this.initialize();
-	this.setupListeners();
 }
 
 function GradeCanvas(sketchInterface, refDiv, width, height) {
@@ -171,6 +56,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
+			if (!crit.shouldVisualize) continue;
 			var polys = crit.requiredPolygons();
 			if (polys != null) {
 				for (var ind2 = 0; ind2 < polys.length; ind2++) {
@@ -187,6 +73,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
+			if (!crit.shouldVisualize) continue;
 			var polys = crit.forbiddenPolygons();
 			if (polys != null) {
 				for (var ind2 = 0; ind2 < polys.length; ind2++) {
@@ -247,6 +134,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
+			if (!crit.shouldVisualize) continue;
 			if (!crit.isRelationshipPresent()) {
 				continue;
 			}
@@ -269,6 +157,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var criteria = this.sketchInterface.getCriteriaInstancesList();
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
+			if (!crit.shouldVisualize) continue;
 			var pts = crit.getCriticalPoints();
 			for (var ind2 = 0; ind2 < pts.length; ind2++) {
 				var p = pts[ind2];
@@ -289,14 +178,8 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 
 	this.draw = function() {
 		this.clearCanvas();
-		if (this.sketchInterface.overlayToolbar.showAllowedForbidden()) {
-			this.drawGreenRedOverlay();
-		}
-		if (this.sketchInterface.overlayToolbar.showRelationships()) {
-			this.drawRelationshipOverlay();
-		}
-		if (this.sketchInterface.overlayToolbar.showPoints()) {
-			this.drawCriticalPointOverlay();
-		}
+		this.drawGreenRedOverlay();
+		this.drawRelationshipOverlay();
+		this.drawCriticalPointOverlay();
 	}
 }
