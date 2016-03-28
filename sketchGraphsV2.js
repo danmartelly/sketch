@@ -1167,7 +1167,6 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 			return;
 		this.areListenersSetUp = true;
 		var that = this;
-		console.log(this.canvas);
 		this.inputCanvas.onmousedown = function(e) {
 			if (!that.drawingEnabled)
 				return;

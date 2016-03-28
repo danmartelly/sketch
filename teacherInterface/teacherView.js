@@ -176,10 +176,35 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 
 	}
 
+	this.drawSlopesOverlay = function() {
+		var criteria = this.sketchInterface.getCriteriaInstancesList();
+		for (var ind = 0; ind < criteria.length; ind++) {
+			var crit = criteria[ind];
+			if (!crit.shouldVisualize) continue;
+			var slopes = crit.getSlopes();
+			for (var ind2 = 0; ind2 < pts.length; ind2++) {
+				var p = pts[ind2];
+				var x = p.x;
+				var y = p.y;
+				var slope = p.slope;
+				var ae = p.angleError;
+				this.drawSlope(x, y, slope, ae)
+			}
+
+		}
+        }
+
+	this.drawSlope = function(x, y, slope, angleError) {
+		var ctx = this.canvas.getContext('2d');
+		
+	
+	}
+
 	this.draw = function() {
 		this.clearCanvas();
 		this.drawGreenRedOverlay();
 		this.drawRelationshipOverlay();
 		this.drawCriticalPointOverlay();
+		this.drawSlopesOverlay();
 	}
 }

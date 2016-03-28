@@ -11,7 +11,6 @@ function TeacherTest(dataHandler, refDiv, options) {
 			console.log('updating');
 			var axisSave = that.axisLineCanvas.getSaveData();
 			var drawingSave = that.drawingCanvas.getSaveData();
-			var criticalSave = that.criticalPointCanvas.getSaveData();
 			var recording = that.recording;
 			var data = {'axes':axisSave, 'drawing':drawingSave, 
 				'recording':recording};

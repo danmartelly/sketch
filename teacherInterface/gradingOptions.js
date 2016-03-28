@@ -255,6 +255,10 @@ function BasicCriteria(gradingOptions, refDiv) {
 		return [];
 	}
 
+	this.getSlopes = function() {
+		return [];
+	}
+
 	this.setAllOnchange = function() {
 		var nodeList = this.container.getElementsByTagName('input');
 		for (var i = 0; i < nodeList.length; i++) {
@@ -777,7 +781,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		} catch (err) {
 			this.hasErrored = true;
 			this.updateLook();
-			console.log("Error", err);
 			return [];
 		}
 		if (ret.v == null)
@@ -806,7 +809,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		} catch (err) {
 			this.hasErrored = true;
 			this.updateLook();
-			console.log("Error", err);
 			return [];
 		}
 		var l = [];
@@ -826,7 +828,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		} catch (err) {
 			this.hasErrored = true;
 			this.updateLook();
-			console.log("Error", err);
 			return [];
 		}
 		if (ret.v == null)
@@ -856,7 +857,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		} catch (err) {
 			this.hasErrored = true;
 			this.updateLook();
-			console.log("Error", err);
 			return [];
 		}
 		var l = [];
@@ -876,7 +876,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		} catch (err) {
 			this.hasErrored = true;
 			this.updateLook();
-			console.log("Error", err);
 			return false;
 		}
 		if (ret.v == 1)
@@ -911,7 +910,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		} catch (err) {
 			this.hasErrored = true;
 			this.updateLook();
-			console.log("Error", err);
 			return [];
 		}
 		var l = [];
@@ -925,6 +923,30 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		}
 		return l;
 	}
+
+	this.getSlopes = function() {
+		this.update();
+//		try {
+			var func = this.classInst.tp$getattr('getSlopes');
+			var ret = Sk.misceval.callsim(func, this.otherVars);
+//		} catch (err) {
+			this.hasErrored = true;
+			this.updateLook();
+			return [];
+//		}
+                var l = [];
+		for (var i = 0; i < ret.v.length; i++) {
+			var d = ret.v[i];
+			universal = d;
+			var x = d.mp$lookup(Sk.builtin.str('x')).v;
+			var y = d.mp$lookup(Sk.builtin.str('y')).v;
+			var slope = d.mp$lookup(Sk.builtin.str('slope')).v;
+			var ae = d.mp$lookup(Sk.builtin.str('angleError')).v;
+			l.push({'x':x, 'y':y, 'slope':slope, 'angleError':ae});
+		}
+		return l;
+	}
+
 
 	this.initialize();
 }

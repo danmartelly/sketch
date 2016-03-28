@@ -6,8 +6,14 @@ import numpy as np
 
 class Point:
     def __init__(self, x, y, label = ''):
-        self.x = x
-        self.y = y
+        if(isinstance(x, int) or isinstance(x, float)):
+            self.x = x
+        else:
+            self.x = float(x)
+        if(isinstance(y,int) or isinstance(y, float)):
+            self.y = y
+        else:
+            self.y = float(y)
         self.label = label
     def close(self, other, epsilon):
         magSquared = (self.x-other.x)**2 + (self.y-other.y)**2
@@ -32,7 +38,6 @@ class GraphData:
         decoded = json.loads(rawJSONString)
         axisData = decoded['axes']
         drawingData = decoded['drawing']
-        criticalPointData = decoded['criticalPoints']
 	    # axis data
         self.pixelHeight = int(axisData['yaxis']['pixels'])
         self.ymin = float(axisData['yaxis']['min'])
@@ -52,12 +57,6 @@ class GraphData:
             x, y = self.xyFromIndex(i,j)
             self.xyPoints.append(Point(x,y))
         self.blackPixels.sort(key=lambda x: x[0])
-        # critical point data
-        self.criticalIndices = criticalPointData['usedPointList']
-        self.xyCritical = []
-        for cp in self.criticalIndices:
-            x, y = self.xyFromIndex(cp['i'], cp['j'])
-            self.xyCritical.append(Point(x,y,cp['label']))
 
 
     def xyFromIndex(self, i,j):

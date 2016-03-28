@@ -7,7 +7,10 @@ def createGrader(criteriaDictList):
     grader = Grader()
     for crit in criteriaDictList:
         t = crit['type']
-        clazz = globals()[t + 'Criteria']
+        if (t[-8:] == "Criteria"):
+            clazz = globals()[t]
+        else:
+            clazz = globals()[t + 'Criteria']
         kwargs = {}
         if 'args' in crit:
             for a in crit['args']:
@@ -163,6 +166,9 @@ class Criteria():
     # list of {'x':1, 'y':2, 'pixelRadius':5}
     def getCriticalPoints(self, otherVars):
         return []
+    # list of {'x':1, 'y':2, 'slope':1, 'angleError':20} (angleError in degrees)
+    def getSlopes(self, otherVars):
+        return []
  
 class MonotonicCriteria(Criteria):
     title = "Monotonicity Test Criteria"
@@ -176,9 +182,6 @@ class MonotonicCriteria(Criteria):
         """ trend = -1 --> must be negative trend
         trend = 0 --> doesn't matter if it's positive/negative, as long as its monotonic
         trend = 1 --> must be positive trend"""
-        self.trend = 0
-        self.pixelCloseness = 10
-        self.domain = (-float('inf'), float('inf'))
         Criteria.__init__(self, kwargs)
 
     def grade(self, graphData):
@@ -296,38 +299,59 @@ class PointsCriteria(Criteria):
         
 
 class DerivativeCriteria(Criteria):
-    title = "Fixed Derivative Check"
-    args = Criteria.args + [InputArg('list',"deriv", "no help text", InputArg.LIST,[],True)]
-    failMessage = 'The slope of your graph at some important points doesn\' match the answer'
+    title = "Derivative Check"
+    args = Criteria.args + [InputArg('domain', "Domain", "For what x values you want to apply the criteria", InputArg.DOMAIN, [-float('inf'), float('inf')]),
+                            InputArg('fraction', "Fraction Good", "What fraction of points drawn need to be inside the appropriate region", InputArg.FLOAT,.8),
+                            InputArg('fprime', "Function of slope", "A function of the slope specified in terms of x specified with valid python syntax", InputArg.FUNCTION, "", True),
+                            InputArg('angleCloseness', "Angle margin (degrees)", "How close the angle of the drawn slope has to be to the correct one", InputArg.FLOAT, 20)]
+
+    failMessage = 'The slope of your graph doesn\'t match the answer'
     '''Check that the derivative graph has an appropriate derivative at the given x values
     Required arguments: *list: which is a list of 2 length tuples containing (x, dy/dx)'''
     def __init__(self, kwargs):
-        derivList = kwargs['list']
-        kwargs['list'] = None
-        self.pList = []
-        if type(derivList) != type([]) or type(derivList) != type((0,)):
-            derivList = eval(derivList)
-        for p in derivList:
-            self.pList.append(util.Point(p[0],p[1]))
-        self.angleCloseness = math.pi/7.
+        """f should take in one paramater, x, and output y"""
+        f = kwargs['fprime']
+        if type(f) != type(lambda x: x):
+            f = eval("lambda x: " + f)
+        kwargs['fprime'] = f
         Criteria.__init__(self, kwargs)
         
     def grade(self, graphData):
-        derivFunc = graphData.getSmoothDerivFunction() 
+        derivList = graphData.getSmoothDerivList() 
         successes = 0
-        for p1 in self.pList:
-            angle1 = math.atan(p1.y)
-            slope2 = derivFunc(p1.x)
-            angle2 = math.atan(slope2)
-            diffAngle = abs(angle1-angle2)
+        for p in derivList:
+            drawnAngle = math.atan(p.y)
+            corrAngle = math.atan(fprime(p.x))
+            diffAngle = abs(drawnAngle-corrAngle)
             if diffAngle > math.pi/2:
                diffAngle -= math.pi
             if abs(diffAngle) < self.angleCloseness:
                 successes += 1
-        if len(self.pList) == successes:
+        if float(successes)/len(derivList) > self.fraction:
             return (1., None)
         else:
             return (float(successes)/len(self.pList), self.failMessage) 
+
+    def getSlopes(self, otherVars):
+        horizontalDist = 40
+        verticalDist = 40
+
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        mini, maxi = self.domain
+        if mini < xmin: mini = xmin
+        if maxi > xmax: maxi = xmax
+        imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
+        imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
+
+        drawList = []
+        for i in range(imin, imax+1, horizontalDist):
+            x = xmin + i*(xmax-xmin)/pixelWidth
+            slope = self.fprime(x)
+            for j in range(verticalDist/2, pixelHeight, verticalDist):
+                y = ymax - (j/pixelHeight)*(ymax-ymin)
+                drawList.append({'x':x, 'y':y, 'slope':slope, 'angleError':self.angleCloseness})
+        return drawList
+       
 
  
 
@@ -370,7 +394,7 @@ class FunctionFollowedCriteria(Criteria):
     title = "Stick to Function Check"
     args = Criteria.args + [InputArg('domain', "Domain", "For what x values you want to apply the criteria", InputArg.DOMAIN,[-float('inf'), float('inf')]),
                             InputArg('fraction', "Fraction Good", "What fraction of points drawn need to be inside the appropriate region", InputArg.FLOAT,.8),
-                            InputArg('f', "Function", "Needs to be specified with valid Python syntax", InputArg.FUNCTION, "", True),
+                            InputArg('f', "Function", "A function in terms of x specified with valid Python syntax", InputArg.FUNCTION, "", True),
                             InputArg('pixelCloseness', "Error margin (pixels):", "How close the drawing has to be to the correct answer", InputArg.INTEGER, 10)]
 
     failMessage = 'Did not match our function'
