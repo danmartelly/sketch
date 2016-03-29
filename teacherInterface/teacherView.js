@@ -182,8 +182,9 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 			var crit = criteria[ind];
 			if (!crit.shouldVisualize) continue;
 			var slopes = crit.getSlopes();
-			for (var ind2 = 0; ind2 < pts.length; ind2++) {
-				var p = pts[ind2];
+			console.log('slopes',slopes);
+			for (var ind2 = 0; ind2 < slopes.length; ind2++) {
+				var p = slopes[ind2];
 				var x = p.x;
 				var y = p.y;
 				var slope = p.slope;
@@ -192,12 +193,34 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 			}
 
 		}
-        }
+	}
 
 	this.drawSlope = function(x, y, slope, angleError) {
 		var ctx = this.canvas.getContext('2d');
-		
-	
+		//figure out values in terms of indices
+		var i = this.sketchInterface.xAxis.indexFromX(x);
+		var j = this.sketchInterface.yAxis.indexFromY(y);
+		var xperi = this.sketchInterface.xAxis.xFromIndex(5) - this.sketchInterface.xAxis.xFromIndex(4);
+		var yperj = this.sketchInterface.yAxis.yFromIndex(5) - this.sketchInterface.yAxis.yFromIndex(4);
+		var ijSlope = slope*yperj/xperi;
+		var angle = Math.atan(ijSlope);
+		console.log('angle', angle);
+		// draw 3 lines
+		drawLineAtAngle(i,j,10,angle);
+		drawLineAtAngle(i, j, 10, angle + angleError);
+		drawLineAtAngle(i, j, 10, angle - angleError);
+	}
+
+	this.drawLineAtAngle = function(i, j, length, angle) {
+		var starti = i - length/2*Math.cos(angle);
+		var startj = j - length/2*Math.sin(angle);
+		var endi = i + length/2*Math.cos(angle);
+		var endj = j + length/2*Math.sin(angle);
+		var ctx = this.canvas.getContext('2d');
+		ctx.beginPath();
+		ctx.moveTo(starti, startj);
+		ctx.lineTo(endi, endj);
+		ctx.stroke();
 	}
 
 	this.draw = function() {
