@@ -925,15 +925,17 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 	}
 
 	this.getSlopes = function() {
+		console.log('hello?');
 		this.update();
-//		try {
+		try {
 			var func = this.classInst.tp$getattr('getSlopes');
 			var ret = Sk.misceval.callsim(func, this.otherVars);
-//		} catch (err) {
+		} catch (err) {
+			console.log(err.message);
 			this.hasErrored = true;
 			this.updateLook();
 			return [];
-//		}
+		}
                 var l = [];
 		for (var i = 0; i < ret.v.length; i++) {
 			var d = ret.v[i];

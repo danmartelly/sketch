@@ -1,6 +1,6 @@
 import json
 import math
-#import tvregdiff as tvrd
+import tvregdiff as tvrd
 import dataFuncs
 import numpy as np
 

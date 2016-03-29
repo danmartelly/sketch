@@ -206,18 +206,20 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var angle = Math.atan(ijSlope);
 		console.log('angle', angle);
 		// draw 3 lines
-		drawLineAtAngle(i,j,10,angle);
-		drawLineAtAngle(i, j, 10, angle + angleError);
-		drawLineAtAngle(i, j, 10, angle - angleError);
+		this.drawLineAtAngle(i, j, 10, angle + angleError, 0, 128, 255, 100);
+		this.drawLineAtAngle(i, j, 10, angle - angleError, 0, 128, 255, 100);
+		this.drawLineAtAngle(i, j, 10, angle, 0, 0, 0, 256);
 	}
 
-	this.drawLineAtAngle = function(i, j, length, angle) {
+	this.drawLineAtAngle = function(i, j, length, angle, r, g, b, a) {
 		var starti = i - length/2*Math.cos(angle);
 		var startj = j - length/2*Math.sin(angle);
 		var endi = i + length/2*Math.cos(angle);
 		var endj = j + length/2*Math.sin(angle);
 		var ctx = this.canvas.getContext('2d');
 		ctx.beginPath();
+		ctx.strokeStyle = "rgba(" + r + ", " + g + ", " + b + ", " + a/256 + ")";
+		ctx.lineWidth = 2;
 		ctx.moveTo(starti, startj);
 		ctx.lineTo(endi, endj);
 		ctx.stroke();
@@ -226,8 +228,8 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 	this.draw = function() {
 		this.clearCanvas();
 		this.drawGreenRedOverlay();
-		this.drawRelationshipOverlay();
 		this.drawCriticalPointOverlay();
 		this.drawSlopesOverlay();
+		this.drawRelationshipOverlay();
 	}
 }

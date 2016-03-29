@@ -22,7 +22,7 @@ def gradeGivenCriteria(data, criteriaJSON):
     grader = criteria.createGrader(critList)
     graphData = util.GraphData(data)
     grade = grader.grade(graphData)
-    return (grade[0]*100, grade[1])
+    return (grade[0]*100, [grade[1]])
 
 # test
 '''user = ''

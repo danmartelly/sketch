@@ -22,7 +22,7 @@ if str(form['request'].value) == 'gradeSubmission':
         co = str(form['criteria'].value)
         grade, feedback = grader.gradeGivenCriteria(d, co)
         print '''
-{"grade":%(grade)s, "feedback":"%(feedback)s"}''' % {'grade':str(grade), 'feedback':feedback}
+{"grade":%(grade)s, "feedback":%(feedback)s}''' % {'grade':str(grade), 'feedback':str(feedback).replace("'",'"')}
 
     
 elif all([k in form for k in ['criteriaOptions','visualOptions', 'request']]):

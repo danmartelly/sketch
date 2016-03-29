@@ -1127,7 +1127,7 @@ function DrawingCanvas(sketchInterface, refDiv, width, height, drawingEnabled, r
 		'line':new LineTool(sketchInterface, this)
 	};
 	this.toolDisplayOrder = ['pencil', 'eraser', 'smoothPencil', 'line'];
-	this.activeTool = this.tools['smoothPencil'];
+	this.activeTool = this.tools['pencil'];
 	this.eraseRadius = 10;
 	BasicCanvas.call(this, sketchInterface, refDiv);
 

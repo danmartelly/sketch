@@ -117,6 +117,7 @@ function PencilTool(sketchInterface, drawCanvas) {
 }
 
 PencilTool.prototype = Object.create(DrawingTool.prototype);
+PencilTool.prototype.constructor = PencilTool;
 
 PencilTool.prototype.mouseDraw = function(e) {
 	DrawingTool.prototype.mouseDraw.call(this, e);
@@ -217,6 +218,8 @@ SmoothPencilTool.prototype.onmouseup = function(e) {
 
 SmoothPencilTool.prototype.onmouseleave = function(e) {
 	if (this.isPressed) {
+		this.strokePoints.push([this.currentX, this.currentY]);
+		this.drawCanvas.sketchStroke(this.smoothStroke());
 		this.drawCanvas.clearInputCanvas();
 	}
 	DrawingTool.prototype.onmouseleave.call(this, e);
@@ -254,6 +257,9 @@ LineTool.prototype.onmousemove = function(e) {
 
 LineTool.prototype.onmouseleave = function(e) {
 	if (this.isPressed) {
+		var endX = e.layerX;
+		var endY = e.layerY;
+		this.drawCanvas.sketch(this.startX, this.startY, endX, endY);
 		this.drawCanvas.clearInputCanvas();
 	}
 	DrawingTool.prototype.onmouseleave.call(this,e);

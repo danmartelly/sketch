@@ -305,7 +305,7 @@ class DerivativeCriteria(Criteria):
                             InputArg('fprime', "Function of slope", "A function of the slope specified in terms of x specified with valid python syntax", InputArg.FUNCTION, "", True),
                             InputArg('angleCloseness', "Angle margin (degrees)", "How close the angle of the drawn slope has to be to the correct one", InputArg.FLOAT, 20)]
 
-    failMessage = 'The slope of your graph doesn\'t match the answer'
+    failMessage = 'The slope of your graph does not match the answer'
     '''Check that the derivative graph has an appropriate derivative at the given x values
     Required arguments: *list: which is a list of 2 length tuples containing (x, dy/dx)'''
     def __init__(self, kwargs):
@@ -317,20 +317,22 @@ class DerivativeCriteria(Criteria):
         Criteria.__init__(self, kwargs)
         
     def grade(self, graphData):
-        derivList = graphData.getSmoothDerivList() 
+        derivList = [p for p in graphData.getSmoothDerivList() if p.x > self.domain[0] and p.x < self.domain[1]]
+        xyperij = graphData.xyFromIndex(3,3)-graphData.xyFromIndex(2,2)
         successes = 0
+        anglecloserad = self.angleCloseness*3.14159/180
         for p in derivList:
-            drawnAngle = math.atan(p.y)
-            corrAngle = math.atan(fprime(p.x))
+            drawnAngle = math.atan(p.y*xyperij[1]/xyperij[0])
+            corrAngle = math.atan(self.fprime(p.x)*xyperij[1]/xyperij[0])
             diffAngle = abs(drawnAngle-corrAngle)
             if diffAngle > math.pi/2:
                diffAngle -= math.pi
-            if abs(diffAngle) < self.angleCloseness:
+            if abs(diffAngle) < anglecloserad:
                 successes += 1
         if float(successes)/len(derivList) > self.fraction:
             return (1., None)
         else:
-            return (float(successes)/len(self.pList), self.failMessage) 
+            return (0., self.failMessage) 
 
     def getSlopes(self, otherVars):
         horizontalDist = 40
@@ -343,13 +345,14 @@ class DerivativeCriteria(Criteria):
         imin = int(max(0, (self.domain[0] - xmin)/float(xmax-xmin)*pixelWidth))
         imax = int(min(pixelWidth, (self.domain[1] - xmin)/float(xmax-xmin)*pixelWidth))
 
+        deg2rad = 3.14159/180
         drawList = []
         for i in range(imin, imax+1, horizontalDist):
             x = xmin + i*(xmax-xmin)/pixelWidth
             slope = self.fprime(x)
             for j in range(verticalDist/2, pixelHeight, verticalDist):
-                y = ymax - (j/pixelHeight)*(ymax-ymin)
-                drawList.append({'x':x, 'y':y, 'slope':slope, 'angleError':self.angleCloseness})
+                y = ymax - (float(j)/pixelHeight)*(ymax-ymin)
+                drawList.append({'x':x, 'y':y, 'slope':slope, 'angleError':self.angleCloseness*deg2rad})
         return drawList
        
 
