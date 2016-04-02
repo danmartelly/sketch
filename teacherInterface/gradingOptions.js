@@ -2,6 +2,8 @@ var possibleCriteria = {
 	//'Custom Code':CustomPythonCriteria,
 };
 
+var defaultCriteria = [{"type":"IsFunctionCriteria","args":{"failFast":true}}];
+
 for (var prop in criteriaCode) {
 	if (prop == "Criteria" || prop.indexOf("Criteria") == -1 || !criteriaCode.hasOwnProperty(prop)) {
 		continue;
@@ -49,6 +51,7 @@ function GradingOptions(dataHandler, refDiv) {
 		this.visualNoneButton.type = "button";
 		this.visualNoneButton.value = "Visualize None";
 		this.refDiv.appendChild(this.visualNoneButton);
+		this.dataHandler.addCriteriaOptionsListener(this);
 	}
 
 	this.setupListeners = function() {
@@ -64,8 +67,8 @@ function GradingOptions(dataHandler, refDiv) {
 		this.visualAllButton.onclick = function(e) {
 			for (var i = 0; i < that.criteriaList.length; i++) {
 				that.criteriaList[i].setShouldVisualize(true);
-				that.criteriaChanged();
 			}
+			that.criteriaChanged();
 		}
 		this.visualNoneButton.onclick = function(e) {
 			for (var i = 0; i < that.criteriaList.length; i++) {
@@ -76,8 +79,11 @@ function GradingOptions(dataHandler, refDiv) {
 	}
 
 	this.criteriaChanged = function() {
-		this.dataHandler.setCriteriaOptions(this.getCriteria());
+		this.dataHandler.setCriteriaOptions(this.getCriteria(), this);
+	}
 
+	this.processCriteriaOptions = function(options) {
+		this.setCriteria(options);
 	}
 
 	this.addCriteria = function(type) {
@@ -120,7 +126,7 @@ function GradingOptions(dataHandler, refDiv) {
 			var criteria = this.addCriteria(type);
 			criteria.setArgs(args);
 		}
-		this.gradeInterface.gradeCanvas.draw();
+		this.criteriaChanged();
 	}
 
 	this.initialize();
@@ -689,7 +695,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		// save code into this.code
 		this.code = criteriaCode["InputArg"] + "\n\n";
 		this.code += criteriaCode["Criteria"] + "\n\n" + criteriaCode[this.type];
-		console.log(this.code);
 
 		// put code into module
 		this.skModule = Sk.importMainWithBody("<stdin>", false, this.code);
@@ -926,7 +931,6 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 	}
 
 	this.getSlopes = function() {
-		console.log('hello?');
 		this.update();
 		try {
 			var func = this.classInst.tp$getattr('getSlopes');

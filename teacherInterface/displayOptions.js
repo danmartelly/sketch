@@ -49,7 +49,6 @@ function DisplayOptions(dataHandler, refDiv) {
 		form.appendChild(this.previewButton);
 		this.refDiv.appendChild(form);
 
-		this.processDisplayOptions(this.dataHandler.getDisplayOptions());
 		this.dataHandler.addDisplayOptionsListener(this);
 	}
 

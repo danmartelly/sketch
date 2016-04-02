@@ -182,7 +182,6 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 			var crit = criteria[ind];
 			if (!crit.shouldVisualize) continue;
 			var slopes = crit.getSlopes();
-			console.log('slopes',slopes);
 			for (var ind2 = 0; ind2 < slopes.length; ind2++) {
 				var p = slopes[ind2];
 				var x = p.x;
