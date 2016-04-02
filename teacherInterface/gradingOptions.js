@@ -689,6 +689,7 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		// save code into this.code
 		this.code = criteriaCode["InputArg"] + "\n\n";
 		this.code += criteriaCode["Criteria"] + "\n\n" + criteriaCode[this.type];
+		console.log(this.code);
 
 		// put code into module
 		this.skModule = Sk.importMainWithBody("<stdin>", false, this.code);

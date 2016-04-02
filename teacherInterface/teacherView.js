@@ -206,9 +206,9 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		var angle = Math.atan(ijSlope);
 		console.log('angle', angle);
 		// draw 3 lines
-		this.drawLineAtAngle(i, j, 10, angle + angleError, 0, 128, 255, 100);
-		this.drawLineAtAngle(i, j, 10, angle - angleError, 0, 128, 255, 100);
-		this.drawLineAtAngle(i, j, 10, angle, 0, 0, 0, 256);
+		this.drawLineAtAngle(i, j, 20, angle + angleError, 0, 128, 255, 100);
+		this.drawLineAtAngle(i, j, 20, angle - angleError, 0, 128, 255, 100);
+		this.drawLineAtAngle(i, j, 20, angle, 0, 0, 0, 256);
 	}
 
 	this.drawLineAtAngle = function(i, j, length, angle, r, g, b, a) {

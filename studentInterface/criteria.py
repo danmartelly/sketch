@@ -302,7 +302,7 @@ class DerivativeCriteria(Criteria):
     title = "Derivative Check"
     args = Criteria.args + [InputArg('domain', "Domain", "For what x values you want to apply the criteria", InputArg.DOMAIN, [-float('inf'), float('inf')]),
                             InputArg('fraction', "Fraction Good", "What fraction of points drawn need to be inside the appropriate region", InputArg.FLOAT,.8),
-                            InputArg('fprime', "Function of slope", "A function of the slope specified in terms of x specified with valid python syntax", InputArg.FUNCTION, "", True),
+                            InputArg('fprime', "Derivative in terms of x", "A function of the slope specified in terms of x specified with valid python syntax", InputArg.FUNCTION, "", True),
                             InputArg('angleCloseness', "Angle margin (degrees)", "How close the angle of the drawn slope has to be to the correct one", InputArg.FLOAT, 20)]
 
     failMessage = 'The slope of your graph does not match the answer'
