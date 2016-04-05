@@ -132,6 +132,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 	this.drawRelationshipOverlay = function() {
 		var ctx = this.canvas.getContext('2d');
 		var criteria = this.sketchInterface.getCriteriaInstancesList();
+		var topOffset = 0;
 		for (var ind = 0; ind < criteria.length; ind++) {
 			var crit = criteria[ind];
 			if (!crit.shouldVisualize) continue;
@@ -143,12 +144,19 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 			var imin = this.sketchInterface.xAxis.indexFromX(xmin);
 			var imax = this.sketchInterface.xAxis.indexFromX(xmax);
 			var w = imax - imin;
-			ctx.drawImage(this.bracketIcon,imin,50,w,20);
-			var callback = function(icon) {
-				ctx.drawImage(icon, imin+w/2,20);
-			};
-			crit.relationshipIcon(callback);
+			ctx.drawImage(this.bracketIcon,imin,topOffset+25,w,20);
+                        var callbackMaker = function(imin, w, topOffset) {
+				var callback = function(icon) {
+					ctx.save();
+					ctx.globalAlpha = .6;
+					ctx.drawImage(icon, imin+w/2-icon.width/2,topOffset);
+					ctx.restore();
+				};
+				return callback;
+			}
+			crit.relationshipIcon(callbackMaker(imin, w, topOffset));
 			//ctx.drawImage(crit.relationshipIcon(),imin + w/2,20);
+			topOffset += 30;
 		}
 	}
 

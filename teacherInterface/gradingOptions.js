@@ -2,7 +2,8 @@ var possibleCriteria = {
 	//'Custom Code':CustomPythonCriteria,
 };
 
-var defaultCriteria = [{"type":"IsFunctionCriteria","args":{"failFast":true}}];
+var defaultCriteria = [{"type":"IsFunctionCriteria","args":{"failFast":true}},
+			{"type":"DomainUsedCriteria","args":{"failFast":true}}];
 
 for (var prop in criteriaCode) {
 	if (prop == "Criteria" || prop.indexOf("Criteria") == -1 || !criteriaCode.hasOwnProperty(prop)) {
@@ -52,6 +53,7 @@ function GradingOptions(dataHandler, refDiv) {
 		this.visualNoneButton.value = "Visualize None";
 		this.refDiv.appendChild(this.visualNoneButton);
 		this.dataHandler.addCriteriaOptionsListener(this);
+		this.dataHandler.addDisplayOptionsListener(this);
 	}
 
 	this.setupListeners = function() {
@@ -84,6 +86,13 @@ function GradingOptions(dataHandler, refDiv) {
 
 	this.processCriteriaOptions = function(options) {
 		this.setCriteria(options);
+	}
+
+	this.processDisplayOptions = function(options) {
+		for (var i = 0; i < this.criteriaList.length; i++) {
+			if (this.criteriaList[i].hasOwnProperty('recomputeOtherVars'))
+				this.criteriaList[i].recomputeOtherVars();
+		}
 	}
 
 	this.addCriteria = function(type) {
@@ -521,8 +530,12 @@ function DomainInput(info, refCriteria) {
 	}
 
 	this.getValue = function() {
-		var min = Sk.builtin.float_(this.minInp.value);
-		var max = Sk.builtin.float_(this.maxInp.value);
+		var minNum = Number(this.minInp.value);
+		if (this.minInp.value == "") minNum = -Infinity;
+		var maxNum = Number(this.maxInp.value);
+		if (this.maxInp.value == "") maxNum = Infinity;
+		var min = Sk.builtin.float_(minNum);
+		var max = Sk.builtin.float_(maxNum);
 		return Sk.builtin.list([min, max]);
 	}
 
@@ -743,6 +756,24 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		}
 	}
 
+	this.recomputeOtherVars = function() {
+		console.log('recomputing othervars');
+		var dos = this.gradingOptions.dataHandler.getDisplayOptions();
+		var xmin = ['xmin', dos['xaxis']['min']];
+		var xmax = ['xmax', dos['xaxis']['max']];
+		var ymin = ['ymin', dos['yaxis']['min']];
+		var ymax = ['ymax', dos['yaxis']['max']];
+		var pixelWidth = ['pixelWidth', dos['xaxis']['pixelDim']];
+		var pixelHeight = ['pixelHeight', dos['yaxis']['pixelDim']];
+		var lst = [xmin, xmax, ymin, ymax, pixelWidth, pixelHeight];
+		this.otherVars = [];
+		for (var i = 0; i < lst.length; i++) {
+			this.otherVars.push(new Sk.builtin.str(lst[i][0]));
+			this.otherVars.push(new Sk.builtin.float_(lst[i][1]));
+		}
+		this.otherVars = new Sk.builtin.dict(this.otherVars);
+	}
+
 	this.update = function() {
 		if (!this.hasChanged) {
 			return;
@@ -762,21 +793,7 @@ function PythonCriteria(gradingOptions, refDiv, type) {
 		this.classInst = Sk.misceval.callsim(claz, inputDict);
 		this.hasChanged = false;
 		this.memo = {};
-
-		var dos = this.gradingOptions.dataHandler.getDisplayOptions();
-		var xmin = ['xmin', dos['xaxis']['min']];
-		var xmax = ['xmax', dos['xaxis']['max']];
-		var ymin = ['ymin', dos['yaxis']['min']];
-		var ymax = ['ymax', dos['yaxis']['max']];
-		var pixelWidth = ['pixelWidth', dos['xaxis']['pixelDim']];
-		var pixelHeight = ['pixelHeight', dos['yaxis']['pixelDim']];
-		var lst = [xmin, xmax, ymin, ymax, pixelWidth, pixelHeight];
-		this.otherVars = [];
-		for (var i = 0; i < lst.length; i++) {
-			this.otherVars.push(new Sk.builtin.str(lst[i][0]));
-			this.otherVars.push(new Sk.builtin.float_(lst[i][1]));
-		}
-		this.otherVars = new Sk.builtin.dict(this.otherVars);
+		this.recomputeOtherVars();
 	}
 
 	this.requiredPolygons = function() {

@@ -34,7 +34,6 @@ def makeJavascript(codeDict):
     for k in codeDict:
         first = str(k)
         second = repr(str(codeDict[k]))[1:-1].replace('"',r'\"')
-        print(second[:100])
         second = "from math import *\\n" + second
         thing = '"{!s}": "{!s}"'.format(first, second)
         js += thing + ",\n"

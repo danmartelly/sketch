@@ -201,22 +201,4 @@ class IsHorizontalCriteria(Criteria):
 
 
 
-class DomainUsedCriteria(Criteria):
-    failMessage = 'You need to fill more of the domain of the graph'
-    args = Criteria.args + [InputArg('domain',InputArg.DOMAIN,[-float('inf'), float('inf')]),
-                            InputArg('fraction',InputArg.FLOAT,.8)]
-    """Make sure some percentage of the domain is actually drawn on"""
-    def grade(self, graphData):
-        mini, maxi = self.domain
-        if mini < graphData.xmin: mini = graphData.xmin
-        if maxi > graphData.xmax: maxi = graphData.xmax
-        numPixelsInDom = graphData.pixelWidth*(float(maxi-mini)/(graphData.xmax-graphData.xmin))
-        counter = 0
-        for p in graphData.getFunctionList():
-            if p.x > mini and p.x < maxi:
-                counter += 1
-        if counter > numPixelsInDom*self.fraction:
-            return (1., None)
-        else:
-            return (0., self.failMessage)
 

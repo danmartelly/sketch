@@ -250,7 +250,9 @@ class MonotonicCriteria(Criteria):
     def isRelationshipPresent(self, otherVars):
         return True
     def relationshipRange(self, otherVars):
-        return self.domain
+        print otherVars
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        return [max(self.domain[0], xmin), min(self.domain[1],xmax)]
     def relationshipIcon(self, otherVars):
         if self.trend == 1:
             return "up.jpg"
@@ -356,7 +358,32 @@ class DerivativeCriteria(Criteria):
         return drawList
        
 
- 
+class DomainUsedCriteria(Criteria):
+    title = "Domain has been drawn in Check"
+    failMessage = 'You need to fill more of the domain of the graph'
+    args = Criteria.args + [InputArg('domain','Domain','What range of x values this criteria will be checked on',InputArg.DOMAIN,[-float('inf'), float('inf')]),
+                            InputArg('fraction','Fraction filled','Fraction of checked domain that should have something drawn in it', InputArg.FLOAT,.8)]
+    """Make sure some percentage of the domain is actually drawn on"""
+    def grade(self, graphData):
+        mini, maxi = self.domain
+        if mini < graphData.xmin: mini = graphData.xmin
+        if maxi > graphData.xmax: maxi = graphData.xmax
+        numPixelsInDom = graphData.pixelWidth*(float(maxi-mini)/(graphData.xmax-graphData.xmin))
+        counter = 0
+        for p in graphData.getFunctionList():
+            if p.x > mini and p.x < maxi:
+                counter += 1
+        if counter > numPixelsInDom*self.fraction:
+            return (1., None)
+        else:
+            return (0., self.failMessage)
+    def isRelationshipPresent(self, otherVars):
+        return True
+    def relationshipRange(self, otherVars):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        return [max(self.domain[0], xmin), min(self.domain[1],xmax)]
+    def relationshipIcon(self, otherVars):
+        return "domainUsed.png"
 
 class IsFunctionCriteria(Criteria):
     title = "Graph is a Function Check"
@@ -392,6 +419,14 @@ class IsFunctionCriteria(Criteria):
             return (0., self.failMessage)
         else:
             return (1., None)
+    def isRelationshipPresent(self, otherVars):
+        return True
+    def relationshipRange(self, otherVars):
+        (xmin, xmax, ymin, ymax, pixelWidth, pixelHeight) = self.unpackOtherVars(otherVars)
+        return [max(self.domain[0], xmin), min(self.domain[1],xmax)]
+    def relationshipIcon(self, otherVars):
+        return "isFunction.png"
+
 
 class FunctionFollowedCriteria(Criteria):
     title = "Stick to Function Check"

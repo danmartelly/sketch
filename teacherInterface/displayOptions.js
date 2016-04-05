@@ -17,37 +17,37 @@ function DisplayOptions(dataHandler, refDiv) {
 		textnode.innerHTML = 'X axis';
 		this.refDiv.appendChild(textnode);
 		this.refDiv.appendChild(div);
-		this.xAxisOptions = new AxisOptions(div);
+		this.xAxisOptions = new AxisOptions(div, this);
 		div = div.cloneNode();
 		// yaxis
 		textnode = document.createElement('h4');
 		textnode.innerHTML = 'Y axis';
 		this.refDiv.appendChild(textnode);
 		this.refDiv.appendChild(div);
-		this.yAxisOptions = new AxisOptions(div);
+		this.yAxisOptions = new AxisOptions(div, this);
 		div = div.cloneNode();
 		//image
-		textnode = document.createElement('h4');
+		/*textnode = document.createElement('h4');
 		textnode.innerHTML = 'Background Image';
 		this.refDiv.appendChild(textnode);
 		this.refDiv.appendChild(div);
 		this.imageOptions = new BackgroundImageOption(div);
-		div = div.cloneNode();
+		div = div.cloneNode();*/
 		//critical points
-		textnode = document.createElement('h4');
+		/*textnode = document.createElement('h4');
 		textnode.innerHTML = 'Critical Points';
 		this.refDiv.appendChild(textnode);
 		this.refDiv.appendChild(div);
 		this.critPointOptions = new CritPointOption(div);
-		div = div.cloneNode();
+		div = div.cloneNode();*/
 		// preview button
-		var form = document.createElement('form');
+		/*var form = document.createElement('form');
 		this.previewButton = document.createElement('input');
 		this.previewButton.type = 'button';
 		this.previewButton.value = 'Preview';
 		this.previewButton.onclick = this.preview;
 		form.appendChild(this.previewButton);
-		this.refDiv.appendChild(form);
+		this.refDiv.appendChild(form);*/
 
 		this.dataHandler.addDisplayOptionsListener(this);
 	}
@@ -55,16 +55,16 @@ function DisplayOptions(dataHandler, refDiv) {
 	this.processDisplayOptions = function(options) {
 		this.xAxisOptions.setChoices(options['xaxis']);
 		this.yAxisOptions.setChoices(options['yaxis']);
-		this.imageOptions.setChoices(options['img']);
-		this.critPointOptions.setChoices(options['critPoints']);
+		//this.imageOptions.setChoices(options['img']);
+		//this.critPointOptions.setChoices(options['critPoints']);
 	}
 
 	this.getChoices = function() {
 		options = {};
 		options['xaxis'] = this.xAxisOptions.getChoices();
 		options['yaxis'] = this.yAxisOptions.getChoices();
-		options['img'] = this.imageOptions.getChoices();
-		options['critPoints'] = this.critPointOptions.getChoices();
+		//options['img'] = this.imageOptions.getChoices();
+		//options['critPoints'] = this.critPointOptions.getChoices();
 		return options
 	}
 
@@ -90,8 +90,9 @@ function DisplayOptions(dataHandler, refDiv) {
 	this.initialize();
 }
 
-function AxisOptions(refDiv) {
+function AxisOptions(refDiv, displayOptions) {
 	this.refDiv = refDiv;
+	this.displayOptions = displayOptions;
 	this.form = null;
 	this.pixelInput = null;
 	this.logRadio = null;
@@ -111,15 +112,7 @@ function AxisOptions(refDiv) {
 		// overall form
 		this.form = document.createElement("form");
 		this.refDiv.appendChild(this.form);
-		// dimension in pixels
-		textnode = document.createTextNode("Dimension in pixels: ");
-		this.refDiv.appendChild(textnode);
-		this.pixelInput = document.createElement('input');
-		this.pixelInput.type = 'number';
-		this.pixelInput.style['width'] = '50px';
-		this.refDiv.appendChild(this.pixelInput);
-		textnode = document.createTextNode(' px');
-		this.refDiv.appendChild(textnode);
+
 
 		// log or linear scale
 		this.linearRadio = document.createElement('input');
@@ -132,6 +125,8 @@ function AxisOptions(refDiv) {
 		this.logRadio = document.createElement('input');
 		this.logRadio.setAttribute('type', 'radio');
 		this.logRadio.setAttribute('name', 'scaleType');
+		this.logRadio.setAttribute('disabled', 'true');
+		this.logRadio.title = "Log scale coming soon!";
 		this.form.appendChild(this.logRadio);
 		textnode = document.createTextNode("Log scale");
 		this.form.appendChild(textnode);
@@ -141,7 +136,7 @@ function AxisOptions(refDiv) {
 		this.teacherRadio.setAttribute('type', 'radio');
 		this.teacherRadio.setAttribute('name', 'setBy');
 		this.teacherRadio.checked = true;
-		this.teacherRadio.onchange = this.setByChange;
+
 		this.form.appendChild(this.teacherRadio);
 		textnode = document.createTextNode("Axis set by teacher");
 		this.form.appendChild(textnode);
@@ -176,10 +171,26 @@ function AxisOptions(refDiv) {
 		this.extraDiv.appendChild(brk.cloneNode());
 		this.form.appendChild(this.extraDiv);
 		// desired label
-		textnode = document.createTextNode	("X axis label: ");
+		textnode = document.createTextNode("Axis label: ");
 		this.form.appendChild(textnode);
 		this.labelText = document.createElement('input');
 		this.form.appendChild(this.labelText);
+		// dimension in pixels
+		this.form.appendChild(brk.cloneNode());
+		textnode = document.createTextNode("Dimension in pixels: ");
+		this.form.appendChild(textnode);
+		this.pixelInput = document.createElement('input');
+		this.pixelInput.type = 'number';
+		this.pixelInput.style['width'] = '50px';
+		this.form.appendChild(this.pixelInput);
+		textnode = document.createTextNode(' px');
+		this.form.appendChild(textnode);
+
+		this.setAllToPreviewOnChange();
+		this.teacherRadio.onchange = function(e) {
+			that.setByChange(e);
+			that.displayOptions.preview(e);
+		}
 	}
 
 	this.setByChange = function(e) {
@@ -187,6 +198,16 @@ function AxisOptions(refDiv) {
 			that.extraDiv.style.visibility = 'visible';
 		else
 			that.extraDiv.style.visibility = 'collapse';
+	}
+
+	this.setAllToPreviewOnChange = function() {
+		var nodeList = this.form.getElementsByTagName('input');
+		var that = this;
+		for (var i = 0; i < nodeList.length; i++) {
+			nodeList[i].onchange = function(e) {
+				that.displayOptions.preview(e);
+			};
+		}
 	}
 
 	this.getChoices = function() {

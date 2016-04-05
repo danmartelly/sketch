@@ -4,6 +4,7 @@
 
 #optionSelection {
 	width:40%;
+	min-width:450px;
 	float:left;
 	padding:10px;
 	border-style:solid;
@@ -13,7 +14,6 @@
 
 #visualization {
 	background-color:white;
-	width:500px;
 	float:left;
 	padding:10px;
 	border-style:solid;
@@ -54,8 +54,8 @@ ACCORDION STUFF
 
 .accordion-section-content {
 	display:none;
-	height:100%;
 	border-style:solid;
+	max-height:90%;
 	border-width:2px;
 	border-color:#eee;
 }
