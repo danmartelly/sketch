@@ -1,0 +1,46 @@
+<html>
+<head>
+	<title>Help Text for Auto Graph Grading</title>
+	<style type="text/css">
+		p {
+			width:100%;
+			max-width:600px;
+		}
+	</style>
+</head>
+<body>
+<h2>Your role in the project</h2>
+<p>There's a lot of great online tools for students to practice math problems on the computer. However, most tools usually boil down to multiple choice or entering some numbers or text and checking if the answer matches exactly. I decided to work on adding a new kind of problem which requires drawing graphs for an answer. A while ago my tool required an understand of coding to set up a graphing question. But, I think that it's just as important for students to be able to use the tool as well as their teachers.  For that reason it's important to me that you don't need a degree in computer science to make use of my research.</p>
+
+<p>Please don't hesitate to give me feedback, both bad and good, as you're testing the interface. <b>If something is confusing or unintuitive, let me know!</b> I can probably redesign it to make it better but I need to know there's something wrong in the first place. If you like something, let me know too so that I don't remove it.</p>
+
+<h2>Features of the Interface</h2>
+<h3>Options</h3>
+<p>On the left of the web page, you should see something that says "<u>Display Options</u>" and something that says "<u>Criteria Options</u>". <u>Display Options</u> determine what the students will see when they first see the problem. <u>Criteria</u> Options determines how a student's submissions will be graded.</p>
+
+<h3>Visuals</h3>
+<p>On the right of the web page, you should see something that says "<u>Student View</u>" and something that says "<u>Teacher View</u>". <u>Student View</u> shows you an example of what a student would see when they first saw the problem. You will not be able to draw on the <u>Student View</u>. <u>Teacher View</u> is meant to be a visualization of what you've selected in the <u>Criteria Options</u>.</p>
+
+<h3>Testing</h3>
+<p>If you would like to personally test out your criteria, there should be a button at the bottom that says "<u>Draw Testing</u>". In here, you can draw on a sample graph and submit your answer. After a delay (usually less than 10 seconds), you should get a grade and possibly some textual feedback.</p>
+
+<h2>The basics of Python Syntax for math</h2>
+<p>In certain criteria, you will be asked to input a function or a derivative in terms of x. The text you input should be legal in a programming language called Python. It looks mostly like math so don't be frightened if you've never programmed before. Below are some examples and some common pitfalls to avoid.<p>
+
+<h5>Examples</h5>
+<ul>
+	<li>x squared becomes x**2</li>
+	<li>4(5-x) becomes 4*(5-x)</li>
+	<li>sin(x) becomes sin(x)</li>
+	<li>square root of x becomes x**.5</li>
+	<li>1*2+3-4/5 becomes 1*2+3-4/5</li>
+</ul>
+
+<h5>Common pitfalls</h5>
+<ul>
+	<li>Whenever you want something to multiply together, you always need an asterisk. 5(5) is invalid. 5*(5) is valid.</li>
+	<li>Exponentiation happens with a double asterisk (**). The carat symbol (^) does something completely different</li>
+	<li>Brackets are not allowed in mathematical expressions in Python. Use parentheses instead.</li>
+</ul>
+</body>
+</html>
