@@ -40,6 +40,30 @@ elif all([k in form for k in ['criteriaOptions','visualOptions', 'request']]):
     print '''
 %(a)s
 ''' % {'a':json.dumps(a)}
+elif str(form['request'].value) == 'saveOptions':
+    if not all([k in form for k in ['personName', 'problemName', 'criteria','display']]):
+        print error
+    else:
+        co = str(form['criteria'].value)
+        do = str(form['display'].value)
+        person = str(form['personName'].value)
+        problem = str(form['problemName'].value)
+        filenameRoot = problem + person
+        currentFiles = filter(lambda x: filenameRoot in x, os.listdir("testingData"))
+        bigIndex = 1
+        for fil in currentFiles:
+            num = int(fil[len(filenameRoot):])
+            bigIndex = max(bigIndex, num+1)
+        f = open("testingData/" + filenameRoot + str(bigIndex) + ".txt", 'w')
+        f.write("criteriaOptions = ")
+        f.write(co + "\n\n")
+        f.write("displayOptions = ")
+        f.write(do + "\n")
+        f.close()
+        print '''
+success %(currentFiles)s''' % {"currentFiles":currentFiles}
+
+
     
 else:
     print error
