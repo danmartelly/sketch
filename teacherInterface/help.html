@@ -1,6 +1,10 @@
 <html>
 <head>
 	<title>Help Text for Auto Graph Grading</title>
+	<script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script> 
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+	</script>
 	<style type="text/css">
 		p {
 			width:100%;
@@ -10,12 +14,13 @@
 </head>
 <body>
 <h2>Your role in the project</h2>
-<p>There's a lot of great online tools for students to practice math problems on the computer. However, most tools usually boil down to multiple choice or entering some numbers or text and checking if the answer matches exactly. I decided to work on adding a new kind of problem which requires drawing graphs for an answer. A while ago my tool required an understand of coding to set up a graphing question. But, I think that it's just as important for students to be able to use the tool as well as their teachers.  For that reason it's important to me that you don't need a degree in computer science to make use of my research.</p>
+<p>There's a lot of great online tools for students to practice math problems on the computer. However, most tools usually boil down to multiple choice or entering some numbers or text and checking if the answer matches exactly. I decided to work on adding a new kind of problem which requires drawing graphs for an answer. A while ago my tool required an understand of coding to set up a graphing question which is not very teacher friendly. But, I think that it's just as important for students to be able to use the tool as well as their teachers.  For that reason, it's important to me that you don't need a degree in computer science to make use of my research.</p>
 
-<p>Please don't hesitate to give me feedback, both bad and good, as you're testing the interface. <b>If something is confusing or unintuitive, let me know!</b> I can probably redesign it to make it better but I need to know there's something wrong in the first place. If you like something, let me know too so that I don't remove it.</p>
+<p>Please don't hesitate to give me feedback, both bad and good, as you're testing the interface. <b>If something is confusing or unintuitive, let me know!</b> I can probably redesign it to make it better but I need to know there's something wrong in the first place. If you like something, let me know too so that I don't remove it. Finally, I would like to thank you for taking the time to help out with the project.</p>
 
 <h2>Features of the Interface</h2>
-<h3>Options</h3>
+<p>Here's a quick rundown of what to expect from the interface.
+<h3>Option Selection</h3>
 <p>On the left of the web page, you should see something that says "<u>Display Options</u>" and something that says "<u>Criteria Options</u>". <u>Display Options</u> determine what the students will see when they first see the problem. <u>Criteria</u> Options determines how a student's submissions will be graded.</p>
 
 <h3>Visuals</h3>
@@ -27,20 +32,39 @@
 <h2>The basics of Python Syntax for math</h2>
 <p>In certain criteria, you will be asked to input a function or a derivative in terms of x. The text you input should be legal in a programming language called Python. It looks mostly like math so don't be frightened if you've never programmed before. Below are some examples and some common pitfalls to avoid.<p>
 
-<h5>Examples</h5>
-<ul>
-	<li>x squared becomes x**2</li>
-	<li>4(5-x) becomes 4*(5-x)</li>
-	<li>sin(x) becomes sin(x)</li>
-	<li>square root of x becomes x**.5</li>
-	<li>1*2+3-4/5 becomes 1*2+3-4/5</li>
-</ul>
-
-<h5>Common pitfalls</h5>
+<h4>Common pitfalls</h4>
 <ul>
 	<li>Whenever you want something to multiply together, you always need an asterisk. 5(5) is invalid. 5*(5) is valid.</li>
-	<li>Exponentiation happens with a double asterisk (**). The carat symbol (^) does something completely different</li>
+	<li>Exponentiation happens with a double asterisk (**). The carat symbol (^) does something completely different.</li>
 	<li>Brackets are not allowed in mathematical expressions in Python. Use parentheses instead.</li>
 </ul>
+
+<h4>Examples</h4>
+<table border="1">
+<tr>
+	<td><b>Math Notation</b></td>
+	<td><b>Python Syntax</b></td>
+</tr>
+<tr>
+	<td>$x^2$</td>
+	<td>x**2</td>
+</tr>
+<tr>
+	<td>$4(5-x)</td>
+	<td>4*(5-x)</td>
+</tr>
+<tr>
+	<td>$\sin(x)$</td>
+	<td>sin(x)</td>
+</tr>
+<tr>
+	<td>$\sqrt{x}$</td>
+	<td>x**.5 or sqrt(x)</td>
+</tr>
+<tr>
+	<td>$1*2+3-4/5$</td>
+	<td>1*2+3-4/5</td>
+</tr>
+</table>
 </body>
 </html>

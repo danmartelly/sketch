@@ -6,6 +6,11 @@ function LoadSaveOptions(dataHandler, refDiv) {
 	this.setOptionsButton = null;
 	this.displayOptionsText = null;
 	this.gradingOptionsText = null;
+	this.participantText = null;
+	this.problemText = null;
+	this.submitButton = null;
+	this.loadingGIF = null;
+	this.failedText = null;
 
 	this.initialize = function() {
 		//get
@@ -31,6 +36,36 @@ function LoadSaveOptions(dataHandler, refDiv) {
 		this.refDiv.appendChild(textnode);
 		this.gradingOptionsText = document.createElement('textarea');
 		this.refDiv.appendChild(this.gradingOptionsText);
+		
+		this.refDiv.appendChild(br.cloneNode());
+		this.refDiv.appendChild(br.cloneNode());
+		textnode = document.createTextNode("Your name: ");
+		this.refDiv.appendChild(textnode);
+		this.participantText = document.createElement('input');
+		this.participantText.type = 'text';
+		this.refDiv.appendChild(this.participantText);
+
+		this.refDiv.appendChild(br.cloneNode());
+		textnode = document.createTextNode("Problem name: ");
+		this.refDiv.appendChild(textnode);
+		this.problemText = document.createElement('input');
+		this.problemText.type = 'text';
+		this.refDiv.appendChild(this.problemText);
+
+		this.refDiv.appendChild(br.cloneNode());
+		this.submitButton = document.createElement('input');
+		this.submitButton.type = 'button';
+		this.submitButton.value = "Submit Option Choices";
+		this.refDiv.appendChild(this.submitButton);
+		this.loadingGIF = new Image();
+		this.loadingGIF.src = "../loading.gif";
+		this.loadingGIF.style.display = "none";
+		this.refDiv.appendChild(this.loadingGIF);
+		this.failedText = document.createElement("span");
+		this.failedText.innerHTML = "Submission Failed";
+		this.failedText.style["color"] = "red";
+		this.failedText.style.display = "none";
+		this.refDiv.appendChild(this.failedText);
 	}
 
 	this.setupListeners = function() {
@@ -53,6 +88,40 @@ function LoadSaveOptions(dataHandler, refDiv) {
 				criteriaCode = JSON.parse(criteriaCode);
 				that.dataHandler.setCriteriaOptions(criteriaCode);
 			}
+		}
+
+		this.submitButton.onclick = function(e) {
+			that.loadingGIF.style.display = "inline";
+			that.failedText.style.display = "none";
+
+			if (that.problemText.value == "" || that.participantText.value == "") {
+				that.loadingGIF.style.display = "none";
+				that.failedText.style.display = "inline";
+				that.failedText.innerHTML = "Name fields left blank";
+				return;
+			}
+
+			var displayOptions = that.dataHandler.getDisplayOptions();
+			displayOptions = JSON.stringify(displayOptions);
+			var criteriaOptions = that.dataHandler.getCriteriaOptions();
+			criteriaOptions = JSON.stringify(criteriaOptions);
+			var dataToSend = {'request':"saveOptions",
+				"personName":that.participantText.value,
+				"problemName":that.problemText.value,
+				"criteria":criteriaOptions,
+				"display":displayOptions};
+			$.post('serverInterface.py', dataToSend).done(
+			function(data, status){
+				console.log(data);
+				that.loadingGIF.style.display = "none";
+				that.failedText.style.display = "none";
+			}).fail(
+			function(data, status) {
+				console.log(data);
+				that.loadingGIF.style.display = "none";
+				that.failedText.style.display = "inline";
+				that.failedText.innerHTML = "Submission Failed";
+			});
 		}
 	}
 
