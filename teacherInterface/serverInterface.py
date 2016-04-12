@@ -21,6 +21,7 @@ if str(form['request'].value) == 'gradeSubmission':
         d = str(form['drawData'].value)
         co = str(form['criteria'].value)
         grade, feedback = grader.gradeGivenCriteria(d, co)
+        feedback = [str(f).replace('"', "").replace("'", "") for f in feedback]
         print '''
 {"grade":%(grade)s, "feedback":%(feedback)s}''' % {'grade':str(grade), 'feedback':str(feedback).replace("'",'"')}
 

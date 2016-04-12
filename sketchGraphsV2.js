@@ -450,7 +450,10 @@ function SubmitToolbar(sketchInterface, refDiv) {
 		this.mainForm.appendChild(this.submitButton);
 
 		this.loadingImage = new Image();
-		this.loadingImage.src = 'redx.png';
+		this.loadingImage.onerror = function(e) {
+			this.src = '../loading.gif';
+		}
+		this.loadingImage.src = 'loading.gif';
 		this.loadingImage.style.display = 'none';
 		this.mainForm.appendChild(this.loadingImage);
 

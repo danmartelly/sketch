@@ -51,6 +51,7 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 	this.bracketIcon = new Image(190, 48);
 	this.bracketIcon.src = 'bracket.png';
 
+
 	// draw intersection of required things in green
 	this.drawRequiredOverlay = function(canv) {
 		var criteria = this.sketchInterface.getCriteriaInstancesList();
@@ -238,5 +239,9 @@ function GradeCanvas(sketchInterface, refDiv, width, height) {
 		this.drawCriticalPointOverlay();
 		this.drawSlopesOverlay();
 		this.drawRelationshipOverlay();
+	}
+	var that = this;
+	this.bracketIcon.onload = function() {
+		that.draw();
 	}
 }

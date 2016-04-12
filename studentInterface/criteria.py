@@ -102,7 +102,6 @@ class Criteria():
     helpText = ""
     args = [InputArg('weight', "Grade Weight: ", "What weight will this criteria have relative to others", InputArg.FLOAT, 1), 
             InputArg('failFast', "Fail Immediately: ", "When True, a student who does not pass this criteria instantly gets 0% as a grade", InputArg.BOOL, False)]
-    failMessage = 'Criteria failed in some way'
     def __init__(self, kwargs):
         missingArgs = []
         unusedArgs = []
@@ -175,7 +174,9 @@ class MonotonicCriteria(Criteria):
     failMessage = 'Not monotonic'
     args = Criteria.args + [InputArg('domain', "Domain", "What range of x values this criteria will be checked on", InputArg.DOMAIN,[-float('inf'), float('inf')]),
                             InputArg('trend', "Trend", "1 means monotonically increasing, -1 means decreasing, 0 means either way", InputArg.INTEGER, 0, True),
-                            InputArg('pixelCloseness', "Error margin (pixels)", "How far away in the wrong direction the student can go", InputArg.INTEGER, 10)]
+                            InputArg('pixelCloseness', "Error margin (pixels)", "How far away in the wrong direction the student can go", InputArg.INTEGER, 10),
+            InputArg('failMessage', "Message on failure: ", "The message returned to the student when they have not passed a criteria", InputArg.STRING, "Your drawing was not monotonic in the appropriate region")]
+
     """Check that data is monotonic. Can also specify whether a positive or
    negative trend is there"""
     def __init__(self, kwargs):
@@ -266,7 +267,9 @@ class MonotonicCriteria(Criteria):
 class PointsCriteria(Criteria):
     title = "Critical Point Check"
     args = Criteria.args + [InputArg('pixelCloseness', "Precision (pixels)", "How close the drawing has to get to the specified point to get full credit", InputArg.INTEGER, 10),
-                            InputArg('list', "Points", "", InputArg.MULTIPLEPOINTS,[],True)]
+                            InputArg('list', "Points", "", InputArg.MULTIPLEPOINTS,[],True),
+            InputArg('failMessage', "Message on failure: ", "The message returned to the student when they have not passed a criteria", InputArg.STRING, "Your drawing didn't go through the critical points")]
+
     failMessage = 'Some critical points were missed'
     '''Check that the drawn graph contains this critical point within some range
     Required arguments: *list: which is a list of 2 length tuples containing (x,y)'''
@@ -305,7 +308,9 @@ class DerivativeCriteria(Criteria):
     args = Criteria.args + [InputArg('domain', "Domain", "For what x values you want to apply the criteria", InputArg.DOMAIN, [-float('inf'), float('inf')]),
                             InputArg('fraction', "Fraction Good", "What fraction of points drawn need to be inside the appropriate region", InputArg.FLOAT,.8),
                             InputArg('fprime', "Derivative in terms of x", "A function of the slope specified in terms of x specified with valid python syntax", InputArg.FUNCTION, "", True),
-                            InputArg('angleCloseness', "Angle margin (degrees)", "How close the angle of the drawn slope has to be to the correct one", InputArg.FLOAT, 20)]
+                            InputArg('angleCloseness', "Angle margin (degrees)", "How close the angle of the drawn slope has to be to the correct one", InputArg.FLOAT, 20),
+            InputArg('failMessage', "Message on failure: ", "The message returned to the student when they have not passed a criteria", InputArg.STRING, "Your function did not match our derivative")]
+
 
     failMessage = 'The slope of your graph does not match the answer'
     '''Check that the derivative graph has an appropriate derivative at the given x values
@@ -359,11 +364,13 @@ class DerivativeCriteria(Criteria):
        
 
 class DomainUsedCriteria(Criteria):
+    """Make sure some percentage of the domain is actually drawn on"""
     title = "Domain has been drawn in Check"
     failMessage = 'You need to fill more of the domain of the graph'
     args = Criteria.args + [InputArg('domain','Domain','What range of x values this criteria will be checked on',InputArg.DOMAIN,[-float('inf'), float('inf')]),
-                            InputArg('fraction','Fraction filled','Fraction of checked domain that should have something drawn in it', InputArg.FLOAT,.8)]
-    """Make sure some percentage of the domain is actually drawn on"""
+                            InputArg('fraction','Fraction filled','Fraction of checked domain that should have something drawn in it', InputArg.FLOAT,.8),
+            InputArg('failMessage', "Message on failure: ", "The message returned to the student when they have not passed a criteria", InputArg.STRING, "You didn't draw enough over the domain")]
+
     def grade(self, graphData):
         mini, maxi = self.domain
         if mini < graphData.xmin: mini = graphData.xmin
@@ -389,7 +396,9 @@ class IsFunctionCriteria(Criteria):
     title = "Graph is a Function Check"
     failMessage = "Your graph needs to be a function (one y value per x value)"
     args = Criteria.args + [InputArg('domain', "Domain", "What range of x values the drawing needs to be a function in", InputArg.DOMAIN,[-float('inf'), float('inf')]),
-                            InputArg('fraction', "Fraction of good", "What fraction of the points drawn need to follow the rule", InputArg.FLOAT,.8)]
+                            InputArg('fraction', "Fraction of good", "What fraction of the points drawn need to follow the rule", InputArg.FLOAT,.8),
+            InputArg('failMessage', "Message on failure: ", "The message returned to the student when they have not passed a criteria", InputArg.STRING, "Your drawing should represent a function (only one y value for every x value")]
+
     '''Check if graph is close to a function (one y value per x value)
     Or at least that repeat y values are close to each other indicating a vertical line'''
     def __init__(self, kwargs):
@@ -433,7 +442,9 @@ class FunctionFollowedCriteria(Criteria):
     args = Criteria.args + [InputArg('domain', "Domain", "For what x values you want to apply the criteria", InputArg.DOMAIN,[-float('inf'), float('inf')]),
                             InputArg('fraction', "Fraction Good", "What fraction of points drawn need to be inside the appropriate region", InputArg.FLOAT,.8),
                             InputArg('f', "Function", "A function in terms of x specified with valid Python syntax", InputArg.FUNCTION, "", True),
-                            InputArg('pixelCloseness', "Error margin (pixels):", "How close the drawing has to be to the correct answer", InputArg.INTEGER, 10)]
+                            InputArg('pixelCloseness', "Error margin (pixels):", "How close the drawing has to be to the correct answer", InputArg.INTEGER, 10),
+            InputArg('failMessage', "Message on failure: ", "The message returned to the student when they have not passed a criteria", InputArg.STRING, "Your drawing didn't match our function")]
+
 
     failMessage = 'Did not match our function'
     """Check if graph follows function through domain specified
