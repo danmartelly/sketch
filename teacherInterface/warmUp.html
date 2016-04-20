@@ -13,24 +13,24 @@
 
 </head>
 <body>
-
+<div id="question 4">
+	<p>1. Draw a monotonically decreasing function</p>
+	<div id="sketch4"></div>
+</div>
+<hr>
+<div id="question 3">
+	<p>2. Plot $(x-4)/2 + 1$</p>
+	<div id="sketch3"></div>
+</div>
+<hr>
 <div id="question 1">
-	<p>1. Plot $x^3/3-5$</p>
+	<p>3. Plot $x^3/3-5$</p>
 	<div id="sketch1"></div>
 </div>
 <hr>
 <div id="question 2">
-	<p>2. Plot the derivative of $x^3/3-5$</p>
+	<p>4. Plot the derivative of $x^3/3-5$</p>
 	<div id="sketch2"></div>
-</div>
-<hr>
-<div id="question 3">
-	<p>3. Plot $(x-4)/2 + 1$</p>
-	<div id="sketch3"></div>
-</div>
-<div id="question 4">
-	<p>4. Draw a monotonically decreasing function</p>
-	<div id="sketch4"></div>
 </div>
 </body>
 <script type="text/javascript">
@@ -59,12 +59,12 @@ var d2 = new DataHandler(display2, criteria2);
 var q2 = new TeacherTest(d2, document.getElementById("sketch2"), display2);
 
 var display3 = {"xaxis":{"scaleType":"linear","setBy":"teacher","min":"-5","max":"5","step":"1","label":"x","pixelDim":"500"},"yaxis":{"scaleType":"linear","setBy":"teacher","min":"-5","max":"5","step":"1","label":"y","pixelDim":"300"},"tutor":false,"img":{"imgsrc":"","xoffset":0,"xscale":1,"yoffset":0,"yscale":1},"critPoints":[],"otherFeatures":[]};
-var criteria3 = [{"type":"IsFunctionCriteria","args":{"failFast":true}},{"type":"DomainUsedCriteria","args":{"failFast":true}},{"type":"FunctionFollowedCriteria","args":{"f":"(x-4)/2","pixelCloseness":"18"}}];
+var criteria3 = [{"type":"IsFunctionCriteria","args":{"failFast":true}},{"type":"DomainUsedCriteria","args":{"failFast":true}},{"type":"FunctionFollowedCriteria","args":{"f":"(x-4)/2+1","pixelCloseness":"18"}}];
 var d3 = new DataHandler(display3, criteria3);
 var q3 = new TeacherTest(d3, document.getElementById("sketch3"), display3);
 
 var display4 = {"tutor":false,"xaxis":{"label":"xaxis","max":"2","min":"-2","step":"1","setBy":"teacher","scaleType":"linear","pixelDim":500},"yaxis":{"label":"yaxis","max":"2","min":"-2","step":"1","setBy":"teacher","scaleType":"linear","pixelDim":300},"img":{"imgsrc":"","xoffset":0,"xscale":1,"yoffset":0,"yscale":1},"critPoints":[],"otherFeatures":[]};
-var criteria4 = [{"type":"IsFunctionCriteria","args":{"failFast":true}},{"type":"DomainUsedCriteria","args":{"failFast":true}},{"type":"MonotonicCriteria","args":{"failFast":true,"trend":"1","failMessage":"Your drawing was not monotonic increasing"}}];
+var criteria4 = [{"type":"IsFunctionCriteria","args":{"failFast":true}},{"type":"DomainUsedCriteria","args":{"failFast":true}},{"type":"MonotonicCriteria","args":{"failFast":true,"trend":"-1","failMessage":"Your drawing was not monotonic increasing"}}];
 var d4 = new DataHandler(display4, criteria4);
 var q4 = new TeacherTest(d4, document.getElementById("sketch4"), display4);
 

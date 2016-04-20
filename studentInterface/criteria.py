@@ -173,7 +173,7 @@ class MonotonicCriteria(Criteria):
     title = "Monotonicity Test Criteria"
     failMessage = 'Not monotonic'
     args = Criteria.args + [InputArg('domain', "Domain", "What range of x values this criteria will be checked on", InputArg.DOMAIN,[-float('inf'), float('inf')]),
-                            InputArg('trend', "Trend", "1 means monotonically increasing, -1 means decreasing, 0 means either way", InputArg.INTEGER, 0, True),
+                            InputArg('trend', "Trend", "1 means monotonically increasing, -1 means decreasing, 0 means either way", InputArg.INTEGER, 0, False),
                             InputArg('pixelCloseness', "Error margin (pixels)", "How far away in the wrong direction the student can go", InputArg.INTEGER, 10),
             InputArg('failMessage', "Message on failure: ", "The message returned to the student when they have not passed a criteria", InputArg.STRING, "Your drawing was not monotonic in the appropriate region")]
 
