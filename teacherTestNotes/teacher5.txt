@@ -1,0 +1,25 @@
+Bugs:
+- drawing is offset from mouse click when the browser is zoomed in
+- When adding multiple points in teacher interface, the new point input appears in a weird place
+- Derivative criterion seemed to display 
+
+Student Interface Feedback:
+- Likes that it's freeform
+
+Teacher Interface Feedback:
+- Since his own drawing passed, he assumed that his criteria was good enough, but in fact the criteria was too permissive
+- Liked red/green visualization
+- Seemed to understand what brackets were after a while
+- Visualization of derivative made sense
+- Felt comfortable after 
+- Realized that scribbling in the axes might get 100% even if it's technically the wrong answer
+
+Lessons learned:
+- Draw Testing and Student View should just be one and the same
+- It would still be nice to auto generate some answers
+- Montonic "Trend" parameter is pretty confusing
+- The meaning of "monotonic" is not familiar
+
+Reference:
+- Geogebra
+- Kahoot - competitive math quiz

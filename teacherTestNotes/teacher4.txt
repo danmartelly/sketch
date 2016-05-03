@@ -1,0 +1,32 @@
+Bugs:
+- Derivative criteria shows the wrong angle
+
+Student Interface:
+- Grade received could be a little cryptic
+- Eraser: should know how big of an area its going to erase
+
+Teacher Interface Feedback:
+- When the axis will be set by students, it would be nice to be able to get them started on a certain min/max
+- Seemed to figure out how meaning of visualization very quickly
+- When selecting axes, would like to actually see selected min/max appear on axes (instead of being just off screen). Tutorial could say to add buffer, or it could be automatic
+- When 0 is included on the axes, should be more obvious.
+- Instead of help text on hovering, have a little question mark circle off to the right to be clicked with same text
+- Decimals are not nice
+- Grade weight should always be greater than 0 otherwise it gives you negative grade
+- Would like to use it in class
+- Would like to see it able to be used for geometry as well
+- Understanding bracket visualization is a little confusing at first but can be explained
+- Visually overwhelming at first but then it was fine
+- Pixels may be a confusing word for teachers. Maybe use percentage instead
+- Fraction filled is weird. Maybe just make it accuracy
+- 
+
+Lessons learned:
+- Will need an undo button eventually
+- "Rubric" better than "Criteria Options"
+- Maybe change Domain word to be something
+- Have a little question circle to click on it
+
+References:
+- Desmos.com
+- 

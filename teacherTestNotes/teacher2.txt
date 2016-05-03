@@ -1,0 +1,41 @@
+Procedure Feedback:
+- Confused about where they might have to place question text
+- General confusion about task
+
+Student Interface Feedback:
+- Make 0 axis a different color or just stand out more
+- Maybe have ability to show work
+- Compared this freeform input to IXL which is more like a graphing calculator or something
+
+Teacher Interface Feedback:
+- Confusion about how system works. What effect would her choices have on anything?
+- Needed to explain how criteria work (i.e. submission is passed through each criteria and grade is the average)
+- Function Followed function needs to be in terms of x
+- Green and red visualization seems like an inequality
+- Tried to graph on student view and submit when Draw Testing is the only one that works.
+- It would be nice if kids could graph an inequality
+- While changing criteria, it would be nice if your drawn submission gets automatically regraded. Or at least it should be obvious that the grade is now old information
+- Wording is intimidating, descriptions/explanations need to be better
+  - FunctionFollowedCriteria was not obvious
+  - Monotonic was particularly difficult
+  - "Criteria Options" word was not clear. "Rubric" would be better
+- Hovering over text box for help is difficult to use
+- Felt like she could have clicked around on her own and started to make sense (Hawthorne Effect)
+- Was excited about the prospect of auto grading and the freeform drawing
+- Wanted to look more like graph paper
+- Decimal points on axes are probably unnecessary. It's better to not have it unless you need it.
+- Visualization toggle was useful
+
+
+Bugs:
+- Point criteria: added points appear below the "message on failure"
+- Eraser is laggy
+
+
+References:
+- IXL
+- Geometers Sketchpad
+
+Lessons learned:
+- Need error feedback about wrong variable name (use b in terms of x) in input function
+- Need only one of Draw Testing or Student View (not both)

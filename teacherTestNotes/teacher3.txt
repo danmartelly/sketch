@@ -1,0 +1,18 @@
+Student Interface:
+- There was some errors in grading (due to incorrect choice of criteria). Oops!
+
+Teacher Interface:
+- Started clicking around pretty quickly and had a good idea of what they wanted
+- When choice given for students to set axis, visualization is weird
+- For Rectangular Pen, decided just to check for critical points
+- Hovering for help text is hard to discover
+- Did not think to try testing their own criteria
+- Quickly felt comfortable with interface
+
+Lessons Learned:
+- Criteria Options should probably always show Teacher View
+- Need examples
+
+References:
+- Desmos.com
+- dy/dan

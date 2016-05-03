@@ -1,0 +1,27 @@
+Testing Procedure Feedback
+- Student warm up started out too difficult for her (changed for other people)
+- Confusion about the fact that the question text was not to be entered in teacher interface
+- Hawthorne effect was probably strong 
+
+Teacher Interface Feedback
+- Display Options made sense to her (i.e. changing axis options)
+- Help text (based on hovering) hard to find
+- Add Criteria button seemed hard to find
+- Did not understand what grade weight was
+- Had a lot of trouble understand how Criteria Options would work until explained by researcher
+- Appreciated and understood the green and red visualization of the Function Followed Criteria
+- Python syntax was confusing. It was not obvious (box did not turn red) when they had the wrong syntax
+- Derivative criteria not completely obvious.
+- Scroll bar of criteria options is hidden on Mac so it's not obvious that scrolling is possible
+- The words choice was difficult
+- 
+
+Bugs:
+- On Mac Chrome, the drawing in Draw Testing was offset
+
+Lessons learned:
+- Make a tutorial
+- Change criteria options word to rubric
+
+References:
+- IXL
