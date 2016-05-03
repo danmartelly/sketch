@@ -1,0 +1,3 @@
+criteriaOptions = [{"type":"IsFunctionCriteria","args":{"failFast":true,"domain":[0,25]}},{"type":"DomainUsedCriteria","args":{"failFast":true,"domain":[null,25]}},{"type":"FunctionFollowedCriteria","args":{"domain":[0,25],"f":"-.5*x**2+12.5*x"}}]
+
+displayOptions = {"xaxis":{"scaleType":"linear","setBy":"teacher","min":"0","max":"30","step":"5","label":"b","pixelDim":"500"},"yaxis":{"scaleType":"linear","setBy":"teacher","min":"0","max":"80","step":"5","label":"Area","pixelDim":"300"},"tutor":false,"img":{"imgsrc":"","xoffset":0,"xscale":1,"yoffset":0,"yscale":1},"critPoints":[],"otherFeatures":[]}

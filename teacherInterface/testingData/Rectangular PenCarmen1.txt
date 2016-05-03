@@ -1,0 +1,3 @@
+criteriaOptions = [{"type":"IsFunctionCriteria","args":{"failFast":true}},{"type":"DomainUsedCriteria","args":{"failFast":true}},{"type":"PointsCriteria","args":{"weight":"5","pixelCloseness":"11","list":[["0","1"]]}},{"type":"FunctionFollowedCriteria","args":{"domain":[0,25],"f":"((25*x-x**2))/2","pixelCloseness":"20"}}]
+
+displayOptions = {"xaxis":{"scaleType":"linear","setBy":"teacher","min":"-2","max":"25","step":"10","label":"xaxis","pixelDim":"500"},"yaxis":{"scaleType":"linear","setBy":"teacher","min":"-2","max":"100","step":"10","label":"yaxis","pixelDim":"300"},"tutor":false,"img":{"imgsrc":"","xoffset":0,"xscale":1,"yoffset":0,"yscale":1},"critPoints":[],"otherFeatures":[]}
