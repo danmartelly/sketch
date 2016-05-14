@@ -1,0 +1,5 @@
+q000000 = {'xaxis': {'max':111, 'min':-20, 'step':150, 'pixelDim':600}, 'yaxis':{'max':10.8, 'min':-3.9, 'step':20, 'pixelDim':336}} 
+
+q000001 = {'xaxis': {'max':111, 'min':-20, 'step':150, 'pixelDim':600}, 'yaxis': {'max':10.8, 'min':-3.9, 'step':20, 'pixelDim':336}} 
+
+q000002 = {'xaxis': {'max':111, 'min':-20, 'step':150, 'pixelDim':600}, 'yaxis': {'max':10.8, 'min':-3.9, 'step':20, 'pixelDim':336}}

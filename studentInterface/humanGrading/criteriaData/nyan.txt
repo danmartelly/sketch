@@ -1,0 +1,8 @@
+q000005 = [
+{'type':'DomainUsed', 'args':{'weight':.1, 'failFast':True}},
+{'type':'IsFunction', 'args':{'weight':.1, 'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':lambda x: max(0, min(10, 5.2 + (5.2-x)*1.86))}},
+{'type':'Monotonic', 'args':{'trend':-1}},
+{'type':'Points', 'args':{'list':[(2.5,10), (8,0)]}}
+]
+

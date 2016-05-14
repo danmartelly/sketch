@@ -1,0 +1,11 @@
+q000001 = {'xaxis':{'label':'Resistance of R (Ohms)', 'max':1000, 'min':-10, 'step':100, 'pixelDim':600}, 'yaxis': {'label':'Power consumed (Watts)', 'max':.22, 'min':-.02, 'step':.05}}
+
+q000002 = {'xaxis':{'label':'Resistance of R (Ohms)', 'max':1000, 'min':-10, 'step':100, 'pixelDim':600}, 'yaxis':{'label':'Power consumed (Watts)', 'max':.22, 'min':-.02, 'step':.05}}
+
+q000003 = {'xaxis':{'label':'Resistance of R (Ohms)', 'max':1000, 'min':-10, 'step':100, 'pixelDim':600}, 'yaxis': {'label':'Power consumed (Watts)', 'max':.22, 'min':-.02, 'step':.05, 'pixelDim':300}}
+
+q000004 = {'xaxis':{'label': "Resistance of R (Ohms)", 'max':1000, 'min':-10, 'step':100, 'pixelDim':600}, 'yaxis': {'label': 'Power consumed (Watts)', 'max':1.05, 'min':-.05, 'step':.1, 'pixelDim':300}} 
+
+q000005 = {'xaxis':{'label': "Resistance of R (Ohms)", 'max':1000, 'min':-10, 'step':100, 'pixelDim':600}, 'yaxis': {'label': 'Power consumed (Watts)', 'max':1.05, 'min':-.05, 'step':.1, 'pixelDim':300}} 
+
+q000006 = {'xaxis':{'label': "Resistance of R (Ohms)", 'max':1000, 'min':-10, 'step':100, 'pixelDim':600}, 'yaxis': {'label': 'Power consumed (Watts)', 'max':1.05, 'min':-.05, 'step':.1, 'pixelDim':300}} 

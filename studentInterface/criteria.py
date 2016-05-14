@@ -424,7 +424,7 @@ class IsFunctionCriteria(Criteria):
                 if abs(c[i+1] - c[i]) > 2: # if not vertically adjacent, it's illegal
                     illegal += 1 
         illegalFraction = -1 if total == 0 else float(illegal)/total
-        if illegalFraction > .05:
+        if illegalFraction > (1 - self.fraction):
             return (0., self.failMessage)
         else:
             return (1., None)
@@ -611,21 +611,3 @@ class FunctionFollowedCriteria(Criteria):
             return abs(self.f(x)-y) > yCloseness
         return self.filteredList(otherVars, acceptForbidden)
 
-'''import hashlib
-user = ''
-user = hashlib.sha224(user).hexdigest()
-grader = createGraderFromProbID('parallelPower2')
-gd = util.GraphData(dataFuncs.getStudentData(user, 'parallelPower1'))
-print grader.grade(gd)'''
-
-'''import hashlib
-user = ''
-user = hashlib.sha224(user).hexdigest()
-grader = Grader()
-grader.addCriteria(DomainUsedCriteria())
-gd = util.GraphData(dataFuncs.getStudentData(user, 'parallelPower1'))
-print grader.grade(gd)'''
-
-'''cr = FunctionFollowedCriteria({"f":lambda x:x**2, "domain":[-1,1]})
-otherVars = {"xmin":-2, "xmax":2, "ymin":-1, "ymax":1, "pixelWidth":60, "pixelHeight":40}
-print cr.forbiddenPolygons(otherVars)'''

@@ -1,0 +1,6 @@
+q000000 = {'xaxis':{'label':'Voltage(V)', 'max':10, 'min':-10, 'step':1, 'pixelDim':600}, 'yaxis':{'label':'Current(A)', 'max':10, 'min':-10, 'step':1, 'pixelDim':300}}
+
+q000001 = {'xaxis':{'label':'Voltage(V)', 'max':10, 'min':-10, 'step':1, 'pixelDim':600}, 'yaxis': {'label':'Current(A)', 'max':10, 'min':-10, 'step':1, 'pixelDim':300}}
+
+q000002 = {'xaxis':{'label':'Voltage(V)', 'max':10, 'min':-10, 'step':1, 'pixelDim':600}, 'yaxis':{'label':'Current(A)', 'max':10, 'min':-10, 'step':1, 'pixelDim':300}}
+

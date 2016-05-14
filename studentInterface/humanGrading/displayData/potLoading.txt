@@ -1,0 +1,9 @@
+q000000 = {'xaxis':{'label':'alpha', 'max':1.05, 'min':-0.05, 'step':.25, 'pixelDim':500}, 'yaxis': {'label':'Vo', 'max':12.5, 'min':-0.5, 'step':2, 'pixelDim':400}}
+
+q000001 = {'xaxis':{'label':'alpha', 'max':1.05, 'min':-0.05, 'step':.25, 'pixelDim':500}, 'yaxis': {'label':'Vo', 'max':12.5, 'min':-0.5, 'step':2, 'pixelDim':400}}
+
+q000002 = {'xaxis': {'label':'alpha', 'max':1.05, 'min':-0.05, 'step':.25, 'pixelDim':500}, 'yaxis': {'label':'Vo', 'max':12.5, 'min':-0.5, 'step':2, 'pixelDim':400}}
+
+q000003 = {'xaxis':{'label':'alpha', 'max':1.05, 'min':-0.05, 'step':.25, 'pixelDim':500}, 'yaxis': {'label':'Vo', 'max':12.5, 'min':-0.5, 'step':2, 'pixelDim':400}}
+
+q000004 = {'xaxis': {'label':'alpha', 'max':1.05, 'min':-0.05, 'step':.25, 'pixelDim':500}, 'yaxis': {'label':'Vo', 'max':12.5, 'min':-0.5, 'step':2, 'pixelDim':400}}

@@ -1,0 +1,1 @@
+q000005 = {'xaxis': {'label':'Vbb (V)', 'max':10.5, 'min':-.5, 'step':1, 'pixelDim':600}, 'yaxis': {'label':'Vspray (v)', 'max':10.5, 'min':-.5, 'step':1, 'pixelDim':300}}

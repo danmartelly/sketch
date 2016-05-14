@@ -450,8 +450,13 @@ function SubmitToolbar(sketchInterface, refDiv) {
 		this.mainForm.appendChild(this.submitButton);
 
 		this.loadingImage = new Image();
+                var doubleDots = 0;
 		this.loadingImage.onerror = function(e) {
-			this.src = '../loading.gif';
+			doubleDots += 1;
+			if (doubleDots >= 3) return;
+			var dots = '';
+			for (var i = 0; i < doubleDots; i++) dots += '../';
+			this.src = dots + 'loading.gif';
 		}
 		this.loadingImage.src = 'loading.gif';
 		this.loadingImage.style.display = 'none';

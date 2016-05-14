@@ -1,0 +1,55 @@
+
+def g(a):
+    Rp = 10000.
+    Rt = a*Rp*50./(a*Rp+50.)
+    return 10.*Rt/((1.-a)*Rp + Rt)
+q000000 =  [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':g, 'domain':(0.1,.8)}},
+{'type':'Monotonic', 'args':{'trend':1}},
+{'type':'Points', 'args':{'list':[(0,0), (1,10)]}}
+]
+
+def g(a):
+    return 2. + a*8.
+q000001 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':g}},
+{'type':'Monotonic', 'args':{'trend':1}},
+{'type':'Points', 'args':{'list':[(0,2), (1,10)]}}
+]
+
+def g(a):
+    return (1.+a)*10./3
+q000002 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':g}},
+{'type':'Monotonic', 'args':{'trend':1}},
+{'type':'Points', 'args':{'list':[(0,10./3), (1,20./3)], 'pixelCloseness':20}}
+]
+
+def g(a):
+    return 10.*a
+q000003 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':g}},
+{'type':'Monotonic', 'args':{'trend':1}},
+{'type':'Points', 'args':{'list':[(0,0), (1,10)]}}
+]
+
+def g(a):
+    Rp = 10000.
+    return 10.-(1.-a)*Rp*0.5e-3
+q000004 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':g}},
+{'type':'Monotonic', 'args':{'trend':1}},
+{'type':'Points', 'args':{'list':[(0,5), (1,10)]}}
+]
+
+

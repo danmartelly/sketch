@@ -1,0 +1,37 @@
+q000000 = [
+{'type':'DomainUsed', 'args':{'fraction':.8, 'failFast':True, 'domain':(0,100)}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'Monotonic', 'args':{'trend':-1}},
+{'type':'Points', 'args':{'list':[(0,9.44), (3.7, 9.44)], 'pixelCloseness':30}},
+{'type':'Points', 'args':{'list':[(8.2,4.4), (14.5,1.85), (23.9, .8), (42.9, 0.325), (58.6,0.195),\
+                           (18.9, 1.2), (10.13, 3.06)],
+                   'pixelCloseness':60}},
+{'type':'CloseToConstant', 'args':{'yRange':.5 , 'constant':9.44, 'domain':(0,4)}},
+{'type':'AvoidConstant', 'args':{'yRange':.5, 'constant':9.44, 'domain':(5,float('inf'))}}
+]
+
+q000001 = [
+{'type':'DomainUsed', 'args':{'fraction':.8, 'domain':(0,100), 'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'Monotonic', 'args':{'trend':-1}},
+{'type':'Points', 'args':{'list':[(0,4.5), (12.3,4.5)], 'pixelCloseness':30}},
+{'type':'Points', 'args':{'list':[(8.2, 4.22), (14.5, 3.7), (23.9, 1.6), (42.9, .65), (58.6, 0.39),\
+                           (18.9, 2.4), (10.13, 5)],
+                   'pixelCloseness':60}},
+{'type':'CloseToConstant', 'args':{'yRange':.5, 'constant':5, 'domain':(0,15)}},
+{'type':'AvoidConstant', 'args':{'yRange':.5, 'constant':10, 'domain':(20,float('inf'))}}
+]
+
+q000002 = [
+{'type':'DomainUsed', 'args':{'fraction':.8, 'domain':(0,100), 'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'Monotonic', 'args':{'trend':-1}},
+{'type':'Points', 'args':{'list':[(0,9,44), (11, 9.44)], 'pixelCloseness':30}},
+{'type':'Points', 'args':{'list':[(16.4, 8.8), (29, 3.7), (47.8, 1.6), (85.8, .65),\
+                           (37.8, 2.4), (20.26, 6.12)],
+                   'pixelCloseness':60}},
+
+{'type':'CloseToConstant', 'args':{'yRange':.5, 'constant':9.44, 'domain':(0,15)}},
+{'type':'AvoidConstant', 'args':{'yRange':.5, 'constant':9.44, 'domain':(20,float('inf'))}}
+]
+

@@ -1,0 +1,45 @@
+q000001 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':lambda x: 100*500./(500.+x)**2}},
+{'type':'Monotonic', 'args':{'trend':-1}},
+{'type':'Points', 'args':{'list':[(0,.2)]}}
+]
+ 
+q000002 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':lambda x: 100.*x/(500.+x)**2.}},
+{'type':'Monotonic', 'args':{'trend':1, 'domain':[0,200]}},
+{'type':'Monotonic', 'args':{'trend':-1, 'domain':[500,1000]}},
+{'type':'Points', 'args':{'list':[(0,0)]}}
+]
+
+q000003 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':lambda x: 100./(500.+x)}},
+{'type':'Monotonic', 'args':{'trend':-1}},
+{'type':'Points', 'args':{'list':[(0,0.2)]}}
+]
+
+q000004 = [
+{'type':'DomainUsed', 'args':{'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':lambda x: 0.2, 'weight':0}}
+]
+
+q000005 = [
+{'type':'DomainUsed', 'args':{'fraction':.7, 'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':lambda x: 100./x}},
+{'type':'Monotonic', 'args':{'trend':-1}}
+]
+
+q000006 = [
+{'type':'DomainUsed', 'args':{'fraction':.7, 'failFast':True}},
+{'type':'IsFunction', 'args':{'failFast':True}},
+{'type':'FunctionFollowed', 'args':{'f':lambda x: 100./x + .2}},
+{'type':'Monotonic', 'args':{'trend':-1}}
+]
+ 
